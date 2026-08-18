@@ -7,7 +7,8 @@
 //   --json              machine-readable output on stdout, nothing else
 //   --only <families>   comma-separated: copy,legal,seo,a11y,design,perf,integrity,security,facts,responsive
 //   --skip <families>   same list, inverted
-//   --profile <name>    legal/content profile from profiles/ (default: uk)
+//   --profile <name>    jurisdiction profile from profiles/ (no default - config.md or --profile)
+//   --assets <path>     asset manifest (default: <site>/../assets/MANIFEST.md)
 //   --facts <file>      path to the build's facts.md, for provenance checks
 //   --no-color          plain output
 //   --list              print every gate this build of the checker knows about, and exit
@@ -26,6 +27,7 @@ import { isAbsolute, join, resolve } from 'node:path';
 import { statSync } from 'node:fs';
 import { Report } from './lib/report.mjs';
 import { walk, allFiles, walkStats } from './lib/fs.mjs';
+import { loadProfile, profileFromConfig } from './lib/profile.mjs';
 
 import copy from './rules/copy.mjs';
 import legal from './rules/legal.mjs';
@@ -37,8 +39,9 @@ import integrity from './rules/integrity.mjs';
 import security from './rules/security.mjs';
 import facts from './rules/facts.mjs';
 import responsive from './rules/responsive.mjs';
+import assets from './rules/assets.mjs';
 
-const FAMILIES = { copy, legal, seo, a11y, design, perf, integrity, security, facts, responsive };
+const FAMILIES = { copy, legal, seo, a11y, design, perf, integrity, security, facts, responsive, assets };
 
 // ------------------------------------------------------------------ argv
 
@@ -60,10 +63,11 @@ if (has('--list')) {
 
 const target = argv.find((a) => !a.startsWith('--') && argv[argv.indexOf(a) - 1] !== '--only'
   && argv[argv.indexOf(a) - 1] !== '--skip' && argv[argv.indexOf(a) - 1] !== '--profile'
+  && argv[argv.indexOf(a) - 1] !== '--assets'
   && argv[argv.indexOf(a) - 1] !== '--facts');
 
 if (!target) {
-  console.error('Usage: node checks/run.mjs <site-dir> [--json] [--only fam,fam] [--skip fam] [--profile uk] [--facts path]');
+  console.error('Usage: node checks/run.mjs <site-dir> [--json] [--only fam,fam] [--skip fam] [--profile uk] [--facts path] [--assets path]');
   console.error('');
   console.error('  <site-dir> is REQUIRED. There is deliberately no default: a checker that');
   console.error('  scans the wrong directory and prints PASS is the failure this tool exists to stop.');
@@ -94,8 +98,14 @@ if (unknown.length) {
   console.error(`Valid families: ${known.join(', ')}`);
   process.exit(2);
 }
-const profileName = flag('--profile') || 'uk';
+// Jurisdiction resolution order: the flag, then what stage 00 recorded in
+// config.md, then nothing. There is deliberately no fallback country. Defaulting
+// to `uk` was convenient and wrong: it meant a US build got Companies Act
+// disclosure rules and a PECR consent model, reported with the same confidence
+// as a correct run.
+const profileName = flag('--profile') || profileFromConfig() || null;
 const factsPath = flag('--facts');
+const assetsPath = flag('--assets');
 const asJson = has('--json');
 const color = !has('--no-color') && process.stdout.isTTY !== false;
 
@@ -167,18 +177,23 @@ report.stats = {
 report.scoped = only.length > 0 || skip.length > 0;
 report.suppressed = only.length ? known.filter((k) => !only.includes(k)) : skip;
 
-let profile = {};
-try {
-  profile = (await import(`../profiles/${profileName}.mjs`)).default;
-} catch {
-  report.skip('profile', `no profile "${profileName}" — legal gates fall back to their built-in defaults`);
-}
+const loaded = await loadProfile(profileName);
+const profile = loaded.profile || {};
+// A missing or broken jurisdiction is a BLOCKER, not a skip. The old code
+// skipped, legal.mjs early-returned on the empty profile, and the run printed
+// PASS on a site with no privacy policy at all.
+//
+// The findings are RAISED BY legal.mjs, not here: a gate belongs to the family
+// that declares it, and a gate declared in one file and emitted from another is
+// invisible to the phantom-gate check that exists to catch exactly that.
+for (const note of loaded.notices) report.skip('profile', note);
 
 if (walkStats.symlinks > 0) {
   report.skip('scan', `${walkStats.symlinks} symlink(s) not followed - anything behind them was NOT checked`);
 }
 
-const ctx = { siteDir, htmlFiles, cssFiles, jsFiles, everyFile, profile, factsPath, styleSources };
+const ctx = { siteDir, htmlFiles, cssFiles, jsFiles, everyFile, profile, factsPath, assetsPath, styleSources,
+  profileProblems: loaded.problems, profileName };
 
 for (const [name, family] of Object.entries(FAMILIES)) {
   if (only.length && !only.includes(name)) continue;

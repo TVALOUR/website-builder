@@ -29,6 +29,51 @@
 export default {
   id: 'uk',
   name: 'United Kingdom (UK GDPR · PECR · Companies Act · Equality Act)',
+  country: 'United Kingdom',
+  iso2: 'GB',
+
+  // Everything not stated here is inherited from profiles/_base.mjs — the
+  // tracker fingerprints, the third-party leak list, the universal claim
+  // patterns. This file carries only what is genuinely British.
+  provenance: {
+    // RESEARCHED, not verified. It was assembled from primary sources and then
+    // adversarially critiqued — which is how the three revoked citations in the
+    // header were caught — and no qualified lawyer has read it. Nobody's name
+    // goes in verifiedBy until somebody's does.
+    status: 'researched',
+    verifiedBy: null,
+    lawLastVerified: '2026-08-18',
+    nextReview: '2027-02-18',
+    sources: [
+      { claim: 'PECR reg.6 as rewritten by DUAA 2025 Sch A1, in force 5 Feb 2026', url: 'https://www.legislation.gov.uk/ukpga/2025/18/schedule/A1', accessed: '2026-08-18' },
+      { claim: 'DMCC Act 2024 Part 4 Ch.1, in force 6 Apr 2025, replacing CPUT 2008', url: 'https://www.legislation.gov.uk/ukpga/2024/13/part/4', accessed: '2026-08-18' },
+      { claim: 'Trading disclosures on a website — SI 2015/17, which revoked the 2008 Regs', url: 'https://www.legislation.gov.uk/uksi/2015/17/made', accessed: '2026-08-18' },
+      { claim: 'Companies Act 2006 s.82 (trading disclosures power)', url: 'https://www.legislation.gov.uk/ukpga/2006/46/section/82', accessed: '2026-08-18' },
+      { claim: 'E-Commerce (EC Directive) Regulations 2002 reg.6 (trader information)', url: 'https://www.legislation.gov.uk/uksi/2002/2013/regulation/6/made', accessed: '2026-08-18' },
+      { claim: 'Equality Act 2010 reasonable-adjustments duty', url: 'https://www.legislation.gov.uk/ukpga/2010/15/section/20', accessed: '2026-08-18' },
+    ],
+    caveats: [
+      'Regulated trades (healthcare, finance, law, gas, electrical) carry obligations no static checker can know about.',
+      'Scotland and Northern Ireland diverge on some consumer and accessibility points; this profile is written to the UK-wide floor.',
+      'A green run means the site is not obviously exposed on what a static file can prove. It does not mean compliant, and nothing here is legal advice.',
+    ],
+  },
+
+  locale: {
+    language: 'en-GB',
+    spelling: 'gb',
+    dateFormat: 'D MMMM YYYY',
+    currency: 'GBP',
+    currencySymbol: '£',
+    phoneExample: '01234 567890',
+    // Ofcom reserves these for drama so a broadcast number cannot ring a real
+    // person. A fictional build uses them; a real one never does.
+    fictionalPhoneRange: 'Ofcom drama ranges — 01632 960000-960999, 07700 900000-900999, 020 7946 0000-0999',
+    postcodePattern: '/\\b[A-Z]{1,2}\\d{1,2}[A-Z]?\\s?\\d[A-Z]{2}\\b/i',
+    addressOrder: 'street, town, county, postcode',
+    measurement: 'metric',
+    direction: 'ltr',
+  },
 
   copy: {
     // Em-dash DENSITY, per 1,000 words of visible copy. Not a ban: measured
@@ -49,6 +94,32 @@ export default {
   },
 
   legal: {
+    privacyLaw: 'UK GDPR + Data Protection Act 2018, as amended by the Data (Use and Access) Act 2025',
+
+    // PRIOR OPT-IN, with a real and widening exception. PECR reg.6 still
+    // requires consent before non-essential storage, but DUAA 2025 Sch A1 (live
+    // 5 Feb 2026) moved first-party statistical cookies and appearance/
+    // functionality cookies to information-plus-free-opt-out. Genuinely
+    // cookieless first-party analytics does not engage reg.6 at all.
+    //
+    // Which means the correct default for a brochure site is usually NO BANNER,
+    // and the most common error in this whole family is shipping one anyway.
+    consentModel: 'prior-opt-in',
+    consentModelWhy:
+      'PECR reg.6 requires consent before any non-essential cookie or similar storage. Since DUAA 2025 Sch A1 '
+      + '(5 Feb 2026) first-party statistical cookies used by the site operator, and cookies used solely for '
+      + 'appearance or functionality, need information and a free opt-out rather than prior consent. A site that '
+      + 'loads no analytics, no pixel, no embedded video, no embedded map and no third-party font sets nothing '
+      + 'that needs consent, and the correct output is a cookie page saying exactly that and NO banner at all. '
+      + 'A banner with nothing to consent to is a dark pattern with a cost and no benefit.',
+
+    // Registers whose names should be caught on sight, ORed into the universal
+    // accreditation pattern by the loader.
+    localRegisters: [
+      'gas safe', 'niceic', 'napit', 'hcpc', 'gdc', 'gmc', 'nmc', 'sra', 'cqc', 'riba', 'rics',
+      'checkatrade', 'trustmark', 'fmb', 'city & guilds', 'iosh', 'nebosh',
+    ],
+
     // Filename patterns accepted for each baseline page. Matching is
     // case-insensitive and pattern-based on purpose: `privacy.html`,
     // `privacy-policy.html` and `/privacy/index.html` are all the same page.

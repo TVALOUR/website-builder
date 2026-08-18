@@ -18,7 +18,8 @@ said yes.
   reference URLs, an old site. Put it all in `builds/<slug>/_intake/` first.
 - The human in this conversation.
 - `../../config.md` — your defaults, written by stage 00 from `../../config.example.md`.
-- `questions.md` — the question bank (Layer 3). **Read it. Do not improvise the interview.**
+- `questions.md` — the question bank, 63 questions across ten parts (Layer 3). **Read it. Do
+  not improvise the interview.**
 - `../../shared/references.md` — how a dropped reference becomes a dissected card.
 - `../../shared/writing.md` — so the brief is written against the bar from the start.
 
@@ -34,7 +35,26 @@ It creates `builds/<slug>/` with `STATE.md` and `_intake/`, and prints these ord
 folder already exists, you are resuming: read `STATE.md` and continue from its `Next
 action`.
 
-### 2. Collect and read the intake before you ask anything
+### 2. Open the asset desk and give them a path
+
+```
+node assets.mjs <slug> scan
+```
+
+It creates `builds/<slug>/assets/{logo,photos,brand,fonts,docs,reference}/`, indexes anything
+already in `_intake/`, and writes `assets/MANIFEST.md` — one row per file, with columns for where
+it came from, whether it is the client's to publish, whether it was generated, where it is used and
+what its alt text is.
+
+**That manifest is a gate, not a note.** The site gate refuses to publish an image with no row, no
+Source or no answer in Rights. Re-run `scan` whenever new material lands; it never overwrites a
+filled cell.
+
+Then give the client the **absolute path** to `_intake/` — the one `start.mjs` printed. A named
+folder is an answerable ask; "send me your stuff" is not, and the difference shows up in what
+arrives.
+
+### 3. Collect and read the intake before you ask anything
 
 **Ask for artifacts first** (question V1): sketches — a photo of paper is fine —
 screenshots, reference sites, the logo, brand fonts and colours, the old site, any leaflet
@@ -53,11 +73,22 @@ Then read every file in `_intake/`:
 2026-01-09]`, `[sketch photo]`). That tag becomes the Source column in `facts.md`, and
 unsourced is the same as invented.
 
-### 3. Interview
+### 4. Interview
 
 Work through `questions.md`, in its order: **question 0** (real business, or
 personal/demo/fiction — it decides which parts bind), then **part V** (the vision), then
-parts A–G as the regime requires. You do not have to ask everything, and you do have to ask
+parts A–J as the regime requires. The parts, so you know what you are committing to:
+
+| | | |
+|---|---|---|
+| **A** the business | **B** customers | **C** facts that reach the page |
+| **D** brand and materials | **E** the assets themselves, and the rights to them | **F** features - what a visitor must be able to DO |
+| **G** market, language and money | **H** motion and imagery | **I** domain and hosting |
+| **J** process | | |
+
+Three of those (E, F, G) exist because a real build reached the point of asking a client to pick a
+legal jurisdiction from a two-item menu having never asked for a brief, an image, an asset or a
+feature. The bank was not the problem; the parts that were missing were missing. You do not have to ask everything, and you do have to ask
 everything marked **BLOCKING** — those are the ones where guessing means inventing
 something about a real business, defaulting a design nobody chose, or shipping a legal
 exposure.
@@ -75,12 +106,16 @@ How to run it so it is not an interrogation:
 - **Take the answer you get.** "It depends" is a real answer about pricing and it goes in
   `facts.md` as "priced per job, no published figure" — which then stops stage 03 inventing
   a number to fill the gap.
+- **Question 57 is not optional and has no default.** Which country the business trades under
+  picks the legal profile. If `profiles/` has no file for it, research one before stage 03 writes a
+  legal page (`profiles/README.md` — one pass), or use `intl-baseline` and say so to the client.
+  Never substitute the nearest country.
 - **Push once on the ones that matter.** If the answer to "do you have a logo" is
   "somewhere", ask them to find it. A real logo changes the whole design and a recreated
   one is a lie about their identity. Same for the site they are half-remaking (V2): if it
   exists, get the URL.
 
-### 4. Dissect the references
+### 5. Dissect the references
 
 Every reference that surfaced — the remake target, the three-they-like, the one-they-hate,
 any screenshot in `_intake/` — becomes a card in `builds/<slug>/references.md` per
@@ -91,7 +126,7 @@ consumes the cards, and a card written at drop time beats one reconstructed late
 No web access? Ask for screenshots instead; a bare URL nobody can see parks as
 `[NEEDS: screenshot]`, never a guessed verdict.
 
-### 5. Write `facts.md`
+### 6. Write `facts.md`
 
 Every factual claim that will appear on the site, in a table, with a source. Copy the shape
 from `../../examples/clean-control/facts.md`.
@@ -113,7 +148,7 @@ Rules for this file, and they are the point of the stage:
   and phone numbers come from a drama range. Honesty about being fiction is the fiction
   regime's whole obligation.
 
-### 6. Write `brief.md`
+### 7. Write `brief.md`
 
 Short. Decision-dense. Everything downstream cites it.
 
@@ -138,12 +173,26 @@ Short. Decision-dense. Everything downstream cites it.
   correct it in one pass.
 - **Open questions** — every `[NEEDS:]`, gathered.
 
-### 7. Stop
+### 8. Check it, then stop
 
 Present `brief.md` — the Vision section first, read back in their own words — and the
 `[NEEDS:]` list. Ask for corrections. Do not start stage 02 on "looks good" alone if the
 open-questions list is non-empty: name what is still missing and what you will do about
 each one.
+
+### 8b. Run the checker before you present anything
+
+```
+node checks/brief.mjs builds/<slug>
+```
+
+It answers one question: is there enough decided, client-supplied substance here that the next six
+stages will not have to invent anything? Every section it names is a **question to go and ask** —
+not a box for you to fill in yourself. On Claude Code the pre-write hook runs the same check, so a
+thin brief blocks site files rather than quietly producing a default site.
+
+It cannot tell you whether the answers are TRUE. That gap closes at stage 07, when a human reads
+`facts.md` back to the client.
 
 ## Outputs
 
@@ -151,6 +200,7 @@ each one.
 - `builds/<slug>/brief.md`
 - `builds/<slug>/references.md` — one dissected card per reference (omit only if the
   interview genuinely surfaced none, and then the brief says so)
+- `builds/<slug>/assets/MANIFEST.md` — one row per asset, with rights and source
 - `builds/<slug>/STATE.md` updated: stage 01 done, stage 02 next.
 
 ## Verify before you stop
@@ -169,3 +219,9 @@ each one.
 - [ ] You have not written a single service, price, credential or opening time the client did
       not give you.
 - [ ] The "deliberately absent" section exists, even if it is short.
+- [ ] `node checks/brief.mjs builds/<slug>` exits 0.
+- [ ] Every asset the build intends to publish has a manifest row with a Source and a Rights
+      answer, in the client's own words. `node assets.mjs <slug> check` lists what is outstanding.
+- [ ] The brief records `- **Profile:**`, `- **Motion:**` and `- **Imagery:**` explicitly, even
+      where they are the defaults. A recorded default is a decision; an absent one is an accident.
+- [ ] Question 57 was answered by the client, and a profile exists for that country.

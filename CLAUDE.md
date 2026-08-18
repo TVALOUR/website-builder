@@ -20,6 +20,11 @@ You will feel it in five places, and none of them is a malfunction:
   `content.md` or `design.md` is missing or still empty, and site-shaped files outside
   `builds/` are redirected there. The denial message names the exact next action. This is
   rule 1 made mechanical, because the polite version was measurably skipped.
+- **And "not empty" is no longer enough.** The same hook runs `checks/brief.mjs`, so the denial
+  also fires when `brief.md` has no features section, no market/jurisdiction section, no motion or
+  imagery decision, a section that is still a template placeholder, or a BLOCKING question with no
+  answer anywhere in the document. A confident-sounding brief that skipped the awkward half is the
+  failure mode the size check could not see.
 - **Shell writes are watched too.** Creating site files via Bash dodges the editor-tool
   denial, so a post-command check calls the bypass out on the next turn. Loud, not
   blocking — the command has already run.
@@ -41,6 +46,13 @@ the pipeline per [`shared/conductor.md`](shared/conductor.md) — one `general-p
 sub-agent per stage on the tier its table names, checkpoints held by you. Solo mode is the
 fallback, not the norm, except on simple one/two-page builds where six cold starts cost
 more than they save.
+
+**Jurisdictions: you can research one, so do.** The Agent tool and web access are normally
+available here, which means "there is no profile for that country" is a task, not a limitation.
+Follow [`profiles/README.md`](profiles/README.md) — one pass, primary sources, a mandatory
+contradiction angle, every citation carrying the URL you actually fetched. Set
+`provenance.status: 'researched'` and leave `verifiedBy` null. If web access is genuinely
+unavailable in the session, use `intl-baseline` and say so; never write law from memory.
 
 **Rendered review: use the browser tool.** Claude-in-Chrome (or any browser/screenshot
 tool in the session) is the stage-06 reviewer and the stage-04 way to show direction

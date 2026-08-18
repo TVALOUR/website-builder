@@ -8,6 +8,34 @@ part a client has the strongest and least articulable opinions about. Present re
 samples and the alternatives you rejected, and let them push back before the real CSS
 exists.
 
+## Two defaults that are not yours to change (unless the client changes them)
+
+- **Motion is `none`** unless `brief.md` says otherwise. Colour, shadow and opacity still respond
+  to hover and focus — that is feedback. Nothing slides, fades in on scroll, or loops. The gate
+  enforces it (`design/motion-policy`), so a direction built on movement fails at stage 06 rather
+  than at the client meeting.
+- **Imagery is `client-assets-only`** unless `brief.md` says otherwise. The direction is carried by
+  the client's own assets, type, space, CSS and hand-built SVG. A section with no photograph is a
+  design problem to solve, not a licence to generate one.
+
+Both are recorded per build because both are the client's call, and both were previously a habit.
+
+## A delegated axis that you decide comes BACK to the brief
+
+If `brief.md` says motion, imagery, colour or type was **delegated by choice**, and you then decide
+it here, **write the resolved value back into `brief.md` before this stage closes**:
+
+```
+- **Motion:** subtle          <- and one line saying who decided and why
+- **Imagery:** client-assets-only
+```
+
+This is not bookkeeping. The gate reads that field, so a delegated axis that gets decided in
+`design.md` and never written back is read as movement nobody agreed to — and it fails the build at
+stage 06 for work that was correct. It happened to this repo's own reference build: stage 04 chose a
+restrained once-only entrance, exactly the good outcome, and the gate reported it as a violation
+because stage 01's delegation was still the last word in the field.
+
 ## Inputs
 
 - `builds/<slug>/brief.md` — the Vision section: what they handed over, the five-second

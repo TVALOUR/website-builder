@@ -22,18 +22,20 @@ wanting to remake, the blue on their van — and nobody ever saw it.
 So the work here is front-loaded, and it is not optional. Most of this repo's value is spent
 before a line of HTML exists.
 
-## The two commands
+## The commands
 
 ```
 node start.mjs "<project name>"                              # opens a build
+node assets.mjs <slug> scan                                  # indexes what the client handed over
+node checks/brief.mjs builds/<slug>                          # decides if discovery actually happened
 node checks/run.mjs builds/<slug>/site --facts builds/<slug>/facts.md   # decides if it ships
 ```
 
-Everything between those two commands is the eight stages below.
+Everything between the first and the last is the eight stages below.
 
 ---
 
-## The six rules that are not negotiable
+## The eight rules that are not negotiable
 
 ### 1. Ask before you build — always, without being told to
 
@@ -53,6 +55,19 @@ comply nor to refuse: ask the **smallest set of questions that cannot be answere
 inventing something about them or defaulting the design**, say that is what you are doing,
 and build exactly what the answers support. The questions are not process. They are the
 difference between their website and a website.
+
+**And this rule is checked, because the polite version was measurably skipped.** A build once
+reached the point of offering the client a two-item legal-jurisdiction menu having never asked for
+a brief, an image, an asset or a feature. The spec was fine; nothing read it. So:
+
+```
+node checks/brief.mjs builds/<slug>
+```
+
+reads `brief.md` and reports which required sections are missing, which are headings with
+placeholders under them, and which BLOCKING questions have no answer anywhere. Every line it prints
+is a question to go and ask — never a box to fill in yourself. On Claude Code the pre-write hook
+runs it, so a thin brief denies site files.
 
 ### 2. Never invent a fact about a real business
 
@@ -100,6 +115,54 @@ could sit unchanged on a competitor's site. Read `shared/writing.md` before stag
 
 ---
 
+### 7. Every asset traces to a row, and nothing is generated unless they asked
+
+`facts.md` made every CLAIM traceable. `builds/<slug>/assets/MANIFEST.md` does the same for every
+FILE, because an image on a page is a claim too — *this is our shop, this is our work, this is the
+team* — and an image nobody can trace is exactly as dishonest as a price nobody can trace.
+
+`node assets.mjs <slug> scan` creates the folders (`logo` · `photos` · `brand` · `fonts` · `docs` ·
+`reference`), indexes whatever landed in `_intake/`, and writes the manifest with a row per file:
+where it came from, whether it is the client's to publish, whether it was generated, where it is
+used, and its alt text. The gate refuses to publish an image with no row, no Source or no Rights
+answer, and it flags material the client handed over that the site quietly ignored.
+
+**Two defaults are OFF, per build, enforced rather than remembered:**
+
+| | Default | Turn it on by | Enforced by |
+|---|---|---|---|
+| **Motion** | `none` | `- **Motion:** subtle` in `brief.md`, after the client asks | `design/motion-policy` |
+| **Imagery** | `client-assets-only` | `- **Imagery:** generated-allowed` in `brief.md`, after the client asks | `assets/generated-not-permitted` |
+
+Under `none`, colour, shadow and opacity still respond to hover and focus — that is feedback, and
+removing it makes a page worse. What stops is anything that moves. "Everything fades in as you
+scroll" is the most recognisable tell of a generated site and no client has ever asked for it by
+name.
+
+Under `client-assets-only`, a section with no photograph is carried by type, space and structure,
+or it leaves `[NEEDS: real photo of ...]` and the owner is told. Even under `generated-allowed`,
+generated imagery may never depict people, premises, products, logos or awards — `shared/imagery.md`
+§3, and the gate checks the manifest's own "what it shows" column against that list.
+
+### 8. The jurisdiction is a file, and a missing one is a blocker
+
+The legal family is the only genuinely country-shaped part of this repo. Running one country's
+rules on another does not produce slightly-wrong output; it produces a Kansas plumber citing the
+Companies Act 2006 and publishing a company number that cannot exist.
+
+So stage 00 and question 57 ask for the **country**, and:
+
+- a profile exists (`uk` · `us` · `eu` · `ca` · `au`) → use it;
+- none exists → **research one** — `profiles/README.md` has the protocol and the brief, it is a
+  single pass, and it writes both the profile and its working notes with every source URL and
+  access date;
+- the session cannot search the live web → use `intl-baseline` (an honesty floor that names no
+  statute), say so to the client, and recommend a local adviser reads the four legal pages. Never
+  write a legal profile from memory, and never substitute the nearest country.
+
+There is no default country. Every shipped profile is `provenance: 'researched'` — real sources,
+no qualified reviewer — and the gate repeats that label on every run.
+
 ## The eight stages
 
 Each stage has a `CONTEXT.md` naming its Inputs, Process and Outputs. **Read one at a time.**
@@ -108,8 +171,8 @@ information.
 
 | # | Stage | Gate | What it produces |
 |---|-------|------|------------------|
-| 00 | `setup` | once | `config.md` — who you are, defaults, jurisdiction |
-| 01 | `discover` | ◆ **stop** | `brief.md` + `facts.md` — the vision and the sourced facts |
+| 00 | `setup` | once | `config.md` — who you are, the country, motion and imagery defaults |
+| 01 | `discover` | ◆ **stop** | `brief.md` + `facts.md` + `assets/MANIFEST.md` — the vision, the sourced facts, and every file with its rights |
 | 02 | `architect` | → auto | `sitemap.md` — pages, nav, what each page must carry |
 | 03 | `write` | → auto | `content.md` — real copy, every claim tied to a fact |
 | 04 | `design` | ◆ **stop** | `design.md` + rendered direction samples the human picks from |
@@ -135,7 +198,8 @@ recorded as not run.
 | **Can I spawn sub-agents?** | **Conductor mode** — one sub-agent per stage per [`shared/conductor.md`](shared/conductor.md); you hold the checkpoints. | **Solo mode** — run the stages yourself, one at a time. Not the lesser mode: same pipeline, discipline enforced by you instead of by process boundaries. |
 | **Can I see a rendered page?** (browser / screenshot tool) | Stage 06's eyes-on half and stage 04's rendered samples run through it. | The human is the renderer: serve the site, direct their eyes precisely (`shared/review.md`). |
 | **Can I search and fetch the live web?** | Stage 01/04 dissect reference URLs directly (`shared/references.md`). | Ask the human for screenshots of their references instead. |
-| **Do I have an image-generation tool?** | Stage 05 may generate assets under [`shared/imagery.md`](shared/imagery.md)'s honesty contract. | Real client assets + CSS/SVG/type only. A missing image beats a dishonest one. |
+| **Do I have an image-generation tool?** | It stays UNUSED unless `brief.md` says `- **Imagery:** generated-allowed`. Having the capability is not permission; the client asking for it is. Then [`shared/imagery.md`](shared/imagery.md)'s honesty contract binds. | Real client assets + CSS/SVG/type only. A missing image beats a dishonest one. |
+| **Can I search and fetch the live web?** (for a jurisdiction with no profile) | Research it per [`profiles/README.md`](profiles/README.md) — one pass, primary sources, contradiction angle, every citation carrying the URL you fetched. | `intl-baseline`, said out loud to the client, plus a recommendation that a local adviser reads the legal pages. Never a profile written from memory. |
 
 ## Enforcement
 
@@ -159,8 +223,12 @@ repo exists to fix — stop and run stage 01.
 **Fresh?**
 
 1. If `config.md` does not exist, run `stages/00_setup/CONTEXT.md` once. It takes a minute.
-2. `node start.mjs "<project name>"` — it creates `builds/<slug>/` and prints the orders.
-3. Read `stages/01_discover/CONTEXT.md` and do only that stage. Stop at the gate. Then read
+2. `node start.mjs "<project name>"` — it creates `builds/<slug>/`, the asset folders, a brief
+   skeleton, and prints the orders.
+3. `node assets.mjs <slug> scan`, then give the client the absolute `_intake/` path it printed.
+   Artifacts before questions: one dropped sketch answers twenty of them.
+4. Read `stages/01_discover/CONTEXT.md` and do only that stage. Run
+   `node checks/brief.mjs builds/<slug>` before you present anything. Stop at the gate. Then read
    stage 02's contract, and only then.
 
 ## What is in here
@@ -169,13 +237,14 @@ repo exists to fix — stop and run stage 01.
 website-builder/
 ├── AGENTS.md          ← this file: the contract, for any agent
 ├── CLAUDE.md · GEMINI.md · GROK.md ← per-harness entries pointing here
-├── start.mjs          ← opens a build: builds/<slug>/ + STATE.md + marching orders
+├── start.mjs          ← opens a build: builds/<slug>/ + assets folders + brief skeleton + orders
+├── assets.mjs         ← the asset desk: indexes what the client sent, writes the manifest
 ├── stages/            ← one folder per stage, each with a CONTEXT.md
 ├── shared/            ← writing · design · directions · references · review · imagery · conductor · legal
-├── checks/            ← the gate: run.mjs, ten rule families, selftest, zero dependencies
-├── profiles/          ← jurisdiction lives in a file, not a hardcode (uk.mjs today)
+├── checks/            ← the gate: run.mjs, eleven rule families, brief.mjs, selftest, zero deps
+├── profiles/          ← one file per country + _base.mjs + the research protocol in README.md
 ├── templates/         ← legal pages, consent, _headers, robots, structured data, STATE.md
-├── examples/          ← clean-control (passes) · dishonest-control · negative-control · bare-control (fail on purpose)
+├── examples/          ← clean-control (passes) · dishonest-control · negative-control · bare-control · assets-control (fail on purpose)
 ├── .claude/           ← the Claude Code hooks (gate.mjs) — see CLAUDE.md
 └── builds/            ← your work, one folder per site, git-ignored
 ```
@@ -194,7 +263,13 @@ website-builder/
 - **Hooks exist only where the harness has them.** Elsewhere, an agent determined to skip
   the pipeline can. The structure makes skipping visible and the gate makes it fail; it
   cannot make it impossible.
-- **None of this is legal advice.** `profiles/uk.mjs` encodes what a competent developer
-  ships by default so a small business is not obviously exposed. It is UK and EU shaped;
-  other jurisdictions are a profile file nobody has written yet, and stage 00 asks rather
-  than assumes.
+- **None of this is legal advice.** A profile encodes what a competent developer ships by default
+  so a small business is not obviously exposed. Every one that ships here is
+  `provenance: 'researched'` — assembled from primary sources with dated URLs, and read by nobody
+  qualified. `verifiedBy` is `null` and stays `null` until a real name goes in it, and the gate
+  repeats that on every run. A country with no profile gets one researched or gets
+  `intl-baseline`; it never gets the nearest neighbour's law.
+- **The asset manifest proves provenance, not truth.** It proves somebody recorded where a photo
+  came from and what the client said about publishing it. It cannot prove the client was right
+  about who owns the copyright, and on paid photography they frequently are not. That is a
+  question for stage 07's read-back, and it is worth asking twice.

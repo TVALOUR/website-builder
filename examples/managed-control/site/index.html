@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <title>Managed control — a fixture that must FAIL</title>
+  <meta name="description" content="A deliberately broken fixture: a managed build with no asset manifest that animates anyway.">
+  <style>
+    /* design/motion-policy — the build's motion policy is the default `none`
+       and this site animates. Under `none`, colour and opacity transitions on
+       interactive states are still fine; keyframes and transforms are not. */
+    @keyframes drift { from { transform: translateY(12px); opacity: 0 } to { transform: none; opacity: 1 } }
+    .card { animation: drift .6s ease-out both; transition: transform .3s ease; }
+    a:hover { color: #1a4d2e; transition: color .15s ease; }  /* allowed: colour only */
+    body { background: #fbfaf7; color: #22201d; font-family: Georgia, serif; }
+  </style>
+</head>
+<body>
+  <!--
+    THIS FIXTURE EXISTS TO FAIL. Do not fix it.
+
+    Its sibling STATE.md is what makes it a MANAGED build, and that is the whole
+    point of the fixture: the same two faults reported from outside builds/ are
+    observations, because a third-party site never agreed a motion policy and was
+    never going to have an asset manifest. Inside a build, they are blockers.
+
+      assets/manifest-exists  — publishes yard.png with no manifest anywhere
+      design/motion-policy    — @keyframes + a transform transition under `none`
+  -->
+  <h1>Managed control</h1>
+  <div class="card">
+    <img src="yard.png" alt="The yard at first light" width="800" height="600">
+  </div>
+  <p>Contact: <a href="mailto:nobody@example.com">nobody@example.com</a></p>
+</body>
+</html>

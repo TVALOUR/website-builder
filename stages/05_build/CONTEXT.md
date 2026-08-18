@@ -6,6 +6,17 @@ Turn the four approved documents into files.
 making a design or content decision here, something upstream was incomplete: stop and go back
 rather than deciding it quietly in the markup.
 
+## Before you write a line
+
+- Every image you place must already have a row in `builds/<slug>/assets/MANIFEST.md` with a Source
+  and a Rights answer, and its alt text comes from that row. The gate blocks anything else, and the
+  point is that the decision was taken by somebody looking at the picture rather than improvised at
+  build time.
+- **Motion** and **Imagery** come from `brief.md`. Under `none`, do not reach for a scroll-reveal
+  because the page feels static: that feeling is the layout's problem. Under `client-assets-only`,
+  a missing photograph is `<!-- TODO: needs asset ... -->` plus a `[NEEDS:]` line, never a
+  generated stand-in.
+
 ## Inputs
 
 - `builds/<slug>/brief.md`, `sitemap.md`, `content.md`, `design.md`

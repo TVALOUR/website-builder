@@ -19,7 +19,36 @@ jobs:
         run: node checks/selftest.mjs
 
       - name: Gate the reference build
-        run: node checks/run.mjs examples/clean-control --facts examples/clean-control/facts.md --no-color
+        run: node checks/run.mjs examples/clean-control --profile uk --facts examples/clean-control/facts.md --no-color
+
+      # Every jurisdiction profile must LOAD and RUN without crashing. A profile
+      # that throws turns the whole legal family into an ERROR verdict, and a
+      # jurisdiction nobody exercises is one nobody finds out is broken. Exit 1
+      # is expected and fine here — clean-control is a UK fixture, so the other
+      # profiles flagging it is them being right. Exit 2 is a crash.
+      - name: Every jurisdiction profile loads and runs
+        run: |
+          for p in uk us eu ca au intl-baseline; do
+            echo "--- $p ---"
+            node checks/run.mjs examples/clean-control \
+              --profile "$p" \
+              --facts examples/clean-control/facts.md \
+              --no-color --json > /dev/null
+            code=$?
+            if [ "$code" -gt 1 ]; then
+              echo "profile $p exited $code — that is a crash, not a verdict"
+              exit 1
+            fi
+          done
+
+      # The discovery gate has to be able to fail, for the same reason the site
+      # gate does: the unfilled brief template must not pass it.
+      - name: Discovery gate can fail
+        run: |
+          if node checks/brief.mjs templates --json > /dev/null; then
+            echo "the empty brief template PASSED the discovery gate — the gate is decoration"
+            exit 1
+          fi
 
       # Uncomment and point at your own build to gate every push.
       # - name: Gate my site

@@ -25,6 +25,8 @@ import { norm } from '../lib/ledger.mjs';
 import { basename, join } from 'node:path';
 
 export const gates = [
+  { id: 'legal/jurisdiction', severity: 'blocker', what: 'a jurisdiction profile was chosen and loaded' },
+  { id: 'legal/local-rule', severity: 'minor', what: 'jurisdiction-specific rules the profile says a human must confirm' },
   { id: 'legal/privacy-policy', severity: 'blocker', what: 'a privacy policy exists, is linked, and covers the required ground' },
   { id: 'legal/cookie-policy', severity: 'blocker', what: 'a cookie policy exists when anything non-essential is loaded' },
   { id: 'legal/terms', severity: 'minor', what: 'terms of use ship by default' },
@@ -53,12 +55,24 @@ function findPage(everyFile, patterns, siteDir) {
 }
 
 export async function run(ctx, report) {
-  const { siteDir, htmlFiles, jsFiles, everyFile, profile, factsPath } = ctx;
+  const { siteDir, htmlFiles, jsFiles, everyFile, profile, factsPath, profileProblems } = ctx;
   const L = profile?.legal;
   for (const id of gates.map((g) => g.id)) report.ranGate(id);
 
+  // The jurisdiction itself is the first gate. A profile that is missing, or
+  // that claims to be verified with nobody's name on it, is a BLOCKER — never
+  // the silent skip it used to be, which turned this entire family off and
+  // still printed PASS.
+  for (const why of profileProblems || []) {
+    report.add('legal/jurisdiction', BLOCKER, why, {},
+      'Run stage 00 (stages/00_setup/CONTEXT.md) to record the country in config.md, or pass --profile <id>. '
+      + 'profiles/README.md has the protocol for researching a country that has no file yet — one pass, primary '
+      + 'sources, every citation carrying the URL it came from. Do not substitute the nearest country.');
+  }
+
   if (!L) {
-    report.skip('legal', 'no profile loaded — legal gates need a jurisdiction (--profile uk)');
+    report.skip('legal', 'no profile loaded — every legal gate below is OFF. run.mjs has already raised '
+      + 'legal/jurisdiction as a blocker; this line is here so nobody reads the gate count as coverage.');
     return;
   }
 
@@ -114,6 +128,20 @@ export async function run(ctx, report) {
       /\b(company\s+(number|no\.?)|registered\s+in\s+england|companies\s+house)\b/i.test(read(f)));
   }
 
+  // The consent findings below must speak the profile's law, not the author's.
+  // Naming PECR and the ICO unconditionally meant a US run produced a confident
+  // verdict citing the wrong country — the exact failure this profile system
+  // exists to prevent, inside the file that implements it.
+  const consentLaw = L.consentModelWhy
+    || (L.consentModel === 'prior-opt-in'
+      ? 'This jurisdiction requires consent BEFORE non-essential storage is set.'
+      : L.consentModel === 'notice-and-opt-out'
+        ? 'This jurisdiction requires disclosure and a working opt-out rather than prior consent.'
+        : 'This profile does not state whether prior consent is required here — check locally before deciding a banner is enough.');
+  const regulatorNote = L.consentModel === 'prior-opt-in'
+    ? 'Accept-only banners are the most-enforced consent failing there is.'
+    : 'Even where prior consent is not required, an opt-out that is harder to find than the opt-in is the pattern regulators single out.';
+
   // ------------------------------------------------ detect what the site loads
   const allSource = [...htmlFiles, ...jsFiles].map(read).join('\n');
   const nonEssential = [];
@@ -127,8 +155,16 @@ export async function run(ctx, report) {
     const page = findPage(everyFile, spec.patterns, siteDir);
     found[key] = page;
 
+    // 'if-collects-personal-data' is the portable trigger: a contact form, a
+    // mailto, a tel: link the site asks you to use, or anything non-essential
+    // loading. It exists for profiles that decline to say "always" because the
+    // local law has a threshold — the international baseline is the main user.
+    const collectsPersonalData = nonEssential.length > 0
+      || htmlFiles.some((f) => /<form\b|mailto:|formspree|web3forms|basin|netlify\s*-?\s*forms/i.test(read(f)));
+
     const needed = spec.required === 'always'
-      || (spec.required === 'if-non-essential-scripts' && nonEssential.length > 0);
+      || (spec.required === 'if-non-essential-scripts' && nonEssential.length > 0)
+      || (spec.required === 'if-collects-personal-data' && collectsPersonalData);
 
     const gateId = key === 'privacy' ? 'legal/privacy-policy'
       : key === 'cookies' ? 'legal/cookie-policy'
@@ -229,7 +265,7 @@ export async function run(ctx, report) {
       report.add('legal/consent-banner', BLOCKER,
         `${nonEssential.join(', ')} loaded with no consent mechanism anywhere on the site`,
         { count: nonEssential.length },
-        'PECR reg.6 requires consent BEFORE a non-essential cookie is set. Copy templates/consent.js in, or remove the tracking. Note the DUAA 2025 exceptions: first-party statistical analytics may not need a banner at all, in which case remove the tracker rather than adding one.');
+        `${consentLaw} Copy templates/consent.js in, or remove the tracking. Removing the tracker is the better answer in every jurisdiction: it deletes the obligation instead of managing it, and it is faster.`);
     }
 
     // Each tracker must be individually gated. Presence of the consent library
@@ -275,7 +311,7 @@ export async function run(ctx, report) {
         report.add('legal/consent-reject-parity', MAJOR,
           'consent banner offers accept but no equally prominent reject',
           {},
-          'Add a "Reject non-essential" control at the same level as accept. Accept-only banners are what the ICO writes to people about.');
+          `Add a "Reject non-essential" control at the same level as accept, with nothing pre-selected. ${regulatorNote}`);
       }
     }
   }
@@ -381,8 +417,70 @@ export async function run(ctx, report) {
     }
   }
 
+  // ------------------------------------------------ local rules from the profile
+  //
+  // `legal.extras` is where a profile puts an obligation that has no slot in the
+  // schema — Quebec's French-language requirements, Germany's Impressum, a state
+  // contractor-licence display rule. Two kinds:
+  //
+  //   * with a `pattern` — a real probe. It fires only when the pattern matches
+  //     (or, with `absent: true`, only when it does NOT), at the declared severity.
+  //   * without one    — not machine-checkable. It is emitted as a MINOR naming
+  //     the rule and the fact that a human has to confirm it, because the
+  //     alternative is a rule nobody ever sees.
+  //
+  // The severity of an unprobeable extra is deliberately NOT the declared one. A
+  // blocker that fires on every single run is not a gate, it is a banner, and
+  // people learn to skip banners.
+  const allText = htmlFiles.map((f) => visibleText(read(f))).join('\n');
+  const byHand = [];
+  for (const extra of L.extras || []) {
+    if (!extra || !extra.id) continue;
+    const sev = extra.severity === 'blocker' ? BLOCKER : extra.severity === 'major' ? MAJOR : MINOR;
+    let re = null;
+    if (extra.pattern) {
+      try {
+        const m = /^\/(.*)\/([gimsuy]*)$/s.exec(String(extra.pattern).trim());
+        re = m ? new RegExp(m[1], m[2]) : new RegExp(String(extra.pattern));
+      } catch {
+        report.add('legal/local-rule', MINOR, `${extra.id}: the profile's pattern is not a usable regex, so this rule did not run`,
+          {}, 'Fix the pattern in the profile. A rule that cannot run is worse than an absent one, because the report implies it ran.');
+        continue;
+      }
+    }
+    if (re) {
+      const hit = re.test(allText) || re.test(allSource);
+      const fires = extra.absent ? !hit : hit;
+      if (fires) {
+        report.add('legal/local-rule', sev, `${extra.what} (${extra.id})`, {}, extra.why || '');
+      }
+      continue;
+    }
+    byHand.push(extra);
+  }
+
+  // Unprobeable extras arrive as ONE finding, not one each. The EU profile
+  // carries fourteen; fourteen separate minors saying "confirm this by hand" is
+  // a wall of text people scroll past, and the gate that cries wolf is the gate
+  // people learn to skip. One finding with the list inside it gets read.
+  if (byHand.length) {
+    const rated = byHand.filter((e) => e.severity === 'blocker' || e.severity === 'major');
+    report.add('legal/local-rule', MINOR,
+      `${byHand.length} local rule${byHand.length === 1 ? '' : 's'} in the ${profile?.id || 'current'} profile `
+      + `${byHand.length === 1 ? 'has' : 'have'} no static check and must be confirmed by hand`
+      + (rated.length ? ` — ${rated.length} of them the profile rates blocker or major` : ''),
+      {},
+      byHand.map((e) => `\n      · [${e.severity || 'minor'}] ${e.id} — ${e.what}`
+        + (e.detect ? `\n        look for: ${e.detect}` : '')
+        + (e.why ? `\n        why: ${e.why}` : '')).join('')
+      + '\n\n      No static file can decide these. Stage 07 reads them back to the client, and a '
+      + 'blocker-rated one that nobody has checked is the reason a launch waits.');
+  }
+
   report.stats.nonEssentialScripts = nonEssential;
   report.stats.entityType = isLimited ? 'limited' : 'sole-trader-or-unknown';
+  report.stats.jurisdiction = profile?.id || null;
+  report.stats.jurisdictionProvenance = profile?.provenance?.status || null;
 }
 
 export default { gates, run };

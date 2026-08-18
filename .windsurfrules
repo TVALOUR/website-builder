@@ -8,12 +8,25 @@ The floor, not a summary:
    (run `node start.mjs "<name>"`, then stages/01_discover/CONTEXT.md) — ask for
    what is in the person's head (sketches, screenshots, references, brand
    colours and fonts) and for the facts, before any design or code exists.
+   63 questions in stages/01_discover/questions.md; ask every BLOCKING one.
+   `node checks/brief.mjs builds/<slug>` says whether discovery actually
+   happened. Its output is questions to go and ask, never boxes to fill in.
 2. Never invent a fact about a real business: every claim traces to a sourced
    row in builds/<slug>/facts.md.
-3. Site files go only in builds/<slug>/site/, and only after brief.md, facts.md
+3. Never publish a file with no traceable origin. `node assets.mjs <slug> scan`
+   writes builds/<slug>/assets/MANIFEST.md; every image on a page needs a row
+   with a Source and a Rights answer in the client's own words.
+4. Two defaults are OFF and stay off unless brief.md says otherwise:
+   `- **Motion:** none` and `- **Imagery:** client-assets-only`. Having an
+   image generator is not permission; the client asking for it is.
+5. The country is a file, and there is no default. Question 57 asks which
+   country the business trades under; profiles/ must have it, or you research
+   one (profiles/README.md) or use intl-baseline and say so. Never run the
+   nearest country's law.
+6. Site files go only in builds/<slug>/site/, and only after brief.md, facts.md
    and design.md exist.
-4. The gate decides: `node checks/run.mjs builds/<slug>/site --facts
+7. The gate decides: `node checks/run.mjs builds/<slug>/site --facts
    builds/<slug>/facts.md`. Exit 0 ships; exit 1 does not; never --skip.
-5. Stop and talk to the human at stages 01, 04, 06 and 07.
+8. Stop and talk to the human at stages 01, 04, 06 and 07.
 
 Resuming? Read builds/*/STATE.md first and continue from its Next action line.

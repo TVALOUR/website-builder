@@ -77,6 +77,24 @@ if (existsSync(join(buildDir, 'STATE.md'))) {
 
 mkdirSync(join(buildDir, '_intake'), { recursive: true });
 
+// The asset folders exist BEFORE the first question, because the first question
+// is "what can you hand me". A named folder is an answerable ask; "send me your
+// stuff" is not, and the difference shows up in what arrives.
+for (const f of ['logo', 'photos', 'brand', 'fonts', 'docs', 'reference']) {
+  mkdirSync(join(buildDir, 'assets', f), { recursive: true });
+}
+
+// A brief skeleton with the required headings already in it. The checker reads
+// those headings, so shipping the shape means the agent fills a form rather
+// than inventing a document structure that happens to omit the awkward parts.
+try {
+  const briefTemplate = join(root, 'templates', 'brief.md');
+  if (existsSync(briefTemplate) && !existsSync(join(buildDir, 'brief.md'))) {
+    writeFileSync(join(buildDir, 'brief.md'),
+      readFileSync(briefTemplate, 'utf8').replace('<business name>', name));
+  }
+} catch { /* the template is a convenience; stage 01 works without it */ }
+
 let state;
 try {
   state = readFileSync(join(root, 'templates', 'STATE.md'), 'utf8')
@@ -100,15 +118,35 @@ ${configured ? '' : `
 `}
 Next — stage 01 discover, and it is a stop, not a formality:
 
-  1. Anything they can HAND OVER goes in builds/${slug}/_intake/ before any
-     question is asked: sketches (a photo of paper is fine), screenshots,
-     reference sites they love or want to remake, the one they hate, a logo,
-     brand fonts and colours, an old site, existing marketing material.
+  1. Anything they can HAND OVER goes in the intake folder before any question
+     is asked: sketches (a photo of paper is fine), screenshots, reference
+     sites they love or want to remake, the one they hate, a logo, brand fonts
+     and colours, an old site, existing marketing material. Give them the exact
+     path — a named folder is an answerable ask, "send me your stuff" is not:
+
+       ${join(buildDir, '_intake')}
+
      One dropped sketch answers twenty questions.
   2. Read stages/01_discover/CONTEXT.md and run the interview from
-     stages/01_discover/questions.md — the vision half AND the facts half.
-  3. Write builds/${slug}/brief.md and builds/${slug}/facts.md, then STOP and
-     have the human confirm them before stage 02.
+     stages/01_discover/questions.md — 63 questions across ten parts, and you
+     ask every BLOCKING one. Batch them, lead with why, take the answer you get.
+  3. node assets.mjs ${slug} scan
+     Indexes everything that landed, creates assets/MANIFEST.md, and prints
+     exactly which files still need a source, a rights answer and alt text.
+     The gate will not publish an image whose Rights cell is empty.
+  4. Fill in builds/${slug}/brief.md (the skeleton is already there) and write
+     builds/${slug}/facts.md. Then:
+
+       node checks/brief.mjs builds/${slug}
+
+     It answers one question: is there enough decided, client-supplied substance
+     here that the next six stages will not have to invent anything? Sections it
+     names are questions to go and ask, not boxes to fill in yourself.
+  5. STOP and have the human confirm the brief before stage 02.
+
+Two defaults you do not have to be told about again, both enforced by the gate:
+NO MOTION and NO GENERATED IMAGERY. Either one becomes available by the client
+asking for it and the brief recording it — never by the build deciding.
 
 No site file exists before brief.md and design.md do. The gate that decides
 whether the build ships:

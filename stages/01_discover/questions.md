@@ -192,7 +192,47 @@ opens.
     reference card.)
 26. **Anything you are stuck with? A colour, a strapline, a name on the van?**
 
-## E. What the site has to do
+## E. The assets themselves — what exists, and is it yours to publish
+
+Part D asked whether these things exist. This part is the inventory, and it is the one that keeps a
+client out of court. Every answer here becomes a row in `builds/<slug>/assets/MANIFEST.md`, and the
+gate refuses to publish an image whose Rights cell is empty.
+
+Run `node assets.mjs <slug> scan` first — it creates the folders, indexes whatever has already
+landed, and prints exactly which rows are still unanswered. Ask for those in one batch.
+
+41. **BLOCKING — For each photo: who took it, and do you have the right to publish it?**
+    *Cost of skipping:* a photo the client paid a photographer for is usually still the
+    photographer's copyright, and a licence for print does not license a website. This is the most
+    common and most expensive rights mistake in small-business web work, and it stays invisible
+    until a letter arrives. "I think it's fine" is a real answer, goes in the cell in those words,
+    and is not the same as yes.
+42. **BLOCKING — Is anyone recognisable in the photos, and have they agreed to appear on the
+    website?** Staff, customers, children.
+    *Cost:* an employee who has left and a customer who never agreed both have a claim, and both
+    find out when somebody sends them the link.
+43. **What formats is the logo in?** Vector (`.svg`, `.ai`, `.eps`) if it exists, plus the version
+    with a transparent background.
+    *Cost:* a logo re-traced from a JPEG off an old website is a redrawing of their identity, and
+    the one person who notices is the person paying. (Deepens question 21.)
+44. **CONFIRM, do not re-ask — the font files themselves.** V8 and D22 already asked whether
+    brand fonts exist and whether they are licensed for web use. If the answer was yes, all that is
+    outstanding is the actual `.woff2`/`.otf` files and a copy of the licence. Chase those; do not
+    put the question a third time.
+    *Cost:* a desktop font licence does not permit `@font-face` use, and foundries do audit —
+    but a client answering the same yes/no three times across one interview stops answering
+    carefully, which costs more than the question gains.
+45. **Is there anything that has to be downloadable — a menu, a price list, a certificate, a spec
+    sheet, a form?**
+    *Cost:* it is a page-structure decision and a file-hosting decision, and it is always
+    remembered after launch rather than before it.
+46. **Is there anything you must NOT put on the site?** Premises you have left, a product you have
+    discontinued, a photo with an ex-partner in it.
+    *Cost:* nobody volunteers this and almost everybody has one.
+
+---
+
+## F. What the site has to do — features, page by page
 
 27. **BLOCKING — Do you need to edit it yourself?**
     *Cost:* this is a static site. If they expect to change their own prices, they need to know
@@ -209,7 +249,107 @@ opens.
     path to a site with no banner at all — which is better for the visitor and cheaper to
     build. Make it a decision rather than a default.
 
-## F. Domain, hosting and what already exists
+47. **BLOCKING — Page by page, what must a visitor be able to DO?** Not what the page is *about* —
+    what they *do* on it. Ring you. See a price. Find the yard. Download the menu. Look at the work.
+    *Cost of skipping:* this is the single question that turns a page list into a website. Without
+    it, stage 02 produces the five pages every business gets — Home, About, Services, Gallery,
+    Contact — because that is the shape of a site nobody specified. Asked page by page, half of
+    those turn out to be one page, and one of them turns out to be the whole business.
+48. **Do you need a gallery, and how many photos will be in it a year from now?**
+    *Cost:* twelve photos and two hundred photos are different builds. Finding out at two hundred
+    means rebuilding the page.
+49. **Do you need a map — and is a static image that links out to Maps enough?**
+    *Cost:* an embedded map loads a third party, and their tracking, before the visitor has decided
+    anything. On most brochure sites a static image plus a link is better in every way that
+    matters. Make it a decision rather than a reflex.
+50. **Opening hours: display them, or show whether you are open right now?**
+    *Cost:* "open now" is real logic with real edge cases — bank holidays, the week you close — and
+    on a site nobody updates it is wrong more often than it is right.
+51. **Do you want a blog, news or updates section — and who is going to write it?**
+    *Cost:* this is a static site, so every post is a developer job, and an updates page whose last
+    entry is fourteen months old actively damages trust. If the honest answer is nobody, do not
+    build it.
+52. **Beyond a contact form, does anything need to be submitted?** A quote request, a booking
+    enquiry, a file upload.
+    *Cost:* front end only. A form posts to a service you do not own, that service must publish a
+    data-processing agreement, and the privacy notice has to name it. Uploads usually push the
+    build out of scope entirely — better known at question 52 than at delivery.
+53. **When somebody enquires, where does it actually land, and who checks that inbox?**
+    *Cost:* an enquiry route nobody reads is worse than no enquiry route. Get the address a human
+    opens daily, not the one on the letterhead.
+**54, 55 and 60 are conditional on question 58.** If the customers are all in one country
+speaking one language — which is the honest answer for most local trade — ask 58, hear "just round
+here", and skip all three. Asking a farrier about multi-currency pricing is how an interview starts
+sounding like a form.
+
+54. **Does the site need to be in more than one language?**
+    *Cost:* it changes the URL structure, the navigation, `hreflang` and who writes the copy.
+    Retrofitting it is a rebuild. If any language is right-to-left, it changes the CSS as well.
+55. **Do prices need to show in more than one currency?**
+    *Cost:* either a fixed published figure per currency, which goes stale, or a live rate, which
+    is a back end. Both are decisions and neither is a default.
+56. **Is there anything on a competitor's site you wish yours could do?**
+    *Cost:* people describe features far more easily than they list them, and this is the question
+    that surfaces the one thing they actually care about.
+
+---
+
+## G. Market, language and money
+
+The questions that decide which country's rules the build runs under. Their absence is what made
+the tool offer a choice between UK/EU and US and have nowhere to go when the answer was neither.
+
+57. **BLOCKING — Which country does the business trade under?** Not where the developer lives —
+    where the business is registered, and where it sells.
+    *Cost of skipping:* the legal family is the genuinely country-shaped part of this repo. Running
+    one country's profile on another does not produce slightly-wrong output; it produces a Kansas
+    plumber citing the Companies Act 2006 and publishing a company number that cannot exist. The
+    answer goes in `config.md`. If there is no profile for that country, one gets researched before
+    the build proceeds — `profiles/README.md` has the protocol, and it is one pass.
+58. **BLOCKING — Where are your customers? Same country, or abroad too?**
+    *Cost:* selling into the EU pulls in EU obligations regardless of where the business sits, and
+    a business serving Quebec inherits Quebec's French-language and privacy rules whether or not it
+    is in Quebec.
+59. **What language do your customers read, and is that the language you want the site in?**
+    *Cost:* the answer is not always the owner's first language, and it is never safe to infer from
+    the country.
+60. **DERIVE, do not ask — money and date format.** Question 57 gave you the country; the
+    profile's `locale` block gives you the currency, the symbol and the date shape. Take them from
+    there, write them into the brief's Assumptions section, and let the client correct you.
+    *Cost:* asking a farrier to arbitrate whether dates are written `11/12/2026` or `11 December
+    2026` is asking them to do the developer's job. Getting it wrong is the fastest way to look
+    foreign to your own customers, and the fix is usually to spell the month — but that is a
+    decision to take and show, not a question to pose.
+61. **Are you registered for VAT or sales tax, and does the number need to appear?**
+    *Cost:* where it is required, it is required on the website and not only on the invoice.
+
+---
+
+## H. Motion and imagery — the two things this build will not do unless you ask
+
+Both default to OFF, and both are enforced by the gate rather than remembered. That is deliberate:
+they are the two places where a model's habits turn up on a client's site without anybody choosing
+them.
+
+62. **Should anything on the site move?**
+    Default is **no motion** — `- **Motion:** none` in `brief.md`. Colour and shadow still respond
+    to hover and focus, because that is feedback rather than animation. Nothing slides, fades in on
+    scroll, or loops.
+    *Cost of skipping:* "everything fades in as you scroll" is the most recognisable tell of a
+    generated site, and no client has ever asked for it by name. If they do want movement, record
+    `subtle` (it happens once and settles) or `expressive`, and write down who asked.
+63. **If there is no photograph for a section, what should happen?**
+    Default is **no generated images** — `- **Imagery:** client-assets-only`. The section is carried
+    by type, space and structure, or it does not exist.
+    *Cost:* a generated image on a real business's site is a picture of a place that does not exist
+    or a person who does not work there. If the client explicitly wants generated *illustration* —
+    texture, pattern, editorial artwork — that is `generated-allowed`, and even then it may never
+    depict people, premises, products, logos or awards (`shared/imagery.md` §3). A well-typeset
+    section with no image beats a decorative one that says nothing.
+
+---
+
+## I. Domain, hosting and what already exists
 
 31. **BLOCKING — Do you own a domain? Who has the login?**
     *Cost:* the classic agency trap. If the developer registers it in their own name the
@@ -225,7 +365,7 @@ opens.
     *Cost:* if one page brings all the enquiries, do not silently delete it.
 35. **Where should the new site be hosted, and who pays for it?**
 
-## G. Process
+## J. Process
 
 36. **When do you need it?**
 37. **Who signs it off? Is there anyone else who gets a veto?**

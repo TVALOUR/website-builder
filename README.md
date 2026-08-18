@@ -48,10 +48,27 @@ halves. The *vision* half asks for artifacts first: sketches (a photo of paper i
 screenshots, reference sites you love or want to remake, the one you hate, brand colours,
 fonts, your old site. Every reference gets dissected into a card — what grabbed you, what
 to steal, what to leave — that the design stage is bound to. The *facts* half is a
-40-question bank where every question carries the documented cost of skipping it: real
-prices, real hours, font licences, who owns the domain. "Just build it, don't ask me
-questions" gets the smallest set of questions that cannot be answered without inventing
-something about you — not silence, and not a lecture.
+**63-question bank across ten parts**, where every question carries the documented cost of
+skipping it: real prices, real hours, font licences, photo rights, what a visitor must be
+able to *do* on each page, which country you trade under, who owns the domain. "Just build
+it, don't ask me questions" gets the smallest set of questions that cannot be answered
+without inventing something about you — not silence, and not a lecture.
+
+And the interview is **checked, not just documented** — `node checks/brief.mjs
+builds/<slug>` reports which required sections are missing, which are still placeholders,
+and which blocking questions have no answer anywhere. On Claude Code that check gates
+site files, because the polite version of this rule was measurably skipped.
+
+**1b. What you hand over is tracked, and nothing is invented to fill a gap.** Every file
+you send lands in a named folder and gets a row in `assets/MANIFEST.md`: where it came
+from, whether it is yours to publish, whether it was generated, where it is used, what its
+alt text says. The gate refuses to publish an image without one. Two defaults are **off**
+until you ask for them, and both are enforced rather than remembered:
+
+| | Default | Why |
+|---|---|---|
+| **Motion** | `none` | "Everything fades in as you scroll" is what a page does when nobody decided. Hover and focus still respond — that is feedback, not animation. |
+| **Generated imagery** | `client-assets-only` | A generated image on a real business's site is a picture of a place that does not exist or a person who does not work there. |
 
 **2. You choose between rendered samples, not adjectives.** The design stop shows you the
 top of your homepage executed two or three ways — with your real headline — and you point
@@ -70,7 +87,7 @@ node checks/run.mjs builds/<slug>/site --facts builds/<slug>/facts.md
   ✗ BLOCKER  legal/privacy-policy    no privacy page found
 ```
 
-Exit `0` ships. Exit `1` does not. **Ten rule families, 130+ gates**, no npm install, no
+Exit `0` ships. Exit `1` does not. **Eleven rule families, 149 gates**, no npm install, no
 lockfile, no `node_modules`:
 
 | Family | What it will not let past |
@@ -142,8 +159,8 @@ at a time; humans can read them all — they are short.
 
 | # | Stage | | |
 |---|---|---|---|
-| 00 | `setup` | once | who you are, defaults, jurisdiction |
-| 01 | `discover` | ◆ stop | **the vision (sketches, references, colours, fonts) and the facts, both written down** |
+| 00 | `setup` | once | who you are, **which country you trade under**, motion and imagery defaults |
+| 01 | `discover` | ◆ stop | **the vision (sketches, references, colours, fonts), the facts, and every asset with its rights — all written down** |
 | 02 | `architect` | → auto | pages, nav, what each page must carry |
 | 03 | `write` | → auto | the real copy, every claim tied to a fact |
 | 04 | `design` | ◆ stop | direction chosen from your references, shown as **rendered samples** |
@@ -187,10 +204,13 @@ The finished site lands in `builds/<slug>/site/` as plain static files — open
 The gate works on any static site, not just ones built here:
 
 ```bash
-node checks/run.mjs /path/to/any/site            # full report
-node checks/run.mjs /path/to/site --json         # machine-readable
-node checks/run.mjs --list                       # every gate it knows about
+node checks/run.mjs /path/to/any/site --profile uk   # full report
+node checks/run.mjs /path/to/site --json             # machine-readable
+node checks/run.mjs --list                           # every gate it knows about
 ```
+
+`--profile` is required unless `config.md` records one: the legal family is the only
+country-shaped part of this repo, and there is deliberately no fallback country.
 
 A `--only`/`--skip` run prints **PARTIAL**, never PASS, and its exit code covers only the
 families that ran — useful while fixing one family, never something to wire into CI.
@@ -218,21 +238,32 @@ less.
 - **Front end only.** Static HTML, CSS and JS. No back end, no database, no accounts.
   For a five-page site for a plumber that is the entire job, and it is a scope boundary
   rather than a limitation to apologise for.
-- **Not legal advice.** `profiles/uk.mjs` encodes what a competent developer should ship
-  by default so a small business is not obviously exposed. It is UK and EU shaped; other
-  jurisdictions are a profile file nobody has written yet, and contributions are welcome.
+- **Not legal advice.** A profile encodes what a competent developer should ship by default
+  so a small business is not obviously exposed. Five ship — `uk` · `us` · `eu` · `ca` · `au`
+  — plus `intl-baseline`, an honesty floor that names no statute. **Every one of them is
+  `provenance: 'researched'`**: assembled from primary sources with dated URLs, and read by
+  nobody qualified. `verifiedBy` is `null` and stays `null` until a real name goes in it,
+  and the gate repeats that on every run.
+
+  **There is no default country.** A run with no profile raises `legal/jurisdiction` as a
+  blocker rather than quietly applying somebody else's law — running the UK profile on a US
+  site does not produce slightly-wrong output, it produces a Kansas plumber citing the
+  Companies Act 2006. If your country is missing, `profiles/README.md` has the research
+  protocol: one pass, primary sources, a mandatory contradiction angle, every citation
+  carrying the URL it came from. Contributions very welcome — especially verified ones.
 
 ## Repo layout
 
 ```
 AGENTS.md      the contract, for any coding agent     CLAUDE.md / GEMINI.md / GROK.md point here
-start.mjs      opens a build: builds/<slug>/ + STATE.md + the stage-01 marching orders
+start.mjs      opens a build: builds/<slug>/ + asset folders + brief skeleton + marching orders
+assets.mjs     the asset desk: indexes what the client sent, writes and checks the manifest
 stages/        one folder per stage, each a CONTEXT.md
 shared/        writing · design · directions · references · review · imagery · conductor · legal
-checks/        run.mjs + 10 rule families + selftest    zero dependencies
-profiles/      jurisdiction lives in a file, not a hardcode
-templates/     legal pages, consent banner, _headers, robots, structured data
-examples/      clean-control (passes) · dishonest / negative / bare controls (fail on purpose)
+checks/        run.mjs + 11 rule families + brief.mjs + selftest    zero dependencies
+profiles/      one file per country + _base.mjs + the research protocol in README.md
+templates/     brief skeleton, legal pages, consent banner, _headers, robots, structured data
+examples/      clean-control (passes) · dishonest / negative / bare / assets controls (fail on purpose)
 .claude/       the Claude Code hooks (gate.mjs)
 builds/        your work, one folder per site — git-ignored
 ```

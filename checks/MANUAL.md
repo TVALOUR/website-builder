@@ -73,8 +73,15 @@ the site. There is no third option where it stays because it sounds right.
 
 ## legal
 
+**Before anything else: which country?** `profiles/` decides every rule in this section, and there
+is no default. Read `config.md` for `- **Profile:**`, or the build's `brief.md`. If the country has
+no file, do not substitute the nearest one — research it (`profiles/README.md`) or work to
+`intl-baseline` and say so in writing to the client.
+
 | Gate | By hand |
 |---|---|
+| `legal/jurisdiction` | Is there a profile at all, and does it exist in `profiles/`? No profile means every gate below is OFF, and a report with them off is not a pass. **Blocker.** Also check `provenance.status`: `researched` means real sources and no qualified reviewer, so every finding here is a prompt to check rather than advice. |
+| `legal/local-rule` | Open the profile's `legal.extras` and read every entry that has no `pattern`. These are obligations no static file can decide — Quebec's French-language rules, Germany's Impressum, a state contractor-licence display. Confirm each one by hand and write down which you confirmed. A blocker-rated one nobody has checked is a launch that waits. |
 | `legal/privacy-policy` | Does a privacy page exist? Does it cover: what data, lawful basis, rights, retention, the ICO, and a contact route? |
 | `legal/cookie-policy` | Search all HTML and JS for `googletagmanager`, `google-analytics`, `gtag(`, `fbq(`, `hotjar`, `clarity.ms`. **Any hit makes a cookie policy and a working consent gate mandatory.** |
 | `legal/consent-required` | For each such script: is it `type="text/plain"` with `data-src`? If it has a live `src=`, it fires before consent. Blocker. |
@@ -195,10 +202,32 @@ the site. There is no third option where it stays because it sounds right.
 | `responsive/safe-area` | Any `position: fixed; bottom: 0` without `env(safe-area-inset-bottom)`. The iPhone home indicator sits over it. |
 | `responsive/table-overflow` | Any `<table>` not wrapped in an `overflow-x: auto` container. |
 
+## assets
+
+Provenance for FILES, the same discipline `facts.md` applies to CLAIMS. An image on a page is a
+claim about the business — *this is our shop, this is our work, this is the team* — and one nobody
+can trace is exactly as dishonest as an unsourced price.
+
+**First, open `builds/<slug>/assets/MANIFEST.md` and read it against the pages.** Then:
+
+| Gate | By hand |
+|---|---|
+| `assets/manifest-exists` | Does the build have a manifest at all? If any page shows a local image and there is no manifest, stop. **Blocker.** |
+| `assets/unmanifested` | List every `<img src>`, `<source srcset>`, `<video>` and CSS `url()` that points at a local file. Each one needs a row. Anything without one is either a stock photo of somebody else's premises or a file nobody can account for. **Blocker.** |
+| `assets/source-unrecorded` | Every row needs a Source: which email, which folder, which sketch, which generator. Blank, `?`, `n/a` and `TBC` are all blank. **Blocker.** |
+| `assets/rights-unrecorded` | Every row needs the client's own answer to "is this yours to publish?", in their words. A photo the client paid a photographer for is usually still the photographer's copyright, and a print licence does not license a website. **Blocker.** |
+| `assets/generated-not-permitted` | Read `- **Imagery:**` in `brief.md`. Default `client-assets-only`. Any row marked Generated under that policy ships nothing. **Blocker.** |
+| `assets/generated-forbidden-subject` | For each generated row, read its "what it shows" against `shared/imagery.md` §3: never people, premises, products, logos, badges, awards, or charts asserting real data. Banned in every regime, including fiction. **Blocker.** |
+| `assets/generated-undeclared` | Does any Source name a generator (Midjourney, DALL-E, Stable Diffusion, Firefly, Flux) while the Generated column says no? The declaration is what makes the subject rules checkable at all. |
+| `assets/file-missing` | Does every row point at a file that exists in `assets/`, `_intake/` or `site/`? A manifest describing files nobody has is not a record. |
+| `assets/alt-unrecorded` | Every image row needs alt text decided in the manifest by somebody looking at the picture — not improvised in the markup, which is where "image1" comes from. `decorative` is a real answer. |
+| `assets/intake-unused` | List what the client handed over. Anything not on the site and not marked "not used — <why>" is a decision nobody took. The client noticed that their logo is missing; they did not conclude it was deliberate. |
+
 ## design
 
 | Gate | By hand |
 |---|---|
+| `design/motion-policy` | Read `- **Motion:**` in `brief.md` (default `none`). Under **none**: search the CSS for `@keyframes` and for `animation:`, and the JS for `IntersectionObserver`, `requestAnimationFrame`, `.animate(`, `scroll-behavior: smooth`, GSAP/AOS/Lottie. Any hit is a **blocker** — the client did not ask for movement. Transitions on colour, background, border, outline, opacity, shadow, fill and stroke are FINE: that is hover and focus feedback, and removing it makes the page worse. Transform, position and size are not. Under **subtle**: nothing may loop `infinite`, and nothing should run past about 1.2s. |
 | `design/default-display-font` | Is the display face Inter, Roboto, Open Sans, Poppins, Lato, or a system stack? |
 | `design/font-count` | Count the distinct first-choice families across all `font-family` declarations. More than two fails. |
 | `design/gradient-text` | Search for `background-clip: text` with a gradient. |

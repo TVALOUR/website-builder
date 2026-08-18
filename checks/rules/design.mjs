@@ -36,6 +36,7 @@ import { read, displayPath } from '../lib/fs.mjs';
 import { loadStylesheets, collectTokens, resolveVar, parseColor, relLuminance } from '../lib/css.mjs';
 import { tags, attr, decodeEntities } from '../lib/html.mjs';
 import { BLOCKER, MAJOR, MINOR } from '../lib/report.mjs';
+import { loadPolicy } from '../lib/policy.mjs';
 
 export const gates = [
   { id: 'design/default-display-font', severity: 'major', what: 'Inter/Roboto/Open Sans/Poppins/Lato as the display face' },
@@ -46,6 +47,7 @@ export const gates = [
   { id: 'design/default-gradient', severity: 'major', what: 'the purple-to-blue / cyan-to-magenta generator gradient' },
   { id: 'design/pure-black-white', severity: 'minor', what: '#000 or #fff as the page base' },
   { id: 'design/transition-all', severity: 'minor', what: 'transition: all' },
+  { id: 'design/motion-policy', severity: 'blocker', what: 'the site moves only as much as the brief agreed to' },
   { id: 'design/animate-layout', severity: 'major', what: 'animating width/height/top/left/margin/padding' },
   { id: 'design/uniform-hover', severity: 'minor', what: 'the same scale transform on every hover' },
   { id: 'design/spacing-scale', severity: 'minor', what: 'arbitrary spacing values outside a named scale' },
@@ -485,6 +487,119 @@ export async function run(ctx, report) {
         at(r),
         'Let a few pixels of the next section peek above the fold. A hero that fills the viewport exactly reads as a dead end — visitors scroll when they can see there is somewhere to scroll to.');
       break;
+    }
+  }
+
+  // ------------------------------------------------------------- motion policy
+  //
+  // MOTION IS OFF BY DEFAULT. Not because animation is bad — because "everything
+  // fades in on scroll" is what a page does when nobody decided, and a small
+  // business that never asked for movement should not have to notice it and ask
+  // for its removal. `- **Motion:** subtle` in brief.md turns it on, which makes
+  // motion a decision with a name attached instead of a house reflex.
+  //
+  // What `none` still permits, deliberately: short colour, opacity and shadow
+  // transitions on interactive states. Nobody calls a button that fades from
+  // grey to blue on hover "an animation", and removing that feedback makes a
+  // page worse, not calmer. The line is drawn at anything that MOVES.
+  const policy = loadPolicy(siteDir);
+  report.stats.motionPolicy = policy.motion;
+  report.stats.motionPolicySource = policy.motionSource;
+
+  // A motion policy is an AGREEMENT with a client. An audited third-party site
+  // never made that agreement, so enforcing the default against it would put a
+  // blocker on essentially every real site on the web — including every site
+  // this tool is meant to be pointed at before quoting for a redesign. Report it
+  // there as an observation instead.
+  const motionSeverity = policy.managed ? BLOCKER : MINOR;
+  const motionNote = policy.managed ? ''
+    : ' (this is not a builds/<slug>/ folder, so no motion policy was ever agreed — reported as an observation, not a blocker)';
+
+  if (policy.badMotion) {
+    report.add('design/motion-policy', MINOR,
+      `the brief or config sets Motion to "${policy.badMotion}", which is not one of none | subtle | expressive`,
+      { file: policy.brief ? 'brief.md' : 'config.md' },
+      'A policy value nobody recognises is applied as the default (none). Fix the spelling so the gate enforces what was agreed rather than what it fell back to.');
+  }
+
+  if (policy.motion === 'none' || policy.motion === 'subtle') {
+    const CALM_PROPS = /^(color|background-color|border-color|outline-color|opacity|box-shadow|fill|stroke|text-decoration-color|backdrop-filter)$/i;
+    const jsText = (ctx.jsFiles || []).map(read).join('\n')
+      + htmlFiles.map((f) => (read(f).match(/<script\b[^>]*>[\s\S]*?<\/script>/gi) || []).join('\n')).join('\n');
+
+    if (policy.motion === 'none') {
+      const keyframes = rules.filter((r) => r.isKeyframesOrFont && /keyframes/i.test(r.atRule || ''));
+      const named = [...new Set((cssText.match(/@(?:-\w+-)?keyframes\s+([\w-]+)/gi) || [])
+        .map((s) => s.split(/\s+/).pop()))];
+      if (named.length || keyframes.length) {
+        report.add('design/motion-policy', motionSeverity,
+          `the site defines ${named.length || keyframes.length} keyframe animation${(named.length || keyframes.length) === 1 ? '' : 's'} `
+          + `(${named.slice(0, 4).join(', ')}${named.length > 4 ? ', …' : ''}) and this build's motion policy is "none"${motionNote}`,
+          {},
+          'Nobody asked for movement on this site. Either take the animation out, or go back to the client, get a yes, '
+          + `and record it as \`- **Motion:** subtle\` in brief.md. Policy came from ${policy.motionSource}.`);
+      }
+
+      const moving = rules.filter((r) => !r.isKeyframesOrFont && r.declarations.some((d) => {
+        if (/^animation(-name)?$/i.test(d.prop) && !/^none\b/i.test(d.value.trim())) return true;
+        if (!/^transition(-property)?$/i.test(d.prop)) return false;
+        const props = d.value.split(',').map((v) => v.trim().split(/\s+/)[0]).filter(Boolean);
+        return props.some((p) => p && !CALM_PROPS.test(p) && !/^none$/i.test(p));
+      }));
+      if (moving.length) {
+        report.add('design/motion-policy', motionSeverity,
+          `${moving.length} rule${moving.length === 1 ? '' : 's'} animate or transition something that moves `
+          + `(first: ${moving[0].selector.split(',')[0].trim()}) and this build's motion policy is "none"${motionNote}`,
+          at(moving[0]),
+          'Under "none" the site may still transition colour, opacity and shadow on hover and focus — that is state '
+          + 'feedback, and removing it makes the page worse. Transform, position, size and keyframe animation are what '
+          + '"no animations" means. Change the client\'s mind on the record, or take the movement out.');
+      }
+
+      const revealPatterns = [
+        [/IntersectionObserver/i, 'a scroll-reveal observer'],
+        [/scrollBehavior\s*[:=]\s*['"]smooth|behavior\s*:\s*['"]smooth/i, 'smooth-scrolling'],
+        [/\.animate\s*\(/i, 'the Web Animations API'],
+        [/requestAnimationFrame/i, 'a requestAnimationFrame loop'],
+        [/\b(gsap|ScrollTrigger|AOS\.init|framer-motion|lottie)\b/i, 'an animation library'],
+      ];
+      for (const [re, what] of revealPatterns) {
+        if (re.test(jsText)) {
+          report.add('design/motion-policy', motionSeverity,
+            `the site's JavaScript uses ${what}, and this build's motion policy is "none"${motionNote}`,
+            {},
+            'Scroll-triggered reveals are the single most recognisable generated-site tell, and this client did not '
+            + 'ask for them. Remove it, or get a yes and record `- **Motion:** subtle` in brief.md.');
+        }
+      }
+
+      if (/scroll-behavior\s*:\s*smooth/i.test(cssText)) {
+        report.add('design/motion-policy', MAJOR,
+          'scroll-behavior: smooth is set and this build\'s motion policy is "none"',
+          {},
+          'It hijacks a scroll the visitor already controls. Under "none", let the browser do what the visitor asked for.');
+      }
+    }
+
+    if (policy.motion === 'subtle') {
+      // Under `subtle` the question is no longer whether it moves, but whether
+      // it stops. An infinite animation is the one that gets noticed on day two.
+      const infinite = (cssText.match(/animation[^;{}]*\binfinite\b/gi) || []).length;
+      if (infinite) {
+        report.add('design/motion-policy', MAJOR,
+          `${infinite} animation${infinite === 1 ? '' : 's'} run infinite, and this build's motion policy is "subtle"`,
+          {},
+          'Subtle means it happens once and settles. Something looping forever in the corner of a page is a distraction '
+          + 'the client will ask you to remove in week two — and a genuine accessibility problem before that.');
+      }
+      const longest = [...cssText.matchAll(/animation(?:-duration)?\s*:[^;{}]*?(\d+(?:\.\d+)?)s\b/gi)]
+        .map((m) => parseFloat(m[1])).filter((n) => !Number.isNaN(n));
+      if (longest.some((n) => n > 1.2)) {
+        report.add('design/motion-policy', MINOR,
+          `an animation runs for ${Math.max(...longest)}s, and this build's motion policy is "subtle"`,
+          {},
+          'Over about a second stops reading as polish and starts reading as a wait. Tighten it or move the policy to expressive on purpose.');
+      }
     }
   }
 

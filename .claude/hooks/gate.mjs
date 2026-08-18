@@ -114,7 +114,15 @@ const docGaps = (slug) => {
     try { return statSync(join(dir, f)).size >= min; } catch { return false; }
   };
   const placeholder = (f) => {
-    try { return /lorem\s+ipsum/i.test(readFileSync(join(dir, f), 'utf8')); } catch { return false; }
+    try {
+      const text = readFileSync(join(dir, f), 'utf8');
+      if (/lorem\s+ipsum/i.test(text)) return true;
+      // start.mjs now writes a brief SKELETON at build open, so "exists and is
+      // over 150 bytes" stopped meaning "somebody wrote something" the moment
+      // the template landed — a 4 KB file of angle-bracket prompts satisfied it.
+      // Six or more unreplaced <prompts> is the template, not a document.
+      return (text.match(/^\s*<[A-Z][^>\n]{15,}/gm) || []).length >= 6;
+    } catch { return false; }
   };
   for (const f of ['brief.md', 'content.md', 'design.md']) {
     if (!substantial(f, 150)) gaps.push(`${f} (missing or still empty)`);
@@ -128,6 +136,31 @@ const docGaps = (slug) => {
     if (rows < 2) gaps.push('facts.md (no real ledger rows yet)');
   } catch { gaps.push('facts.md (missing)'); }
   return gaps;
+};
+
+// The size check above proves somebody wrote SOMETHING. It cannot tell a real
+// discovery from a confident-sounding one, and that gap is exactly how a build
+// reached the point of offering the client a two-item legal-jurisdiction menu
+// having never asked for a brief, an image, an asset or a feature.
+//
+// checks/brief.mjs is the substantive version: required sections, blocking
+// questions, a jurisdiction that resolves to a profile that exists. Run it and
+// report what it says. Fails OPEN — if Node cannot run it, the contract still
+// binds, the mechanical catch is just absent.
+const briefGaps = (slug) => {
+  try {
+    const r = spawnSync(process.execPath, [join(root, 'checks', 'brief.mjs'), join(buildsDir, slug), '--json'],
+      { cwd: root, encoding: 'utf8', timeout: 20000, maxBuffer: 8 * 1024 * 1024 });
+    if (r.error || !r.stdout) return [];
+    const j = JSON.parse(r.stdout);
+    if (j.ok) return [];
+    const out = [];
+    if (j.missingSections?.length) out.push(`brief.md has no ${j.missingSections.join(', ')} section`);
+    if (j.thinSections?.length) out.push(`brief.md's ${j.thinSections.map((t) => t.key).join(', ')} section${j.thinSections.length === 1 ? ' is' : 's are'} a heading with nothing decided under it`);
+    if (j.unansweredBlocking?.length) out.push(`${j.unansweredBlocking.length} BLOCKING question${j.unansweredBlocking.length === 1 ? '' : 's'} unanswered (${j.unansweredBlocking.slice(0, 4).join('; ')}${j.unansweredBlocking.length > 4 ? '; …' : ''})`);
+    if (j.jurisdictionProblems?.length) out.push(j.jurisdictionProblems[0]);
+    return out;
+  } catch { return []; }
 };
 
 try {
@@ -163,7 +196,7 @@ try {
             `Run: node start.mjs "<project name>" - it creates the state file and intake ` +
             `folder the pipeline keys off - then start at stages/01_discover/CONTEXT.md.`);
         }
-        const gaps = docGaps(slug);
+        const gaps = [...docGaps(slug), ...briefGaps(slug)];
         if (gaps.length) {
           deny(`Not yet: builds/${slug}/ still lacks ${gaps.join('; ')}. Site files come ` +
             `after discovery and design are locked (AGENTS.md rule 1) - otherwise this is ` +
@@ -189,7 +222,7 @@ try {
           deny(`builds/${slug}/ has no STATE.md, so this build was never opened. ` +
             `Run: node start.mjs "<project name>" first.`);
         }
-        const gaps = docGaps(slug)
+        const gaps = [...docGaps(slug), ...briefGaps(slug)]
           .filter((g) => !g.startsWith('design.md') && !g.startsWith('content.md'));
         if (gaps.length) {
           deny(`Not yet: builds/${slug}/ still lacks ${gaps.join('; ')}. Even scaffolding ` +

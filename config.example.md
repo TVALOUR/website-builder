@@ -13,10 +13,21 @@ to different defaults.
 
 - **Profile:** `uk`
 
-  Which file in `profiles/` the legal gates use. The legal family is the genuinely
-  country-shaped part of this repo, and running the UK profile on a US site would produce
-  confident wrong advice. If your jurisdiction is missing, say so plainly rather than running
-  the nearest one.
+  Which file in `profiles/` the legal gates use. Shipped: `uk` · `us` · `eu` · `ca` · `au` ·
+  `intl-baseline`.
+
+  The legal family is the genuinely country-shaped part of this repo, and running the UK profile
+  on a US site does not produce slightly-wrong output — it produces a Kansas plumber citing the
+  Companies Act 2006 and publishing a company number that cannot exist.
+
+  **There is no default.** A run with no profile raises `legal/jurisdiction` as a blocker.
+
+  **If your country is not here, research it** — `profiles/README.md` has the protocol and the
+  brief to hand an agent. It is one pass, and it produces the profile plus working notes with
+  every source URL and access date. If the session has no web access, use `intl-baseline` (an
+  honesty floor that names no statute), say so to the client, and recommend a local adviser reads
+  the four legal pages. Do not write a legal profile from memory: three citations in an earlier
+  UK draft had been revoked or rewritten while it confidently cited them as live.
 
 ## Defaults
 
@@ -35,6 +46,28 @@ to different defaults.
   Front end only means the form posts somewhere you do not own. Whichever you pick must publish
   a data-processing agreement, and the privacy notice must name it. If the honest answer for
   most of your builds is a `tel:` link, put `none` and stop apologising for it.
+
+## Defaults that are OFF unless you turn them on
+
+- **Motion:** `none`
+
+  `none` · `subtle` (it happens once and settles) · `expressive`. Under `none` the site still
+  transitions colour, shadow and opacity on hover and focus — that is state feedback, and removing
+  it makes a page worse. Nothing slides, fades in on scroll, or loops.
+
+  Off by default because "everything fades in as you scroll" is what a page does when nobody
+  decided, and it is the most recognisable tell of a generated site. Enforced by
+  `design/motion-policy`, so it is a rule rather than a preference.
+
+- **Imagery:** `client-assets-only`
+
+  `client-assets-only` · `generated-allowed`. Off by default because a generated image on a real
+  business's site is a picture of a place that does not exist or a person who does not work there.
+  Even under `generated-allowed`, generated imagery may never depict people, premises, products,
+  logos or awards (`shared/imagery.md` §3), and the assets gate blocks it.
+
+Both can be overridden per build in that build's `brief.md`, which is where the client's actual
+answer to questions 62 and 63 lives.
 
 ## House rules
 

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <title>Assets control — a fixture that must FAIL</title>
+  <meta name="description" content="A deliberately broken fixture. Every asset gate should fire on it.">
+</head>
+<body>
+  <!--
+    THIS FIXTURE EXISTS TO FAIL. Do not fix it.
+
+    It is the assets family's negative control: every image on this page is
+    wrong in a different, specific way, so checks/selftest.mjs can prove each
+    gate actually fires rather than assuming it does. A gate that never fires
+    on a negative control is decoration.
+
+    Each fault is labelled below with the gate it must trip.
+  -->
+
+  <h1>Assets control</h1>
+
+  <!-- assets/unmanifested — published with no row in the manifest at all. -->
+  <img src="img/shopfront.jpg" alt="The shop from the street" width="800" height="600">
+
+  <!-- assets/generated-not-permitted + assets/generated-forbidden-subject —
+       a generated photo of the team, on a build whose imagery policy is
+       client-assets-only. Both a policy breach and a banned subject. -->
+  <img src="img/team.png" alt="The team outside the workshop" width="800" height="600">
+
+  <!-- assets/rights-unrecorded + assets/alt-unrecorded — the row exists and
+       says nothing about whether it is theirs to publish. -->
+  <img src="img/logo.svg" alt="" width="120" height="40">
+
+  <!-- assets/generated-undeclared — the Source cell names a generator and the
+       Generated column says no. -->
+  <img src="img/hero-texture.png" alt="Slate paper texture" width="1600" height="900">
+
+  <!-- assets/source-unrecorded — the row exists and does not say where the
+       file came from. Unsourced is the same as invented. -->
+  <img src="img/yard.png" alt="The yard at first light" width="800" height="600">
+
+  <p>Contact: <a href="mailto:nobody@example.com">nobody@example.com</a></p>
+</body>
+</html>
