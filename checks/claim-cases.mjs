@@ -38,6 +38,17 @@ export const PROSE = [
   ['We guarantee same-day callout', 'guarantee', true],
   ['Money-back guarantee on every stock item', 'guarantee', true],
 
+  // 2026-08-19, from a naive Canadian build. Its terms page said "Neither is a
+  // guarantee about parts of a structure nobody can see" — a disclaimer, in a
+  // terms page, blocked at BLOCKER as a promise the business must honour. The
+  // negation guard knew the auxiliary-verb forms and none of the pronoun ones.
+  ['Neither is a guarantee about parts of a structure nobody can see.', 'guarantee', false],
+  ['Nothing on this page is a guarantee that the work will suit your appliance.', 'guarantee', false],
+  ['None of this is a guarantee of a fixed price.', 'guarantee', false],
+  ['An inspection is not a guarantee about anything nobody can see.', 'guarantee', false],
+  // ...and the fix must not silence the real thing three words later.
+  ['We guarantee the work for twelve months.', 'guarantee', true],
+
   ['Nobody here is going to tell you we are the best joiner in Devon.', 'superiority', false],
   ['the best way to reach us is by phone', 'superiority', false],
   ['The best joiner in Devon, three years running', 'superiority', true],

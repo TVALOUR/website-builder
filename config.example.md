@@ -11,10 +11,17 @@ to different defaults.
 
 ## Jurisdiction
 
-- **Profile:** `uk`
+- **Profile:** `<choose one — this line is deliberately unfilled>`
 
   Which file in `profiles/` the legal gates use. Shipped: `uk` · `us` · `eu` · `ca` · `au` ·
   `intl-baseline`.
+
+  **This template used to ship `uk` here**, four lines above the sentence "There is no default",
+  which meant a stranger who copied it, filled in their name and email, and built a site for a
+  client in Ohio got the UK profile without ever choosing it — and the report told them to publish
+  the ICO's details. That is the Kansas-plumber failure the README opens by describing, sitting in
+  the file stage 00 tells you to copy. The placeholder above does not resolve to a profile, so the
+  first run blocks on `legal/jurisdiction` until somebody answers the question.
 
   The legal family is the genuinely country-shaped part of this repo, and running the UK profile
   on a US site does not produce slightly-wrong output — it produces a Kansas plumber citing the

@@ -160,6 +160,51 @@ export function ldTypes(blocks) {
 }
 
 /** Collect every object in a JSON-LD graph whose @type matches, at any depth. */
+// schema.org's LocalBusiness has around seventy subtypes, and Google's own
+// documentation tells a trade business to use the specific one. `HVACBusiness`,
+// `Plumber`, `RoofingContractor`, `Electrician`, `HomeAndConstructionBusiness`,
+// `Dentist` and the rest are all LocalBusiness — and none of them contain the
+// string "localbusiness".
+//
+// Matching on the substring alone meant a build that used the RECOMMENDED type
+// reported "no JSON-LD structured data anywhere on the site" — a message that
+// was not merely unhelpful but false, on a page carrying a valid graph. Found by
+// a naive Canadian build that typed itself `HomeAndConstructionBusiness`, which
+// is what schema.org says a chimney sweep is.
+const LOCAL_BUSINESS_SUBTYPES = new Set([
+  'animalshelter', 'archiveorganization', 'automotivebusiness', 'autobodyshop', 'autodealer',
+  'autopartsstore', 'autorental', 'autorepair', 'autowash', 'gasstation', 'motorcycledealer',
+  'motorcyclerepair', 'childcare', 'dentist', 'drycleaningorlaundry', 'emergencyservice',
+  'firestation', 'hospital', 'policestation', 'employmentagency', 'entertainmentbusiness',
+  'adultentertainment', 'amusementpark', 'artgallery', 'casino', 'comedyclub', 'movietheater',
+  'nightclub', 'financialservice', 'accountingservice', 'automatedteller', 'bankorcreditunion',
+  'insuranceagency', 'foodestablishment', 'bakery', 'barorpub', 'brewery', 'cafeorcoffeeshop',
+  'distillery', 'fastfoodrestaurant', 'icecreamshop', 'restaurant', 'winery',
+  'governmentoffice', 'postoffice', 'healthandbeautybusiness', 'beautysalon', 'daysta',
+  'dayspa', 'hairsalon', 'healthclub', 'nailsalon', 'tattooparlor', 'homeandconstructionbusiness',
+  'electrician', 'generalcontractor', 'hvacbusiness', 'housepainter', 'locksmith', 'movingcompany',
+  'plumber', 'roofingcontractor', 'internetcafe', 'legalservice', 'attorney', 'notary',
+  'library', 'lodgingbusiness', 'bedandbreakfast', 'campground', 'hostel', 'hotel', 'motel',
+  'resort', 'medicalbusiness', 'professionalservice', 'radiostation', 'realestateagent',
+  'recyclingcenter', 'selfstorage', 'shoppingcenter', 'sportsactivitylocation', 'bowlingalley',
+  'exercisegym', 'golfcourse', 'publicswimmingpool', 'skiresort', 'sportsclub', 'stadiumorarena',
+  'tenniscomplex', 'store', 'bikestore', 'bookstore', 'clothingstore', 'computerstore',
+  'convenience', 'conveniencestore', 'departmentstore', 'electronicsstore', 'florist',
+  'furniturestore', 'gardenstore', 'groceryreseller', 'grocerystore', 'hardwarestore',
+  'hobbyshop', 'homegoodsstore', 'jewelrystore', 'liquorstore', 'mensclothingstore',
+  'mobilephonestore', 'movierentalstore', 'musicstore', 'officeequipmentstore', 'outletstore',
+  'pawnshop', 'petstore', 'shoestore', 'sportinggoodsstore', 'tirestore', 'toystore',
+  'wholesalestore', 'televisionstation', 'touristinformationcenter', 'travelagency',
+]);
+
+function typeMatches(declared, wanted) {
+  const d = String(declared).toLowerCase().replace(/^https?:\/\/schema\.org\//, '');
+  const w = wanted.toLowerCase();
+  if (d.includes(w)) return true;
+  if (w === 'localbusiness') return LOCAL_BUSINESS_SUBTYPES.has(d);
+  return false;
+}
+
 export function ldNodes(blocks, typeName) {
   const out = [];
   const seen = new Set();
@@ -169,7 +214,7 @@ export function ldNodes(blocks, typeName) {
     if (Array.isArray(node)) return node.forEach(visit);
     const t = node['@type'];
     const list = typeof t === 'string' ? [t] : Array.isArray(t) ? t : [];
-    if (list.some((x) => String(x).toLowerCase().includes(typeName.toLowerCase()))) out.push(node);
+    if (list.some((x) => typeMatches(x, typeName))) out.push(node);
     for (const [k, v] of Object.entries(node)) {
       if (k === '@type') continue;
       if (v && typeof v === 'object') visit(v);

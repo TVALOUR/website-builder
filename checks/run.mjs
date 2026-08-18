@@ -24,10 +24,11 @@
 // exact bug shipped once in this tool's ancestor, so the argument is required.
 
 import { isAbsolute, join, resolve } from 'node:path';
-import { statSync } from 'node:fs';
+import { statSync, existsSync, readFileSync } from 'node:fs';
 import { Report } from './lib/report.mjs';
 import { walk, allFiles, walkStats } from './lib/fs.mjs';
 import { loadProfile, profileFromConfig, profileFromBrief } from './lib/profile.mjs';
+import { resolveRegime } from './lib/regime.mjs';
 
 import copy from './rules/copy.mjs';
 import legal from './rules/legal.mjs';
@@ -233,8 +234,15 @@ if (walkStats.symlinks > 0) {
   report.skip('scan', `${walkStats.symlinks} symlink(s) not followed - anything behind them was NOT checked`);
 }
 
+// Question 0's answer, resolved ONCE and handed to every family. It used to be
+// parsed inside legal.mjs for legal.mjs, so a build that correctly declared
+// itself a fictional demo was still blocked by copy.mjs for using the reserved
+// phone range that same declaration requires. See checks/lib/regime.mjs.
+const regimeFacts = factsPath && existsSync(factsPath) ? readFileSync(factsPath, 'utf8') : '';
+const regime = resolveRegime(regimeFacts);
+
 const ctx = { siteDir, htmlFiles, cssFiles, jsFiles, everyFile, profile, factsPath, assetsPath, styleSources,
-  profileProblems: loaded.problems, profileName };
+  profileProblems: loaded.problems, profileName, regime };
 
 for (const [name, family] of Object.entries(FAMILIES)) {
   if (only.length && !only.includes(name)) continue;

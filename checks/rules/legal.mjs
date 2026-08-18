@@ -23,6 +23,7 @@ import { visibleText, tags, attr, references, body } from '../lib/html.mjs';
 import { BLOCKER, MAJOR, MINOR } from '../lib/report.mjs';
 import { norm } from '../lib/ledger.mjs';
 import { basename, join } from 'node:path';
+import { resolveRegime } from '../lib/regime.mjs';
 
 export const gates = [
   { id: 'legal/jurisdiction', severity: 'blocker', what: 'a jurisdiction profile was chosen and loaded' },
@@ -105,27 +106,27 @@ export async function run(ctx, report) {
   // disclosure gates - they are the law for UK traders with a shopfront, and
   // demanding a geographic address from a SaaS landing page pressures people
   // toward inventing one, the exact dishonesty this tool exists to stop.
-  const entityDecl = /\|\s*Entity\s*type\s*\|([^|]*)\|/i.exec(factsText);
-  const declaredForm = entityDecl
-    && /\b(limited|ltd\.?|plc|llp|sole\s*trader|partnership)\b/i.test(entityDecl[1]);
-  const demoish = entityDecl && !declaredForm
-    && /(personal|portfolio|demo|fiction)/i.test(entityDecl[1]);
-  const nonTrader = entityDecl && !declaredForm
-    && (demoish
-      || /(product|saas|online[\s-]?only|no\s+premises|not\s+a\s+(local\s+)?(business|trader))/i
-        .test(entityDecl[1]));
+  // Resolved once, in checks/lib/regime.mjs, and shared with every family — see
+  // that file for why. This block used to hold its own British-only copy of the
+  // vocabulary, so a Canadian sole proprietorship, a Delaware LLC and an
+  // Australian Pty Ltd all fell through it.
+  const regime = ctx.regime || resolveRegime(factsText);
+  const declaredForm = regime.form !== null;
+  const demoish = regime.isDemo;
+  const nonTrader = regime.isDemo || regime.isOnlineOnly;
 
-  let isLimited = null;
-  const entityRow = /\|\s*Entity\s*type\s*\|([^|]*)\|/i.exec(factsText);
-  if (entityRow) {
-    const declared = entityRow[1].toLowerCase();
-    if (/\bsole\s*trader\b|\bpartnership\b|\bunincorporated\b/.test(declared)) isLimited = false;
-    else if (/\b(limited|ltd|plc|llp)\b/.test(declared)) isLimited = true;
-  }
+  let isLimited = regime.form === 'incorporated' ? true
+    : regime.form === 'unincorporated' ? false
+      : null;
   if (isLimited === null) {
-    // No declared entity type: fall back to what the site itself says.
-    isLimited = htmlFiles.some((f) =>
-      /\b(company\s+(number|no\.?)|registered\s+in\s+england|companies\s+house)\b/i.test(read(f)));
+    // No declared entity type: fall back to what the site itself says. The
+    // registry vocabulary is per-country — the old list was "company number",
+    // "registered in England" and "Companies House", three UK strings deciding
+    // the legal form of businesses in five other jurisdictions. The profile
+    // supplies its own where it has one; the shared terms are the fallback.
+    const registryWords = profile.legal?.registryDisclosureWords
+      || /\b(company\s+(?:number|no\.?|registration)|registered\s+in\s+england|companies\s+house|corporation\s+number|\bACN\b|\bABN\b|\bEIN\b|registre\s+du\s+commerce|handelsregister|\bHRB\b|\bKvK\b)\b/i;
+    isLimited = htmlFiles.some((f) => registryWords.test(read(f)));
   }
 
   // The consent findings below must speak the profile's law, not the author's.
@@ -385,7 +386,7 @@ export async function run(ctx, report) {
   const siteText = htmlFiles.map((f) => visibleText(read(f))).join('\n');
   if (nonTrader) {
     report.skip('legal/business-identity',
-      `facts.md declares entity type "${entityDecl[1].trim()}" - trader identity disclosures ${demoish ? 'not applied' : 'reduced to contact details'}`);
+      `facts.md declares entity type "${regime.raw}" - trader identity disclosures ${demoish ? 'not applied' : 'reduced to contact details'}`);
   }
   // A declared legal form always owes its statutory list. A real online
   // product business still owes reachable contact details. Only a declared

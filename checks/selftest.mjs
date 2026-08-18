@@ -354,6 +354,45 @@ console.log('\nasset provenance — laundering routes and false positives');
   say(ASSET_CASES.length >= 10, `${ASSET_CASES.length} asset cases exercised`);
 }
 
+// ------------------------------------------------- the shipped config template
+//
+// `config.example.md` is the file stage 00 tells every new clone to copy. It
+// shipped `- **Profile:** `uk`` four lines above its own sentence "There is no
+// default", so a stranger who filled in their name and email and nothing else
+// silently gated every build against UK law — including the Ohio client the
+// README opens by describing. A probe, not a paragraph, because the paragraph
+// was already there and was already being contradicted by the line above it.
+console.log('\nconfig template — must not ship a country nobody chose');
+{
+  const flat = readFileSync(join(root, 'config.example.md'), 'utf8')
+    .replace(/\*\*/g, '').replace(/__/g, '');
+  const m = /^\s*(?:[-*]\s*)?Profile\s*:\s*`?([a-z0-9-]+)`?/im.exec(flat);
+  say(!m, `config.example.md resolves to no profile (got ${m ? m[1] : 'none'})`);
+  say(/no default/i.test(flat), 'and still says so in words');
+}
+
+// ---------------------------------------------------------------- regime
+//
+// Question 0's answer has to reach every family, and its vocabulary has to be
+// the vocabulary of the six countries this repo ships. Both were false, and
+// both were found by running a Canadian build rather than by reading the code:
+// a declared fictional demo was blocked for using the reserved phone range that
+// same declaration requires, and "sole proprietorship" — the standard term
+// across North America — matched no entity pattern at all.
+console.log('\nproject regime — question 0 must reach every family, in every country');
+{
+  const { runCases, runReserved, CASES: REGIME_CASES } = await import('./regime-cases.mjs');
+  for (const r of runCases()) {
+    say(r.formOk && r.demoOk,
+      `${r.note.padEnd(32)} "${r.entity.slice(0, 44)}"`
+      + (r.formOk && r.demoOk ? '' : ` <- form ${r.gotForm}/${r.wantForm}, demo ${r.gotDemo}/${r.wantDemo}`));
+  }
+  for (const r of runReserved()) {
+    say(r.ok, `${r.should ? 'reserved' : 'real    '} number ${r.text.padEnd(17)} ${r.note}`);
+  }
+  say(REGIME_CASES.length >= 15, `${REGIME_CASES.length} entity-form cases exercised`);
+}
+
 // ------------------------------------------------------- policy reading
 //
 // The regression this locks down was invisible for exactly the reason it was

@@ -173,7 +173,19 @@ export function buildIndex(rows) {
     // A value can legitimately be any class, so try them all against every cell
     // that could hold one. Cheap, and it means the ledger author does not have
     // to label the class.
-    for (const cell of [row.value, row.fact]) {
+    // The cells are tried SEPARATELY and also JOINED, because a fact is
+    // routinely split across the two columns the template's own header invites:
+    //
+    //   | Fact              | Value       |
+    //   | Monday to Friday  | 7am to 6pm  |
+    //
+    // Read cell-by-cell, neither half is an opening-hours line, so a correctly
+    // sourced fact produced a BLOCKER with no way for the author to see why.
+    // The reference fixture happens to write the whole string in one cell, so
+    // nothing caught it until a build wrote it the other way — which is the more
+    // natural reading of a column literally headed "Fact".
+    const joined = [row.fact, row.value].filter(Boolean).join(', ');
+    for (const cell of [row.value, row.fact, joined]) {
       if (!cell) continue;
       textOfSourced.push(cell.toLowerCase());
       for (const k of Object.keys(idx)) {
@@ -184,6 +196,27 @@ export function buildIndex(rows) {
       for (const m of cell.matchAll(/(?:£|\$|€)\s?\d[\d,]*(?:\.\d{1,2})?/g)) {
         const v = norm.price(m[0]);
         if (v) idx.price.add(v);
+      }
+    }
+
+    // Quantities survive the split only if the number and its unit are
+    // recombined, and a row states them in either order:
+    //
+    //   | Years sweeping | 19 |          the unit is in the Fact cell
+    //   | Experience     | 19 years |    the unit is in the Value cell
+    //
+    // The second already worked. The first is the same sourced fact written the
+    // way the header asks for it, and it produced "19 years" unsourced. Only
+    // the units the quantity extractor recognises are recombined, so this
+    // cannot invent a source for anything else.
+    const UNITS = /\b(years?|customers|clients|patients|projects|jobs|reviews)\b/gi;
+    const units = [...joined.matchAll(UNITS)].map((m) => m[0].toLowerCase());
+    if (units.length) {
+      for (const nm of joined.matchAll(/\b\d[\d,]*\+?\b/g)) {
+        for (const u of units) {
+          const v = norm.quantity(`${nm[0]} ${u}`);
+          if (v) idx.quantity.add(v);
+        }
       }
     }
   }

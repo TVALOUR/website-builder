@@ -23,6 +23,7 @@ import { read, displayPath } from '../lib/fs.mjs';
 import { visibleTextPositional, decodeEntities, tags, attr, title, meta } from '../lib/html.mjs';
 import { lineAt } from '../lib/fs.mjs';
 import { BLOCKER, MAJOR, MINOR, plural } from '../lib/report.mjs';
+import { RESERVED_FICTION_NUMBER } from '../lib/regime.mjs';
 
 export const gates = [
   { id: 'copy/em-dash', severity: 'blocker', what: 'em-dash density above the measured human range' },
@@ -127,7 +128,22 @@ const PLACEHOLDER = [
   [/\b(acme|nexus|lorem)\s+(corp|inc|ltd|company|solutions)\b/gi, 'placeholder company name', BLOCKER],
   [/\bplaceholder\.(com|co)\b/gi, 'placeholder image host', BLOCKER],
   [/\bvia\s?placeholder\.com\b/gi, 'placeholder image host', BLOCKER],
-  [/\b(0123456789|01234\s?567890|555[-\s]?0\d{3})\b/g, 'placeholder phone number', BLOCKER],
+  // Keyboard-mashed numbers, always wrong, in every regime.
+  //
+  // `1234567890` was added here in the same edit that split this rule and was
+  // taken straight back out: it blocked the reference build's own type specimen,
+  // which prints the digits as a font sample. A ten-digit run is not evidence of
+  // a phone number, and the drift check caught it within the minute. `01234
+  // 567890` stays because the space makes it a phone shape rather than a
+  // numeral run.
+  [/\b(0123456789|01234\s?567890)\b/g, 'placeholder phone number', BLOCKER],
+  // NOTE: the ranges numbering authorities RESERVE for fiction — NANPA 555-01xx,
+  // Ofcom 01632 960xxx / 07700 900xxx, ACMA 5550 xxxx — are handled separately,
+  // below, because their verdict depends on the regime. They used to be in this
+  // list, and a build that answered question 0 as a fictional demo, and used the
+  // reserved range because question 0 REQUIRES a demo to use one, was blocked on
+  // every page for doing exactly what it was told. Same string, opposite
+  // verdicts: forbidden on a real business's site, mandatory on a demo.
   [/\b(insert|add)\s+(your\s+)?(text|content|copy)\s+here\b/gi, 'unfilled content slot', BLOCKER],
 ];
 
@@ -254,6 +270,30 @@ export async function run(ctx, report) {
           'Replace with a real fact, or remove the section. Nothing labelled as missing ships.'
         );
       }
+    }
+
+    // The reserved fiction ranges, judged against question 0's answer.
+    //
+    // On a real business's site a drama number is a placeholder that shipped: a
+    // customer dials it and reaches nobody, and the owner never finds out
+    // because the owner never rings their own phone. On a demo it is the
+    // CORRECT value — question 0 instructs a fictional build to use a reserved
+    // range precisely so a published number cannot ring a real household, and
+    // every profile names its country's range for the purpose.
+    //
+    // The regime now arrives on ctx (checks/lib/regime.mjs) instead of being
+    // parsed inside legal.mjs where nothing else could see it.
+    RESERVED_FICTION_NUMBER.lastIndex = 0;
+    const reserved = RESERVED_FICTION_NUMBER.exec(placeholderScope);
+    if (reserved && !ctx.regime?.isDemo) {
+      report.add('copy/placeholder', BLOCKER,
+        `reserved fiction phone number "${reserved[0].trim()}" on a site that is not declared as a demo`,
+        { file: shown, line: lineAt(placeholderScope, reserved.index) },
+        'Numbering authorities reserve this range so a number in a film cannot ring a real household. '
+        + 'On a real business\'s site it means a placeholder shipped and every enquiry from this page is '
+        + 'lost. Either put the real number in facts.md and on the page, or — if this genuinely is a '
+        + 'demo — say so in facts.md (question 0, answer c) and this gate will expect the reserved '
+        + 'range rather than forbid it.');
     }
 
     // Developer notes in comments are NOT placeholders in the shipped copy —

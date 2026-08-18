@@ -40,7 +40,15 @@
 // name is the discriminator), so an /i here would break the rule it guards.
 // Without the classes, a sentence OPENING with the negation — "Nobody here is
 // going to tell you we are the best joiner in Devon" — slipped straight past.
-const NOT = String.raw`(?<!\b(?:[Nn]ot|[Nn]ever|[Nn]obody|[Nn]o one|[Nn]o-one|[Cc]annot|[Cc]an't|[Cc]an not|[Dd]o not|[Dd]on't|[Dd]oes not|[Dd]oesn't|[Ww]on't|[Uu]nable to)\b[^.!?]{0,60})`;
+// 2026-08-19: `neither`, `nothing`, `nor` and `none` added after a naive build's
+// terms page was blocked on "Neither is a guarantee about parts of a structure
+// nobody can see" — a sentence whose entire job is to decline the promise the
+// gate reported it as making. This is the third distinct negation shape to slip
+// past a list that only knew the auxiliary-verb forms, so it is worth saying
+// plainly: the failure mode of a claim checker is reading a disclaimer as a
+// promise, and every one of these was found in ordinary honest copy rather than
+// in a fixture.
+const NOT = String.raw`(?<!\b(?:[Nn]ot|[Nn]ever|[Nn]obody|[Nn]o one|[Nn]o-one|[Nn]either|[Nn]othing|[Nn]or|[Nn]one|[Cc]annot|[Cc]an't|[Cc]an not|[Dd]o not|[Dd]on't|[Dd]oes not|[Dd]oesn't|[Ww]on't|[Uu]nable to)\b[^.!?]{0,60})`;
 
 export default {
   id: '_base',
