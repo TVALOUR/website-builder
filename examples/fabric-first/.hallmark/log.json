@@ -1,0 +1,23 @@
+[
+  {
+    "date": "2026-07-29",
+    "site": "fabric-first (example build)",
+    "genre": "modern-minimal",
+    "macrostructure": "Narrative Workflow",
+    "nav": "N10 floating-on-scroll morph",
+    "footer": "Ft1 mast-headed",
+    "theme": "custom",
+    "theme_axes": "light / display-heavy / chromatic-green ~152°",
+    "vibe": "engineered, cool, precise, fabric-first",
+    "paper": "oklch(98.8% 0.005 152)",
+    "accent": "oklch(46% 0.135 152)",
+    "display": "Cabinet Grotesk 800",
+    "body": "Cabinet Grotesk 400 (single family, site-wide)",
+    "enrichment": "Tier B hand-built SVG — the building cross-section",
+    "signature": "The Section — a drawn cross-section whose airtightness membrane is one unbroken green line around the heated volume; each method stage lights its own layer",
+    "pre_emit_critique": { "P": 5, "H": 5, "E": 5, "S": 4, "R": 5, "V": 5 },
+    "honesty": "fictional company, declared in the colophon on every page; no invented metrics, testimonials, logos or credentials; unmeasured figures shown as labelled pending rows; Ofcom drama phone number; .example email domain; no photography, generated or otherwise",
+    "brief": "Fabric First · Devon retrofit + low-carbon heating · sample build, brief inferred (audience/use/tone delegated by the owner)",
+    "notes": "Brief mandated green, which is the workspace gravity well (example-clinic, example-outdoors). Exited it on the other three axes: cool near-white paper not warm cream, heavy grotesque not soft serif, saturated deep signal green not muted sage, workflow macrostructure not soft cards. No back end and no forms anywhere, per the standing front-end-only scope."
+  }
+]
