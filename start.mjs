@@ -81,7 +81,10 @@ let state;
 try {
   state = readFileSync(join(root, 'templates', 'STATE.md'), 'utf8')
     .replace('<business name>', name)
-    .replace('<slug>', slug);
+    .replace('<slug>', slug)
+    .replace('<what just happened, in one line>', 'build opened by start.mjs')
+    .replace('<one or two sentences telling a fresh session exactly what to do next>',
+      'Run stage 01: read stages/01_discover/CONTEXT.md, collect the intake, run the interview.');
 } catch {
   state = `# State — ${name}\n\n**Build:** ${slug}\n\n## Next action\nRun stage 01: read stages/01_discover/CONTEXT.md.\n`;
 }
