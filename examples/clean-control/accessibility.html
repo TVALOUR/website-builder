@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accessibility | Hartland Farriery</title>
+<meta name="description" content="Where this site stands against WCAG 2.2 AA, what has been done, the two known limitations we have not fixed, and how to report a problem.">
+<link rel="canonical" href="https://hartlandfarriery.example/accessibility.html">
+<meta name="theme-color" content="#f4f1ea">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Hartland Farriery">
+<meta property="og:title" content="Accessibility | Hartland Farriery">
+<meta property="og:description" content="Where this site stands against WCAG 2.2 AA, what has been done, the two known limitations we have not fixed, and how to report a problem.">
+<meta property="og:url" content="https://hartlandfarriery.example/accessibility.html">
+<meta property="og:image" content="https://hartlandfarriery.example/social-card.png">
+<meta property="og:locale" content="en_GB">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Accessibility | Hartland Farriery">
+<meta name="twitter:description" content="Where this site stands against WCAG 2.2 AA, what has been done, the two known limitations we have not fixed, and how to report a problem.">
+<meta name="twitter:image" content="https://hartlandfarriery.example/social-card.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to the main content</a>
+
+<header class="masthead">
+  <div class="shell masthead-inner">
+    <a class="wordmark" href="index.html">Hartland <b>Farriery</b></a>
+    <nav class="nav" aria-label="Main">
+      <a href="index.html">Home</a>
+      <a href="services.html">Shoeing</a>
+      <a href="about.html">The forge</a>
+      <a href="contact.html">Booking</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+<section class="prose">
+  <div class="shell">
+    <p class="folio">Last reviewed 14 January 2026</p>
+    <h1>Accessibility</h1>
+
+    <p class="lede">This site should work for everyone, including people using a
+      screen reader, a keyboard on its own, or a phone in bright sunlight in a
+      field. Here is where it stands, honestly.</p>
+
+    <h2>The standard we aim at</h2>
+    <p>WCAG 2.2 level AA.</p>
+
+    <h2>What has been done</h2>
+    <ul>
+      <li>Every page has one h1 and headings that step down in order.</li>
+      <li>Body text is at least 4.5 to 1 against its background, and large text
+        at least 3 to 1. The palette was checked, not eyeballed.</li>
+      <li>Everything works from the keyboard, and the focus outline is visible
+        rather than removed for tidiness.</li>
+      <li>A skip link is the first thing you reach.</li>
+      <li>Landmarks are real: header, nav, main and footer.</li>
+      <li>Text reflows to a phone at 320 pixels wide with no sideways scrolling,
+        and to 400 percent zoom.</li>
+      <li>Nothing moves, flashes or plays on its own.</li>
+      <li>There is a print stylesheet, because people pin the price list up.</li>
+    </ul>
+
+    <h2>Known limitations</h2>
+    <ul>
+      <li>The site has not yet been tested end to end with NVDA or VoiceOver by
+        somebody who uses one daily. Automated checks are not the same thing, and
+        we are not going to claim they are.</li>
+      <li>The price table scrolls sideways inside its own box on a narrow phone.
+        It is reachable and readable, but it is not the nicest way to read a
+        table.</li>
+    </ul>
+
+    <h2>Telling us about a problem</h2>
+    <p>Email <a href="mailto:will@hartlandfarriery.example">will@hartlandfarriery.example</a> or ring
+      <a href="tel:01271860442">01271 860 442</a> and say what would not work and what
+      you were using. It gets fixed and this page gets updated.</p>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="shell">
+    <div class="foot-grid">
+      <div>
+        <h2>Get hold of Will</h2>
+        <ul>
+          <li><a href="tel:01271860442">01271 860 442</a></li>
+          <li><a href="mailto:will@hartlandfarriery.example">will@hartlandfarriery.example</a></li>
+        </ul>
+        <p>Phone is quicker. Most days it goes to voicemail until about five,
+          and every message gets a call back the same evening.</p>
+      </div>
+      <div>
+        <h2>Where he goes</h2>
+        <ul>
+          <li>Bideford, Torrington and Holsworthy</li>
+          <li>Barnstaple and Braunton</li>
+          <li>Hartland and Clovelly</li>
+        </ul>
+        <p>Anywhere in North Devon. Further out is possible on a full day.</p>
+      </div>
+      <div>
+        <h2>When</h2>
+        <ul>
+          <li>Monday to Friday, 7am to 5pm</li>
+          <li>Saturday, 8am to 1pm</li>
+          <li>Sunday, emergencies only</li>
+        </ul>
+        <p class="folio">Est. 2011 &middot; Reg. Farrier FRC 08812</p>
+      </div>
+    </div>
+    <p class="legal-row">
+      Hartland Farriery, Barn 3, Kenwith Lane, Bideford, Devon EX39 3PH.
+      Registered with the Farriers Registration Council, number FRC 08812.
+      &middot; <a href="privacy.html">Privacy</a> &middot; <a href="cookies.html">Cookies</a> &middot; <a href="terms.html">Terms</a> &middot; <a href="accessibility.html">Accessibility</a>
+      &middot; <span id="year-holder">&copy; <span id="year">2026</span></span>
+    </p>
+  </div>
+</footer>
+
+<script src="script.js" defer></script>
+</body>
+</html>

@@ -1,82 +1,80 @@
 # Stage 05 — Build
 
-Turn the four approved inputs into a real, runnable, distinctively designed site.
-The design decisions are locked upstream in the spec — this stage is execution work.
+Turn the four approved documents into files.
 
-**Run modes:** conductor — spawn on the **standard** tier (complex builds:
-strongest), naming `references/build-prompt.md` in the spawn prompt as the
-binding contract · solo — run inline. Tier table: [`../../_config/model-routing.md`](../../_config/model-routing.md).
-
-**Rhythm:** → auto-proceed — build, then continue to QA unless the build report
-flags a problem (missing input, unresolved placeholder), in which case pause and
-raise it.
+→ Auto-proceed. The decisions were made upstream; this is execution. If you find yourself
+making a design or content decision here, something upstream was incomplete: stop and go back
+rather than deciding it quietly in the markup.
 
 ## Inputs
 
-- Layer 4 (working): `../01_brief/output/brief.md` — stack, deploy, purpose.
-- Layer 4 (working): `../02_sitemap/output/sitemap.md` — pages, nav, sections.
-- Layer 4 (working): `../03_content/output/content.md` — the verbatim copy.
-- Layer 4 (working): `../04_design/output/design-spec.md` — tokens + per-section layout.
-- Layer 3 (reference): `../../shared/design/anti-slop-rules.md` — the non-negotiables.
-- Layer 3 (reference): `../../shared/legal/legal-pages.md` + `../../shared/legal/consent.js` — the four baseline legal pages + the front-end-only cookie-consent template to wire in verbatim.
-- Layer 3 (reference): `references/build-prompt.md` — the binding build contract.
-- Layer 4 (working): `../04_design/output/asset-manifest.md` — generated-imagery direction (only if stage 04 produced one; see 05a note).
+- `builds/<slug>/brief.md`, `sitemap.md`, `content.md`, `design.md`
+- `builds/<slug>/facts.md`
+- `../../templates/` — legal pages, consent banner, `_headers`, robots, structured data
+- `../../examples/clean-control/` — **a complete worked reference. Read it before you start.**
+  It is faster to copy a shape that passes than to rediscover one.
 
 ## Process
 
-### 05a — Generated imagery: only if your setup has an image tool
+1. **Check your inputs.** All four present, no unresolved `[NEEDS: …]` or `<<PLACEHOLDER>>`.
+   If any are open, stop. Building around a gap is how a gap becomes fiction.
 
-If your environment has an image-generation tool and stage 04 produced an
-`asset-manifest.md`, generate each asset per `../../shared/design/imagery.md` into
-`output/site-assets/` before building. Without a tool, stage 04 records **"No
-generated assets"** and you supply real images; if a manifest exists anyway, the
-build uses each asset's named CSS/SVG/typographic **fallback** and leaves a
-`<!-- TODO: needs asset … -->`. A missing image beats a slop one.
+2. **Build into `builds/<slug>/site/` only.** Nothing outside it.
 
-### 05b — Build the site
+3. **Content verbatim from `content.md`.** You are not editing here. If a line does not fit
+   the layout, that is a stage 03 or 04 conversation, not a rewrite in the markup.
 
-1. Confirm all four input files exist and are free of unresolved `<<PLACEHOLDER>>`
-   config tokens — a missing file or config token stops the stage: resolve the
-   upstream stage first. `[NEEDS: …]` content markers are different: one the
-   human saw and deferred at a checkpoint proceeds per
-   `references/build-prompt.md` point 5 (an honest `<!-- TODO: needs <thing> -->`
-   + a build-report line); a load-bearing one nobody has seen — a fact the
-   design or a legal page cannot ship truthfully without — stops and goes back
-   upstream.
-2. Read the four inputs + `anti-slop-rules.md` + `references/build-prompt.md`.
-   The build-prompt's contract binds you in full — verbatim content, exact tokens,
-   every anti-slop rule, invent nothing. In addition:
-   - You may use the shell — create folders, copy files, run a build step if the
-     brief's stack needs one. Prefer the `static` stack; keep dependencies minimal.
-   - If accepted generated assets exist under `output/site-assets/`, **copy them
-     into `output/site/assets/`** and reference them with honest alt text.
-   - No deploys, no git, no global installs — hard boundary.
-3. Build the site **only** into `output/site/` using the stack named in the brief
-   (default `static`). Use the content verbatim; apply the design tokens exactly;
-   obey every anti-slop rule. Invent nothing.
-   **Legal pages** — build all four baseline pages (`privacy.html`, `cookies.html`,
-   `terms.html`, `accessibility.html`) from `content.md`'s legal section, same
-   header/footer chrome and design tokens as every other page — not a stripped
-   plain-text dump. Link all four from the footer. If a Cookie Policy ships, copy
-   `../../shared/legal/consent.js` verbatim to `output/site/js/consent.js` and wire
-   the banner markup + footer "Cookie preferences" button per its header comment;
-   any analytics/marketing script ships inert (`type="text/plain"
-   data-consent="…"`) until consent is granted. Zero non-essential scripts → still
-   ship the banner shell so the Cookie Policy's claims stay true.
-4. Write `output/build-report.md`: stack used, file tree, run/preview steps, tokens
-   applied, any TODOs/missing inputs, and a self-check against `pre-ship-gates.md`.
-5. Stop. Do not run QA or promote — that's stage 06.
+4. **Tokens exactly from `design.md`.** Every colour and font as a named custom property in
+   `:root`. No improvised hex mid-stylesheet. This is the mechanism by which a design system
+   stops being one.
+
+5. **The boring files, which are the ones that get forgotten:**
+   - `robots.txt` and `sitemap.xml`, generated from the real page list and the real domain
+   - `404.html` — every static host serves it, and without one a mistyped link shows a
+     stranger's branding on the client's domain
+   - `favicon.svg` plus a 180×180 `apple-touch-icon.png`
+   - `_headers` (or the host equivalent) from `../../templates/`
+   - Open Graph and Twitter tags on every page, with an absolute `og:image` URL
+   - `<link rel="canonical">` per page
+   - A `LocalBusiness` JSON-LD graph with name, address, phone, hours, area served and url
+
+6. **Legal pages are real pages** in the same design system, with the same header and footer,
+   not a stripped text dump. Footer-linked from every page.
+
+7. **The consent banner ships only if something needs consent.** If the site loads no
+   analytics, no pixels, no embedded video and no third-party fonts, there is nothing to
+   consent to, and a banner for nothing is a dark pattern with a cost and no benefit. Say so
+   in the cookie policy instead. If anything non-essential does load, copy
+   `../../templates/consent.js` in and ship every such script inert:
+   `<script type="text/plain" data-consent="analytics" data-src="…">`.
+
+8. **Self-host the fonts.** Do not link Google's CDN. It is a third-country transfer of the
+   visitor's IP before any consent, it is two extra handshakes on the critical path, and
+   self-hosting removes both problems in one move.
+
+9. **Images:** explicit `width` and `height` on every one, `loading="lazy"` below the fold and
+   **never** on the hero, `fetchpriority="high"` on the LCP image, modern format where it
+   helps. Real alt text describing what the image conveys here, not its filename.
+
+10. **Run the gate before you report finished.**
+    ```
+    node ../../checks/run.mjs builds/<slug>/site --facts builds/<slug>/facts.md
+    ```
+    Fix your own blockers. Handing an unchecked build to stage 06 wastes the review on things
+    a script would have caught in two seconds.
 
 ## Outputs
 
-`site/` (the built website) -> output/
-`build-report.md` -> output/
+- `builds/<slug>/site/`
+- `builds/<slug>/build-notes.md` — anything a reviewer needs to know: decisions you had to
+  make, anything you could not implement as specified and why
+- `STATE.md` updated
 
-Plus: update `../../SESSION.md` — tick stage 05, one-line note, mark 06 **NEXT**.
+## Verify
 
-## Review
-
-Before stage 06, confirm everything was written only inside
-`output/site/`, the report is present, and the build is runnable. Contract
-violations (stray files, fabricated content, substituted fonts) are reverted and
-the build re-run with a tightened prompt.
+- [ ] The gate returns zero blockers.
+- [ ] Every page in `sitemap.md` exists and is reachable from the nav or the footer.
+- [ ] Copy matches `content.md` word for word.
+- [ ] No colour or font literal outside `:root`.
+- [ ] robots, sitemap, 404, favicon, `_headers`, OG, canonical and JSON-LD all present.
+- [ ] It opens and works with `file://` or a plain static server, with no build step required.

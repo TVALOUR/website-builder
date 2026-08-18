@@ -1,0 +1,26 @@
+name: sitewright
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # No `npm install` step, deliberately. If one ever appears here, the repo
+      # has stopped being a folder you can clone and use.
+      - name: Selftest (proves the gate can fail)
+        run: node checks/selftest.mjs
+
+      - name: Gate the reference build
+        run: node checks/run.mjs examples/clean-control --facts examples/clean-control/facts.md --no-color
+
+      # Uncomment and point at your own build to gate every push.
+      # - name: Gate my site
+      #   run: node checks/run.mjs builds/my-site/site --facts builds/my-site/facts.md

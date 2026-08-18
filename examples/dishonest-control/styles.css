@@ -1,0 +1,335 @@
+/* ==========================================================================
+   Hartland Farriery — "Field Ledger"
+   Reference implementation. This file is the positive control: `node
+   checks/selftest.mjs` fails if it stops passing.
+
+   THE POINT OF VIEW, stated before any layout was written:
+   a farrier's day book. Ruled lines, a date column, tabular figures, an ink
+   stain of an accent. The site should feel like a record of work done, not a
+   brochure about work available. Every choice below traces back to that.
+
+   ONE COMPROMISE, named rather than hidden: the display face is a system serif
+   stack. A real build picks a licensed face and self-hosts the woff2 (see
+   stages/04_design). This repo ships no binaries, so `design/default-display-
+   font` reports a MAJOR here on purpose. That is the gate being right, and the
+   fixture accepting a documented cost rather than being special-cased out of it.
+   ========================================================================== */
+
+:root {
+  /* Paper and ink. Nothing is pure: the page is warmed a degree toward the
+     accent, which is what stops it reading as a default white. */
+  --paper:        #f4f1ea;
+  --paper-raised: #faf8f3;
+  --paper-dark:   #221d18;
+  --ink:          #1b1712;
+  --ink-soft:     #4a423a;
+  --ink-faint:    #6b6258;
+  --ink-on-dark:  #efe9df;
+  --rule:         #d6cdbe;
+  --rule-strong:  #a8998a;
+
+  /* One accent, used as ink not as fill. Cold-shod iron going to rust. */
+  --accent:       #8c3a1a;
+  --accent-deep:  #6b2b12;
+  --accent-ink:   #fdf9f4;
+
+  /* One family. Hierarchy comes from size, weight, case and letter-spacing. */
+  --font-display: Georgia, "Iowan Old Style", "Times New Roman", serif;
+  --font-body:    Georgia, "Iowan Old Style", "Times New Roman", serif;
+
+  /* 4px scale, no exceptions. */
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
+  --space-9: 96px;
+
+  --measure: 62ch;
+  --shell: 1180px;
+}
+
+/* -------------------------------------------------------------- reset-ish */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  overflow-x: clip;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  overflow-x: clip;
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.6;
+  font-variant-numeric: oldstyle-numerals;
+}
+
+img { max-width: 100%; height: auto; display: block; }
+
+/* ------------------------------------------------------------- typography */
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-style: normal;
+  line-height: 1.1;
+  margin: 0 0 var(--space-4);
+  overflow-wrap: anywhere;
+}
+
+h1 { font-size: clamp(38px, 6vw, 66px); letter-spacing: -0.02em; font-weight: 400; }
+h2 { font-size: clamp(26px, 3.4vw, 38px); letter-spacing: -0.01em; font-weight: 400; }
+h3 { font-size: 21px; font-weight: 700; letter-spacing: 0; }
+
+p { margin: 0 0 var(--space-4); max-width: var(--measure); }
+
+/* The one recurring device: a date-column folio. Rationed to three places on
+   the whole site (masthead, one section opening, the footer), because a motif
+   on every heading stops being a signature and becomes the tell it replaced. */
+.folio {
+  font-size: 13px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+  margin: 0 0 var(--space-3);
+}
+
+.lede { font-size: 21px; color: var(--ink-soft); max-width: 54ch; }
+
+a { color: var(--accent-deep); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:hover { color: var(--accent); }
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ------------------------------------------------------------------ shell */
+
+.shell { width: 100%; max-width: var(--shell); margin-inline: auto; padding-inline: var(--space-5); }
+
+.skip {
+  position: absolute;
+  left: var(--space-4);
+  top: -6em;
+  z-index: 50;
+  background: var(--paper-dark);
+  color: var(--ink-on-dark);
+  padding: var(--space-3) var(--space-4);
+  text-decoration: none;
+  font-size: 16px;
+}
+.skip:focus { top: var(--space-4); }
+
+/* ----------------------------------------------------------------- header */
+
+.masthead {
+  border-block-end: 1px solid var(--rule-strong);
+  padding-block: var(--space-4);
+}
+.masthead-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+.wordmark {
+  font-family: var(--font-display);
+  font-size: 22px;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.wordmark b { font-weight: 700; }
+
+.nav { display: flex; flex-wrap: wrap; gap: var(--space-5); }
+.nav a {
+  color: var(--ink-soft);
+  text-decoration: none;
+  font-size: 16px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  padding-block: var(--space-2);
+  border-block-end: 1px solid transparent;
+  transition: color 140ms ease, border-color 140ms ease;
+}
+.nav a:hover { color: var(--ink); border-block-end-color: var(--accent); }
+.nav a[aria-current="page"] { color: var(--ink); border-block-end-color: var(--rule-strong); }
+
+/* ------------------------------------------------------------------- hero
+   Not centred, and the open side is held by the standing-list rail rather than
+   left empty. Bottom padding is heavier than top, so the section sits down. */
+
+.hero { padding-block: var(--space-8) var(--space-9); border-block-end: 1px solid var(--rule); }
+.hero-grid {
+  display: grid;
+  gap: var(--space-7);
+  grid-template-columns: minmax(0, 1fr);
+}
+.hero h1 { max-width: 15ch; }
+
+.rail {
+  border-block-start: 2px solid var(--ink);
+  padding-block-start: var(--space-4);
+}
+.rail dl { margin: 0; display: grid; grid-template-columns: minmax(0, 1fr); }
+.rail div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-block: var(--space-3);
+  border-block-end: 1px solid var(--rule);
+}
+.rail dt { color: var(--ink-faint); font-size: 16px; }
+.rail dd { margin: 0; font-variant-numeric: tabular-nums; text-align: right; }
+
+/* ---------------------------------------------------------------- buttons */
+
+.btn {
+  display: inline-block;
+  background: var(--accent-deep);
+  color: var(--accent-ink);
+  font-size: 18px;
+  font-weight: 700;
+  padding: var(--space-3) var(--space-5);
+  text-decoration: none;
+  border: 1px solid var(--accent-deep);
+  transition: background-color 140ms ease, border-color 140ms ease;
+}
+.btn:hover { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+
+.btn-quiet {
+  display: inline-block;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--rule-strong);
+  padding: var(--space-3) var(--space-5);
+  font-size: 18px;
+  text-decoration: none;
+  transition: border-color 140ms ease;
+}
+.btn-quiet:hover { border-color: var(--ink); color: var(--ink); }
+
+.actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-block-start: var(--space-5); }
+
+/* --------------------------------------------------------------- sections
+   Three genuinely distinct shapes, not one padding value repeated:
+   .band  (ruled list, tight)  .plate (dark full-bleed statement)  .split (asymmetric) */
+
+.band { padding-block: var(--space-8); border-block-end: 1px solid var(--rule); }
+
+.entries { list-style: none; margin: 0; padding: 0; border-block-start: 1px solid var(--rule); }
+.entries li {
+  padding-block: var(--space-5);
+  border-block-end: 1px solid var(--rule);
+  display: grid;
+  gap: var(--space-2) var(--space-6);
+  grid-template-columns: minmax(0, 1fr);
+}
+.entries h3 { margin: 0; }
+.entries p { margin: 0; color: var(--ink-soft); }
+.entries .price {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.plate {
+  background: var(--paper-dark);
+  color: var(--ink-on-dark);
+  padding-block: var(--space-9);
+}
+.plate h2 { color: var(--ink-on-dark); max-width: 22ch; }
+.plate p { color: #d6ccbe; }
+.plate a { color: #f0b49a; }
+.plate a:hover { color: var(--accent-ink); }
+
+.split { padding-block: var(--space-7) var(--space-8); }
+.split-grid { display: grid; gap: var(--space-6); grid-template-columns: minmax(0, 1fr); }
+
+/* ----------------------------------------------------------------- footer */
+
+.foot {
+  padding-block: var(--space-7) var(--space-6);
+  border-block-start: 2px solid var(--ink);
+  font-size: 16px;
+}
+.foot-grid { display: grid; gap: var(--space-6); grid-template-columns: minmax(0, 1fr); }
+.foot h2 { font-size: 18px; font-weight: 700; }
+.foot ul { list-style: none; margin: 0; padding: 0; }
+.foot li { padding-block: var(--space-1); }
+.foot a { color: var(--ink-soft); }
+.foot a:hover { color: var(--ink); }
+.legal-row {
+  margin-block-start: var(--space-6);
+  padding-block-start: var(--space-4);
+  border-block-start: 1px solid var(--rule);
+  color: var(--ink-faint);
+  font-size: 15px;
+}
+.legal-row a { color: var(--ink-faint); }
+.legal-row a:hover { color: var(--ink); }
+
+/* ------------------------------------------------------------------- prose */
+
+.prose { padding-block: var(--space-7) var(--space-8); }
+.prose h2 { margin-block-start: var(--space-7); }
+.prose h3 { margin-block-start: var(--space-5); }
+.prose ul { max-width: var(--measure); padding-inline-start: var(--space-5); }
+.prose li { margin-block-end: var(--space-2); }
+.prose table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+}
+.prose th, .prose td {
+  text-align: left;
+  padding: var(--space-3);
+  border-block-end: 1px solid var(--rule);
+  vertical-align: top;
+}
+.prose th { font-weight: 700; }
+.table-scroll { overflow-x: auto; margin-block: var(--space-5); }
+
+/* --------------------------------------------------------------- 320px up */
+
+@media (min-width: 700px) {
+  .hero-grid { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); align-items: end; }
+  .entries li { grid-template-columns: minmax(0, 15rem) minmax(0, 1fr) max-content; align-items: baseline; }
+  .split-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); }
+  .foot-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1024px) {
+  body { font-size: 19px; }
+  .hero { padding-block: var(--space-9) calc(var(--space-9) + var(--space-6)); }
+}
+
+/* --------------------------------------------------------------- a11y/motion */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ------------------------------------------------------------------ print
+   People do print a farrier's price list and pin it in the tack room. */
+
+@media print {
+  .masthead, .nav, .skip, .actions, .plate { display: none; }
+  body { background: #fff; color: #000; font-size: 12pt; }
+  a { color: #000; text-decoration: underline; }
+  a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 10pt; }
+  .band, .prose { padding-block: 0; border: 0; }
+}

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<!--
+  NEGATIVE CONTROL, PAGE 2 — DELIBERATELY BROKEN. DO NOT COPY.
+
+  index.html carries the defects that can live on one page. This page carries
+  the ones that only exist ACROSS pages, or that contradict a defect on page 1
+  and so cannot share a file with it:
+
+    - a title and meta description duplicated from index.html
+    - no meta description of its own on the second half of the pair
+    - no canonical, no h1, a heading level skipped
+    - no legal links in the footer
+    - no contact route of any kind: no form, no tel:, no mailto:, no number
+    - an unclosed <div>
+    - an input with no label AND no placeholder
+    - aria-expanded that no JavaScript ever updates
+    - a form posting to a third-party service, with no privacy disclosure
+    - five inline event handlers, which make a real CSP impossible
+    - a third typeface, off-scale spacing, and a kicker on every section
+-->
+<html lang="en-GB">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Home</title>
+<meta name="description" content="Welcome to our website. We provide seamless solutions for all your needs.">
+<!--
+  The charset is deliberately pushed past the 1024-byte mark by the padding
+  below, because that is how it happens in real builds: nobody moves it, a
+  block of meta tags and a comment grow above it, and one day the price list
+  renders as "Â£49.99". The tag is present, so a presence check passes and the
+  bug ships anyway.
+  ..........................................................................
+  ..........................................................................
+  ..........................................................................
+  ..........................................................................
+  ..........................................................................
+  ..........................................................................
+  ..........................................................................
+  ..........................................................................
+  ..........................................................................
+-->
+<meta charset="utf-8">
+<script src="https://acsbapp.com/apps/app/dist/js/app.js" defer></script>
+<script>
+  window.acsbJS && window.acsbJS.init();  /* accessiBe overlay: does not fix anything */
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "Invented Example Ltd",
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.9",
+    "reviewCount": "500"
+  },
+  "review": [{
+    "@type": "Review",
+    "author": { "@type": "Person", "name": "Jane Doe" },
+    "reviewRating": { "@type": "Rating", "ratingValue": "5" }
+  }]
+}
+</script>
+<style>
+  body { font-family: Inter, sans-serif; background: #ffffff; color: #767676; }
+  .title { font-family: 'Playfair Display', serif; }
+  .stat  { font-family: 'Space Mono', monospace; }
+  .label { font-family: 'Dancing Script', cursive; }
+  @font-face { font-family: 'Local Sans'; src: url('fonts/local-sans.woff2') format('woff2'); }
+  .a { padding: 17px; margin: 23px; gap: 13px; }
+  .b { padding: 31px; margin: 7px; }
+  .c { padding: 9px; margin: 19px; }
+  .d { padding: 21px; }
+  .e { gap: 11px; }
+  .card { background: #fafafa; color: #999999; }
+  .promo { background: linear-gradient(120deg, #6366f1, #2563eb); color: #6b7280; }
+</style>
+</head>
+<body>
+
+<section>
+  <span class="eyebrow">ABOUT US</span>
+  <h2>Our Story</h2>
+  <p class="a">We started with a simple idea! We wanted to make things better!
+    And we have never looked back! It has been quite a ride!</p>
+  <p class="b">The team grew... the offices grew... and somehow the mission
+    stayed exactly the same.</p>
+</section>
+
+<section>
+  <span class="eyebrow">OUR VALUES</span>
+  <h4>What Drives Us</h4>
+  <div class="c">
+    <button aria-expanded="false" aria-controls="panel-1" onclick="toggle(1)">Integrity</button>
+    <div id="panel-1" hidden>We do the right thing.</div>
+    <button aria-expanded="false" aria-controls="panel-2" onclick="toggle(2)">Excellence</button>
+    <div id="panel-2" hidden>We do it well.</div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">NEWSLETTER</span>
+  <h3>Stay In The Loop</h3>
+  <form action="https://formspree.io/f/xnqkgvbz" method="POST">
+    <input type="email" name="email">
+    <button type="submit" onclick="track('signup')">Subscribe</button>
+  </form>
+  <div class="promo d">
+    <p class="e" onmouseover="highlight(this)">Join thousands of others.</p>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">CAREERS</span>
+  <h3>Work With Us</h3>
+  <div class="card" onclick="openRole('engineer')">
+    <p>We are always looking for talented people.</p>
+  </div>
+
+<footer>
+  <p>© 2019 Invented Example Ltd. Registered in England.</p>
+  <a href="index.html">Home</a>
+  <a href="careers.html">Careers</a>
+</footer>
+
+<script>
+  function toggle(n) { document.getElementById('panel-' + n).hidden = false; }
+  function track(x) { console.log(x); }
+  function highlight(el) { el.style.opacity = '0.8'; }
+  function openRole(r) { console.log(r); }
+</script>
+</body>
+</html>

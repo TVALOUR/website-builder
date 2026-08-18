@@ -1,0 +1,6 @@
+# Replace the sitemap URL with the real domain before launch.
+# seo/placeholder-domain blocks on a domain that is still a placeholder.
+User-agent: *
+Allow: /
+
+Sitemap: https://REPLACE-ME.example/sitemap.xml

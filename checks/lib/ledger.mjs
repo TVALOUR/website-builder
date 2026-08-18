@@ -1,0 +1,165 @@
+// sitewright — the facts ledger parser.
+//
+// WHY THIS FILE EXISTS. The first version of the provenance gate did not parse
+// facts.md at all. It lowercased the whole file, stripped punctuation, and asked
+// whether a claim's characters appeared anywhere in the resulting blob. An F3
+// critique took that apart with controls, and every one of these landed:
+//
+//   * A facts.md containing one naked line of text — no table, no rows, no
+//     sources — legitimised four fabrications.
+//   * `£9` passed because it is a substring of the sourced `£95`.
+//   * `£95.00` was BLOCKED although `£95` was sourced.
+//   * A postcode could never match, ever: the normaliser uppercased while the
+//     ledger was lowercased, so that comparison was dead code.
+//   * `+44 1548 852341` in the ledger did not match `01548 852 341` on the page.
+//   * And the Source column — the half that makes a ledger mean anything — had
+//     no probe of any kind.
+//
+// The README called that arithmetic. It was a substring search, and shipping it
+// under a green "claimsUnsourced: 0" would have reproduced exactly the
+// false-assurance failure this repo was written to indict.
+//
+// So: a real table parse, a required Source cell, and value-level comparison
+// with format-drift normalisation on BOTH sides — because stage 03's entire job
+// is turning ledger rows into natural prose, which means drift is the expected
+// case and not an edge case.
+
+/** A markdown table row: { cells, fact, value, source, confirmed, line } */
+function parseTables(md) {
+  const lines = md.split(/\r?\n/);
+  const rows = [];
+  let header = null;
+  let idx = { fact: 0, value: 1, source: 2, confirmed: 3 };
+
+  for (let i = 0; i < lines.length; i++) {
+    const raw = lines[i];
+    if (!raw.trim().startsWith('|')) { header = null; continue; }
+
+    const cells = raw.trim().replace(/^\||\|$/g, '').split('|').map((c) => c.trim());
+
+    // Separator row (|---|---|) confirms the line above was a header.
+    if (cells.every((c) => /^:?-{2,}:?$/.test(c))) continue;
+
+    const lower = cells.map((c) => c.toLowerCase());
+    const looksHeader = lower.some((c) => /^(fact|item|service|work|thing)$/.test(c))
+      || (lower.includes('source') && (lower.includes('value') || lower.includes('price')));
+    if (looksHeader) {
+      header = lower;
+      idx = {
+        fact: Math.max(0, header.findIndex((c) => /^(fact|item|service|work|thing)$/.test(c))),
+        value: header.findIndex((c) => /^(value|price|detail|answer)$/.test(c)),
+        source: header.findIndex((c) => /source/.test(c)),
+        confirmed: header.findIndex((c) => /confirm|verified|checked/.test(c)),
+      };
+      continue;
+    }
+    if (!header) continue; // a table with no header row is not a ledger
+
+    rows.push({
+      cells,
+      line: i + 1,
+      fact: cells[idx.fact] ?? '',
+      value: idx.value >= 0 ? (cells[idx.value] ?? '') : (cells[1] ?? ''),
+      source: idx.source >= 0 ? (cells[idx.source] ?? '') : '',
+      confirmed: idx.confirmed >= 0 ? (cells[idx.confirmed] ?? '') : '',
+      hasSourceColumn: idx.source >= 0,
+    });
+  }
+  return rows;
+}
+
+/** A Source cell that is present but says nothing is not a source. */
+const EMPTY_SOURCE = /^(|-|—|–|n\/?a|tbd|tbc|todo|unknown|assumed|inferred|\?+|\.+)$/i;
+
+export function isSourced(row) {
+  return row.hasSourceColumn && !EMPTY_SOURCE.test((row.source || '').trim());
+}
+
+// ---------------------------------------------------------------- normalising
+//
+// Applied to BOTH the ledger value and the site claim, so equivalent-but-
+// differently-formatted pairs compare equal. Every one of these exists because
+// the critique produced a real false blocker from its absence.
+
+export const norm = {
+  /** £1,200.00 / 1200 / "1200 pounds" / GBP 1200 -> "1200" */
+  price(s) {
+    const m = String(s).replace(/[,\s]/g, '').replace(/\u00a3|&pound;/gi, '£')
+      .match(/(?:£|\$|€|gbp|usd|eur)?(\d+(?:\.\d{1,2})?)(?:pounds?|gbp)?/i);
+    if (!m) return null;
+    return String(parseFloat(m[1]));
+  },
+  /** +44 1548 852341 / (01548) 852-341 / 01548 852 341 -> "01548852341" */
+  phone(s) {
+    const d = String(s).replace(/[^\d+]/g, '').replace(/^\+?44/, '0');
+    return /^0\d{9,10}$/.test(d) ? d : null;
+  },
+  email(s) {
+    return String(s).trim().toLowerCase() || null;
+  },
+  /** TQ7 1AB / tq71ab -> "TQ71AB" */
+  postcode(s) {
+    const c = String(s).replace(/\s+/g, '').toUpperCase();
+    return /^[A-Z]{1,2}\d{1,2}[A-Z]?\d[A-Z]{2}$/.test(c) ? c : null;
+  },
+  /** "Mon-Fri 8am to 5pm" and "Monday to Friday from 8am to 5pm" -> same tuple */
+  hours(s) {
+    const t = String(s).toLowerCase();
+    const days = (t.match(/\b(mon|tue|wed|thu|fri|sat|sun)/g) || [])
+      .map((d) => d.slice(0, 3));
+    const times = (t.match(/\b\d{1,2}(?:[:.]\d{2})?\s*(?:am|pm)?/g) || [])
+      .map((x) => x.replace(/[\s.]/g, '').replace(/^(\d):/, '0$1:'))
+      .filter((x) => /\d/.test(x));
+    if (!days.length && !times.length) return null;
+    return days.join('') + '|' + times.join('');
+  },
+  /** "25 years" / "25 Years of experience" -> "25|year" */
+  quantity(s) {
+    const m = String(s).toLowerCase().match(/(\d[\d,]*)\s*\+?\s*(year|customer|client|patient|project|job|review|%)/);
+    if (!m) return null;
+    return m[1].replace(/,/g, '') + '|' + m[2];
+  },
+  text(s) {
+    return String(s).toLowerCase().replace(/[^a-z0-9]/g, '');
+  },
+};
+
+/**
+ * Build a lookup of normalised values per claim class from the ledger's rows.
+ * Only SOURCED rows contribute — an unsourced row cannot legitimise anything,
+ * which is the whole point and was the largest hole in the first version.
+ */
+export function buildIndex(rows) {
+  const idx = { price: new Set(), phone: new Set(), email: new Set(), postcode: new Set(), hours: new Set(), quantity: new Set() };
+  const textOfSourced = [];
+  for (const row of rows) {
+    if (!isSourced(row)) continue;
+    // A value can legitimately be any class, so try them all against every cell
+    // that could hold one. Cheap, and it means the ledger author does not have
+    // to label the class.
+    for (const cell of [row.value, row.fact]) {
+      if (!cell) continue;
+      textOfSourced.push(cell.toLowerCase());
+      for (const k of Object.keys(idx)) {
+        const v = norm[k](cell);
+        if (v) idx[k].add(v);
+      }
+      // A cell may hold several claims ("£95 full set, £85 cold") — pull each.
+      for (const m of cell.matchAll(/(?:£|\$|€)\s?\d[\d,]*(?:\.\d{1,2})?/g)) {
+        const v = norm.price(m[0]);
+        if (v) idx.price.add(v);
+      }
+    }
+  }
+  return { ...idx, textOfSourced };
+}
+
+export function parseLedger(md) {
+  const rows = parseTables(md);
+  return {
+    rows,
+    hasTable: rows.length > 0,
+    unsourced: rows.filter((r) => !isSourced(r)),
+    index: buildIndex(rows),
+  };
+}

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<!--
+  ===========================================================================
+  NEGATIVE CONTROL — DELIBERATELY BROKEN. DO NOT COPY ANY OF THIS.
+  ===========================================================================
+
+  This file exists to make every gate in checks/ fire. It is the answer to the
+  question "how do you know the checker isn't just printing PASS?" — the same
+  question that makes a green tick worthless when nobody ever saw a red one.
+
+  Every defect below is one an AI has actually produced when asked to build a
+  site for a small business. The business is invented and labelled as invented,
+  which is itself the rule: never fabricate a real company.
+
+  `node checks/selftest.mjs` runs the checker over this file and FAILS if any
+  gate stays quiet. If you add a gate, add its trigger here.
+  ===========================================================================
+-->
+<html>
+<head>
+<title>Home</title>
+<meta name="description" content="Welcome to our website. We provide seamless solutions for all your needs.">
+<link rel="canonical" href="https://yourdomain.com/">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=block">
+<script src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  const config = { "apiKey": "REPLACE_WITH_YOUR_OWN_SECRET_0000000000" };
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+</script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap');
+  html, body { background: #ffffff; color: #757575; font-family: Inter, sans-serif; }
+  h1, h2, h3 { font-family: Inter, sans-serif; font-style: italic; }
+  .label { font-family: 'Courier New', monospace; }
+  .quote { font-family: 'Dancing Script', cursive; }
+  .hero {
+    min-height: 100vh;
+    width: 1440px;
+    background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%);
+    padding: 96px 24px;
+    text-align: center;
+  }
+  .hero h1 {
+    background: linear-gradient(90deg, #a855f7, #3b82f6);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 64px;
+  }
+  .section { padding: 96px 24px; }
+  .features { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 32px; }
+  .card { background: #fafafa; padding: 33px; border-radius: 12px; transition: all 0.3s ease; }
+  .card:hover { transform: scale(1.05); }
+  .tile:hover { transform: scale(1.05); }
+  .panel:hover { transform: scale(1.05); }
+  .badge:hover { transform: scale(1.05); }
+  .cta { padding: 96px 24px; }
+  .band { padding: 96px 24px; }
+  .btn {
+    background: #7c3aed; color: #9f7aea; padding: 13px 27px;
+    border: none; outline: none; transition: width 0.3s ease;
+    font-size: 14px;
+  }
+  input, textarea { font-size: 13px; border: 1px solid #ddd; }
+  .nav-menu { display: none; }
+  .nav-menu:hover { display: block; }
+  .sticky-bar { position: fixed; bottom: 0; left: 0; right: 0; }
+  @keyframes float { from { top: 0 } to { top: 20px } }
+  .floater { animation: float 2s infinite; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Elevate Your Business With Seamless Solutions</h1>
+  <p>
+    In today's fast-paced world, finding a trusted partner shouldn't be difficult — it should be
+    effortless. Whether you're a growing startup or an established enterprise, we deliver
+    cutting-edge, world-class results that transform your journey. It's not just about service —
+    it's about partnership.
+  </p>
+  <div class="btn" onclick="scrollToContact()">Get Started</div>
+</div>
+
+<div class="section">
+  <span class="label">OUR SERVICES</span>
+  <h2>Meticulously Crafted Solutions</h2>
+  <div class="features">
+    <div class="card">
+      <span class="icon">🚀</span>
+      <h3>Fast Delivery</h3>
+      <p>We guarantee delivery within 24 hours, every time. Over 500 happy customers agree.</p>
+      <p>From £49.99 per month</p>
+      <a href="#">Learn more</a>
+    </div>
+    <div class="card">
+      <span class="icon">💡</span>
+      <h3>Expert Team</h3>
+      <p>Our team has 25 years of experience. We are certified by the National Quality Board.</p>
+      <p>From £99.99 per month</p>
+      <a href="#">Read more</a>
+    </div>
+    <div class="card">
+      <span class="icon">⭐</span>
+      <h3>Trusted Service</h3>
+      <p>Rated 4.9 out of 5 by our clients. Fully insured and award-winning.</p>
+      <p>From £149.99 per month</p>
+      <a href="#">Click here</a>
+    </div>
+  </div>
+</div>
+
+<div class="band">
+  <span class="eyebrow">TESTIMONIALS</span>
+  <h2>Don't Just Take Our Word For It</h2>
+  <blockquote class="quote">
+    "Working with this team completely transformed our business. The results exceeded every
+    expectation we had, and I would recommend them to anyone without hesitation."
+  </blockquote>
+  <p>— Jane Doe, CEO at Acme Corp</p>
+  <img src="assets/team-photo.jpg">
+  <img src="https://via.placeholder.com/600x400" alt="image">
+</div>
+
+<div class="cta">
+  <span class="eyebrow">GET IN TOUCH</span>
+  <h2>Ready To Get Started?</h2>
+  <div class="browser-mockup">
+    <div class="traffic-lights"></div>
+    <div class="dashboard-mockup">Your Company Name Here</div>
+  </div>
+  <form>
+    <input type="text" placeholder="Your name">
+    <input type="email" placeholder="Your email">
+    <textarea placeholder="Your message"></textarea>
+    <button type="submit"><svg viewBox="0 0 24 24"><path d="M2 2h20v20H2z"/></svg></button>
+  </form>
+  <p>Call us on 0161 496 0000 or email hello@example.com</p>
+  <p>Visit us at 14 Innovation Way, Manchester, M1 4XY</p>
+  <p>Open Mon-Fri 9am, Sat-Sun 10am</p>
+  <p>TODO: add the real opening hours</p>
+  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+</div>
+
+<div class="section" id="main">
+  <table>
+    <tr><td>Basic</td><td>£49.99</td></tr>
+    <tr><td>Pro</td><td>£99.99</td></tr>
+  </table>
+  <a href="about.html">About us</a>
+  <a href="#nowhere">Jump to nothing</a>
+  <a href="http://insecure-partner-site.example.org" target="_blank">Our partner</a>
+  <img src="assets/missing-logo.png" alt="logo">
+  <div id="main">Duplicate id on purpose</div>
+</div>
+
+<!-- FIXME: the client still has not sent the real opening hours, chase before launch -->
+<footer>
+  <p>© 2019 Invented Example Ltd. All rights reserved.</p>
+</footer>
+
+<script>
+  function scrollToContact() { console.log('nothing happens'); }
+</script>
+</body>
+</html>

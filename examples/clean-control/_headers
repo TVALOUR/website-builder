@@ -1,0 +1,11 @@
+# Cloudflare Pages / Netlify security headers.
+# Four lines that a static host can actually enforce. Everything else that gets
+# sold as "website security" for a brochure site is either a server concern or
+# a product nobody needs.
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: SAMEORIGIN
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), interest-cohort=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<!--
+  BARE CONTROL — a one-page site with no legal pages, no ledger structure and a
+  skip link that points nowhere.
+
+  It exists because three BLOCKER paths cannot be triggered in the same fixture
+  as their own siblings: legal/privacy-policy fires only when NO privacy page
+  exists, which negative-control needs one to test footer-links and stale-date;
+  and facts/ledger-unstructured needs a facts.md that is not a table, which
+  every other facts gate needs to be one.
+
+  Rather than write those three off as "not statically provable", they get a
+  fixture. An excuse in the UNPROVABLE list should always feel more expensive
+  than a file.
+-->
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bare control</title>
+<meta name="description" content="A deliberately bare fixture for three blocker paths that need their own file.">
+<script src="https://cdn.jsdelivr.net/npm/some-widget@latest/dist/widget.min.js"></script>
+</head>
+<body>
+<a href="#does-not-exist">Skip to main content</a>
+<main>
+<h1>Bare control</h1>
+<p>Ring us on <a href="tel:01392000111">01392 000 111</a>. Full set is &pound;250.</p>
+<p>Prices &mdash; and this is the point &mdash; are dense here &mdash; deliberately &mdash;
+so the em-dash density gate crosses its blocking threshold rather than only its warning
+one &mdash; which the longer fixtures never do &mdash; because they have too many words.</p>
+</main>
+</body>
+</html>

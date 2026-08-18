@@ -1,0 +1,44 @@
+{
+  "_comment": [
+    "LocalBusiness graph. Replace every value; delete any line you cannot source.",
+    "This is emitted for MACHINE-READABLE NAP and Google Business Profile alignment,",
+    "not for ranking — structured data is not a ranking factor, and TAXONOMY.md",
+    "records that as a rejected claim.",
+    "",
+    "DO NOT ADD Review OR AggregateRating. Reviews collected or displayed on the",
+    "entity's own site are self-serving and ineligible, and Google explicitly names",
+    "an embedded third-party review widget as still disqualifying. seo/review-schema",
+    "blocks on it.",
+    "",
+    "@type: LocalBusiness is fine. A more specific subtype is free polish where a",
+    "clean mapping exists, and several trades (farrier, tree surgeon) have none."
+  ],
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "@id": "https://example.invalid/#business",
+  "name": "",
+  "description": "",
+  "url": "https://example.invalid/",
+  "telephone": "+44",
+  "email": "",
+  "priceRange": "££",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "",
+    "addressLocality": "",
+    "addressRegion": "",
+    "postalCode": "",
+    "addressCountry": "GB"
+  },
+  "areaServed": [
+    { "@type": "AdministrativeArea", "name": "" }
+  ],
+  "openingHoursSpecification": [
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      "opens": "09:00",
+      "closes": "17:00"
+    }
+  ]
+}

@@ -3,18 +3,17 @@ Thumbs.db
 Desktop.ini
 .DS_Store
 *.swp
-
-# Local scratch
-tmp/
 *.log
-
-# Never commit real client material
-_clients/*
-!_clients/.gitkeep
-_intake/assets/*
-!_intake/assets/.gitkeep
-_intake/references/*
-!_intake/references/.gitkeep
 
 # Node, if a build ever needs it
 node_modules/
+
+# Client work stays local. Every build folder is git-ignored except the keep
+# marker, because builds/ holds real business facts, real assets, and real
+# client conversations - none of which belong in a public fork.
+builds/*/
+!builds/.gitkeep
+
+# Local scratch
+tmp/
+sites/
