@@ -2,7 +2,7 @@
 //
 // PROVENANCE: the rule tokenizer, custom-property resolver and the
 // hex/rgb/hsl/oklch -> contrast pipeline are ported from `check-slop-gates.mjs`
-// in Tom Mackellar's website-builder workspace (2026), where they were written
+// in an earlier private system by Tom MacKellar (2026), where they were written
 // and hardened against real shipped sites. Ported here with the workspace-path
 // coupling removed so the checker runs from any clone location.
 //

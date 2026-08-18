@@ -1,7 +1,7 @@
 // website-builder — design gates: does it look made, or generated?
 //
 // PROVENANCE: the mechanically-checkable subset here descends from the
-// anti-slop gate script in Tom Mackellar's website-builder workspace, which in
+// anti-slop gate script in an earlier private system by Tom MacKellar, which in
 // turn distils the `hallmark` skill's slop test and Anthropic's frontend-design
 // guidance. Ported, deduplicated against the a11y and responsive families, and
 // extended.
