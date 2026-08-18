@@ -216,7 +216,7 @@ gates are green. Judge them with the world-class-studio test, at stage 04 *and* 
 
 These four don't have clean automated checks — `checks/rules/design.mjs` flags only the
 mechanical proxies (motif over-use, uniform section padding). They are a **stage-04
-direction requirement and a stage-06 visual-review gate**, judged by eye.
+direction requirement and a stage-06 eyes-on gate** (shared/review.md), judged by eye.
 
 ---
 
