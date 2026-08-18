@@ -34,6 +34,13 @@ everyone: the same gradient, the same hero, the same three cards.
 > **Every AI builds the same website because none of them ask what is in the person's
 > head.**
 
+![The worked reference build that ships with the repo - a farriery site with sourced prices, a tel: call-to-action and a hero whose empty space is held by a price index](.github/clean-control.png)
+
+*The reference build (`examples/clean-control/`) - it passes the gate, its every fact
+traces to a sourced ledger row, and its two remaining majors are documented on purpose
+in its NOTES.md. Rendered samples, not adjectives - the same rule the pipeline holds
+its own design stage to.*
+
 ## What this folder does about it
 
 **1. It interviews you before it builds — by default, not on request.** Stage 01 has two
