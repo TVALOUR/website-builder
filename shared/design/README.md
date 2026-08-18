@@ -22,6 +22,9 @@ binds **both** agents and applies across stages — not just stage 04.
   subjects, the anti-AI-slop image checklist, and the regenerate/fallback loop.
 - **`resources.md`** — the vetted tools registry, the optional per-harness
   design-skills note, and the security bar for adding anything new.
+- **`moodboard.md`** — the owner's-taste capture protocol: dissect dropped
+  reference sites into per-build cards that stage 04 consumes with
+  steal/adapt/leave discipline; boards expire at promote.
 - **`README.md`** — this file: how design flows through the pipeline.
 
 The copy counterpart lives next door at **`../content/copywriting.md`** (the

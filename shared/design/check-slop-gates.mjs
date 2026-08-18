@@ -13,16 +13,17 @@
 //
 // Gates covered (numbering inherited from the contract's source slop test): 24, 26, 27, 37, 38a, 39, 40, 41,
 // 48, 50, 51, 55, 56. Plus two workspace-local second-order proxies (anti-slop-rules
-// §11): 63 (signature motif stamped on most sections) and 64 (uniform section rhythm).
+// §11): 63 (signature motif stamped on most sections) and 64 (uniform section
+// rhythm); plus P1: unresolved <<TOKEN>> / [NEEDS:] placeholder shipped in page text.
 // Every finding is FAIL (pattern-matched with confidence) or WARN (heuristic —
 // needs a human look). Nothing here is rendering-aware: no real cascade, no
 // inheritance, no computed layout. Treat this as a fast pre-check before the
 // stage-06 visual review, not a substitute for it.
 //
 // Usage: node shared/design/check-slop-gates.mjs <site-dir>
-//   site-dir is REQUIRED -- relative to cwd, or absolute. No default (2026-08-03
-//   F3 critique F6: a missing argument used to silently scan the previous build's
-//   stale scratch tree and print a well-formed PASS). Scans every *.css and *.html
+//   site-dir is REQUIRED -- relative to cwd, or absolute. No default: a missing
+//   argument once silently scanned the previous build's stale scratch tree and
+//   printed a well-formed PASS. Scans every *.css and *.html
 //   file under site-dir recursively.
 
 import { readFileSync, readdirSync, statSync } from 'node:fs';
@@ -32,8 +33,8 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const WORKSPACE_ROOT = join(__dirname, '..', '..');
 
-// F6 (2026-08-03 F3 critique, re-critique round 1): a missing site argument used to
-// silently default to stages/05_build/output/site — the PREVIOUS build's scratch
+// Why the argument is mandatory: a missing site argument used to silently
+// default to stages/05_build/output/site — the PREVIOUS build's scratch
 // output, which usually has no legal pages at all. A truncated paste, or a session
 // that forgot to pass the site name while copying the command shape
 // all produced a well-formed `**0 FAIL, N WARN.**` line scoped to the wrong tree —
@@ -43,14 +44,14 @@ if (!process.argv[2]) {
   console.error('Usage: node shared/design/check-slop-gates.mjs <site-dir>');
   console.error('');
   console.error('  <site-dir> is REQUIRED -- there is no default target. Pass either:');
-  console.error('    - a path relative to the current working directory (e.g. sites/example-agency)');
-  console.error('    - an absolute path (e.g. C:\\...\\sites\\example-agency)');
+  console.error('    - a path relative to the current working directory (e.g. sites/your-site)');
+  console.error('    - an absolute path (e.g. C:\\...\\sites\\your-site)');
   console.error('');
   console.error('  Omitting it used to silently scan stages/05_build/output/site (the previous');
   console.error('  build\'s scratch tree) and print a well-formed PASS scoped to the wrong site.');
   process.exit(2);
 }
-// isAbsolute fix (same finding): the old unconditional `join(cwd, argv[2])` mangled an
+// isAbsolute: the old unconditional `join(cwd, argv[2])` mangled an
 // absolute path into `<cwd>/C:/Users/...` instead of using it as-is -- it failed loudly
 // (ENOENT), but it directly contradicted the instruction that the caller must pass
 // literal absolute paths. An absolute argument is now used verbatim.
@@ -621,12 +622,25 @@ for (const [value, entries] of paddingBlockByValue) {
   }
 }
 
+// ---------- P1: unresolved placeholder tokens (always FAIL) ----------
+// A shipped page must contain no unresolved <<CONFIG_TOKEN>> and no [NEEDS: ...]
+// content marker: the sanctioned in-build form is an HTML comment TODO, which
+// renders invisibly -- these two render as text a visitor can read.
+const PLACEHOLDER_RE = /<<[A-Z0-9_]+>>|\[NEEDS:/;
+for (const file of [...htmlFiles, ...cssFiles]) {
+  const lines = readFileSync(file, 'utf8').split(/\r?\n/);
+  for (let i = 0; i < lines.length; i++) {
+    const m = lines[i].match(PLACEHOLDER_RE);
+    if (m) report('P1', 'FAIL', file, i + 1, `unresolved placeholder shipped: \`${m[0]}\` — resolve it upstream or use the build-report TODO mechanism`);
+  }
+}
+
 // ---------- report ----------
 
 const bySeverity = { FAIL: [], WARN: [] };
 for (const f of findings) bySeverity[f.severity].push(f);
 
-const gateOrder = [24, 26, 27, 37, '38a', 39, 40, 41, 48, 50, 51, 55, 56, 63, 64];
+const gateOrder = [24, 26, 27, 37, '38a', 39, 40, 41, 48, 50, 51, 55, 56, 63, 64, 'P1'];
 console.log(`# Slop-gate static check\n`);
 console.log(`Scanned ${cssFiles.length} CSS file(s), ${htmlFiles.length} HTML file(s) under \`${relative(WORKSPACE_ROOT, siteDir)}\`.\n`);
 console.log(`Gates checked (mechanical subset only — see script header for scope): ${gateOrder.join(', ')}.\n`);

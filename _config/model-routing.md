@@ -81,7 +81,7 @@ to match what was actually produced.
 here. Run the conductor on a **strong** model — it holds the gates and the
 judgement calls between stages; the cheap tier is too lean for that.)*
 
-| Stage | simple | standard | complex / premium | Why |
+| Stage | simple | standard | complex | Why |
 |-------|--------|----------|-------------------|-----|
 | **01 brief** | cheap | standard | standard | Intake interview; nuance matters once the brief is non-trivial. |
 | **02 sitemap** | cheap | cheap | standard | Mechanical structure. Standard only when the IA is genuinely complex. |
@@ -106,8 +106,8 @@ Spawning is an optimisation, not a law. The conductor may run a stage **inline**
 (do it itself, no spawn) when:
 
 - The build is **simple** tier and one/two pages — the cold-start cost of six
-  spawns outweighs the arbitrage. Run the whole build inline on one cheap-or-
-  standard model instead.
+  spawns outweighs the arbitrage. Run the whole build inline on one standard-tier
+  model instead (the matrix's 03/04 floor stays standard even at simple).
 - You're resuming a single stage by hand and don't want a fresh agent.
 
 Either way the **checkpoint rhythm still applies** — inline or spawned, the

@@ -21,6 +21,7 @@ always theirs.
 - Layer 3 (reference): `../../shared/design/visual-review.md` — how to render, screenshot, sweep viewports, and check a11y.
 - Layer 3 (reference): `../../_config/website-builder-config.md` — naming + git policy.
 - Layer 3 (reference): `../../_config/deploy.md` — preserving GitHub + Cloudflare Pages setups.
+- Optional (only if your harness has design skills installed — e.g. `hallmark` in Claude Code): audit depth on top of `pre-ship-gates.md`, never instead of it; record in the QA report if one ran, and never fake a skill's output.
 
 ## Process
 
@@ -39,13 +40,13 @@ always theirs.
    ```
    **Read two of its output lines, not one:** the `Scanned N CSS file(s) … under
    X` line and the FAIL/WARN counts — and confirm `X` is the exact site being
-   checked. Run with no argument, the script defaults to
-   `stages/05_build/output/site`; if a stale earlier build still sits there it
-   will happily scan it and can print a clean `0 FAIL` for the wrong site. The
-   exit code cannot catch this — only the `Scanned … under` line can.
+   checked. The path argument is mandatory (a bare run refuses to scan), but a
+   stale or wrong path still scans happily and prints a clean-looking result
+   for the wrong tree — the exit code cannot catch that; only the
+   `Scanned … under` line can.
    Fix every FAIL before continuing — those are pattern-matched with confidence,
    not a judgment call. Triage each WARN (heuristic; some are false positives — see
-   `resources.md` § known limitations). Confirm the four baseline legal pages exist
+   the known-limitations notes in `resources.md`'s static-checker section). Confirm the four baseline legal pages exist
    (`privacy*`, `cookie*`, `terms*`, `accessib*`) and are footer-linked from every
    page. Then work through every item in `pre-ship-gates.md` against the rendered
    site. Record each result; a single failure blocks promotion. **Grep the shipped
@@ -98,6 +99,9 @@ the composition pass (step 3); the written proof the second-order-tell review ha
 (plus the promoted site at `../../sites/<name>/`, the archived intake at
 `../../sites/<name>/_source/` if intake was used, an updated `sites/README.md`, and a
 new row in `../../sites/variety-ledger.md`)
+
+Plus: update `../../SESSION.md` — on promote, set status
+`COMPLETE — promoted to sites/<name>/`.
 
 ## Verify
 

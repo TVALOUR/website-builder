@@ -75,7 +75,7 @@ website-builder/
 ├── _clients/            ← queued briefs, one folder per client (git-ignored)
 ├── setup/questionnaire.md  ← one-time owner setup
 ├── _config/             ← author/stack/deploy config + the model-tier matrix
-├── shared/              ← conductor recipe, design contract, copy method, legal templates
+├── shared/              ← conductor recipe, ICM conventions, design contract, copy method, legal templates
 │   └── design/          ← anti-slop rules, pre-ship gates, visual review, slop-gate script
 ├── sites/               ← finished sites + registry + variety ledger
 ├── examples/            ← one fictional sample site (the design bar, not a pipeline log)
@@ -95,10 +95,14 @@ website-builder/
 | QA and ship | `stages/06_qa/CONTEXT.md` |
 | See how conductor mode spawns stages | `shared/conductor.md` |
 | See which model tier runs each stage | `_config/model-routing.md` |
+| Understand the file/layer conventions (Layers 0–4) | `shared/icm-conventions.md` |
 
 Stages are resumable: you can re-enter at any stage as long as the earlier stages'
 outputs exist. Before stage 01 of a new build, read
-`shared/design/anti-slop-rules.md` once — it binds every stage.
+`shared/design/anti-slop-rules.md` once — it binds every stage — and check
+`_config/website-builder-config.md`: an owner-name row still reading
+`<<OWNER_NAME>>` means setup has never run; offer `setup/questionnaire.md`
+(two minutes) before starting.
 
 ## Session state — SESSION.md
 
@@ -123,8 +127,9 @@ agents mid-build: the state lives in files, never in one agent's memory.
   questions). Never claim a visual check you could not perform — the QA report
   records which path ran.
 - **Promotion is gated.** A site reaches `sites/<name>/` only after stage 06 runs
-  `shared/design/pre-ship-gates.md`, the slop-gate script, and the human approves.
-  Push to a remote only when the owner explicitly asks.
+  `shared/design/pre-ship-gates.md` — with the slop-gate script when Node is
+  available, or the checklist's manual pass recorded as such without it — and
+  the human approves. Push to a remote only when the owner explicitly asks.
 
 ## Models
 

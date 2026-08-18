@@ -30,3 +30,6 @@ cleared the pre-ship gates. This file is the registry. Add a row when a site shi
   stage and re-promote.
 - Record deploy facts honestly: a GitHub remote is storage, not a deployment,
   unless a host is explicitly wired to it. See `../_config/deploy.md`.
+- To revise a shipped site through the pipeline: if the original intake is
+  needed, copy it back from `sites/<name>/_source/` into `../_intake/` first,
+  then re-enter at the relevant stage and re-promote.

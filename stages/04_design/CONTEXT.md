@@ -93,19 +93,20 @@ the spec. This is the design conversation, not a yes/no.
    the signature motif** — assign the motif to a *minority* of openings, not every heading;
    (c) that it is one of **≥2 distinct section archetypes**, not the same band repeated.
 6. **Imagery & assets** — decide whether the design needs *generated* imagery at
-   all (prefer client assets, then CSS/SVG; see `imagery.md` §3). If it does, fill
+   all (prefer client assets, then CSS/SVG; see `imagery.md` §1). If it does, fill
    `references/asset-manifest-template.md` → `output/asset-manifest.md`: a compact,
    text-only art-direction line per asset (subject, style, palette from the tokens,
-   dimensions, alt text, fallback). Stay inside `imagery.md` §4 (allowed subjects)
-   and never inside §5 (no people/logos/premises/credentials). If no generated
+   dimensions, alt text, fallback). Stay inside `imagery.md` §2 (allowed subjects)
+   and never inside §3 (no people/logos/premises/credentials). If no generated
    imagery is needed, say so explicitly and stage 05a is skipped. **No pixels here**
    — stage 05a generates
    them (only if the harness has an image tool); this is direction only.
 7. **Motion & states** — name the (restrained) interactions and the required
    element states, per anti-slop §5/§7/§8.
-8. **Self-critique + variety check** — score the direction on the six axes
-   (Philosophy, Hierarchy, Execution, Specificity, Restraint, Variety); revise
-   anything < 3 before writing the spec. **Also run the composition check on the spec
+8. **Self-critique + variety check** — test the direction on the six axes of
+   `anti-slop-rules.md` §1 (Philosophy, Hierarchy, Execution, Specificity,
+   Restraint, Variety): write a one-line defence for each, and revise any axis
+   you cannot defend before writing the spec. **Also run the composition check on the spec
    itself** (`anti-slop-rules.md §11`): read every section note back and confirm each
    deliberately-empty region has a named anchor, the signature is rationed to a minority
    of openings, there are ≥2 distinct archetypes, and the direction's POV is one the
@@ -129,6 +130,8 @@ last two ledger rows), so stage 06 can copy it into the ledger on promote.
 `asset-manifest.md` -> output/ (only if the design needs generated imagery; otherwise
 record "No generated assets" and skip stage 05a)
 
+Plus: update `../../SESSION.md` — tick stage 04, one-line note, mark 05 **NEXT**.
+
 ## Review
 
 Before stage 05, confirm the spec is concrete (named tokens, real fonts, per-section
@@ -136,4 +139,4 @@ layout), carries a written divergence justification, and **passes the ledger dis
 check** against the last two builds, and clears every relevant rule in
 `anti-slop-rules.md`. If an
 `asset-manifest.md` was produced, confirm every asset is an allowed subject
-(`imagery.md` §4), none is forbidden (§5), and each has a clean non-generated fallback.
+(`imagery.md` §2), none is forbidden (§3), and each has a clean non-generated fallback.

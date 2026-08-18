@@ -9,7 +9,9 @@ First run `node shared/design/check-slop-gates.mjs sites/<name>` — a machine-v
 pass on ~14 of the gates below (contrast, token discipline, font count, italic
 headings, interactive states, reduced motion, spacing scale, image-grid tracks,
 header wrap, uppercase/line-height, sticky collisions). Fix every FAIL it reports;
-triage its WARNs. It is not a substitute for what follows — most gates need
+triage its WARNs. (Script findings carry flat gate numbers inherited from the
+contract's source slop test — they don't map onto this checklist's § numbers;
+match a script finding to a checklist item by its text.) It is not a substitute for what follows — most gates need
 judgment or a rendered browser.
 
 > **No Node?** The script needs Node 18+. Without it, this checklist still runs —
@@ -36,8 +38,8 @@ This checklist is the standalone floor.
 
 - [ ] Display face is **not** Inter/Roboto/Open Sans/Poppins/Lato/system-default.
       *Check the shipped CSS itself, not just the spec* — grep every `font-family`
-      and `:root` font token in the built site for the banned faces. (example-clinic
-      shipped with Inter because this was eyeballed, not grepped.)
+      and `:root` font token in the built site for the banned faces. (Eyeballing
+      is exactly how a banned font ships; grep catches it.)
 - [ ] **One coherent family (two only if a justified pairing).** Grep the shipped CSS
       for the **distinct families actually referenced** (every `--font-*` token + any
       inline `font-family`). There must be **one** family — or **two** only if
@@ -148,9 +150,9 @@ This checklist is the standalone floor.
 ## 11. Generated imagery (only if the site uses any)
 
 Open every generated image and judge it with your own eyes — see
-[`imagery.md`](imagery.md) §6 for the full checklist.
+[`imagery.md`](imagery.md) §4 for the full checklist.
 
-- [ ] **No forbidden subjects** (imagery.md §5): no AI-made people-as-real, premises,
+- [ ] **No forbidden subjects** (imagery.md §3): no AI-made people-as-real, premises,
       products-as-real, logos, badges, awards, or credential imagery.
 - [ ] **No slop tells**: no malformed hands/fingers/teeth, no garbled text, no melted/
       warped/cloned objects, no over-blurred bokeh-portrait look, no HDR "AI glow",

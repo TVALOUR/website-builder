@@ -37,7 +37,7 @@ looks wrong. Never a one-prompt black box; never babysat step by step.
    | Claude Code | `claude` | `CLAUDE.md` → imports `AGENTS.md` |
    | Codex CLI | `codex` | `AGENTS.md` directly |
    | Gemini CLI | `gemini` | `GEMINI.md` → points at `AGENTS.md` |
-   | Grok CLI | `grok` | `GROK.md` → points at `AGENTS.md` |
+   | Grok CLI | `grok` | `GROK.md` → points at `AGENTS.md` (if not auto-read, say "read AGENTS.md first") |
    | Cursor / other | open the folder | `AGENTS.md` (tell it to read it first if it doesn't automatically) |
 
    `AGENTS.md` is the whole contract; the other files are thin pointers into it.
@@ -55,9 +55,12 @@ looks wrong. Never a one-prompt black box; never babysat step by step.
    > main goal is to get them to request a sample box. It should feel precise
    > and unfussy — not cosy-artisan.
 
+   (Harbourline is invented — swap in your real business.)
+
 4. **Talk to it at the checkpoints** (brief, design, QA). Say "go" to move on,
    or "show me the sitemap", "gate everything", or "run to QA" to change the
-   rhythm.
+   rhythm. A standard build is a working session with three real conversations —
+   not a one-prompt generation.
 
 5. The finished site lands in `sites/<name>/`. It is plain static files — open
    `index.html`, or host it anywhere.

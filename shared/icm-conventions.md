@@ -2,8 +2,8 @@
 
 The rules every ICM workspace follows — Interpretable Context Methodology (ICM),
 distilled into the one page you apply directly. This is the canonical document; there
-is no separate source paper. The builder reads this before scaffolding; every workspace
-it produces obeys it.
+is no separate source paper. This workspace follows it end to end; every stage
+contract is written against it.
 
 ---
 

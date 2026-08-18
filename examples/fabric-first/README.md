@@ -45,8 +45,9 @@ Fontshare webfont needs a network.
 
 ### Why green, given the gravity well
 
-`sites/variety-ledger.md` warns that this workspace converges on *soft serif +
-sage green + warm cream* (example-clinic, example-outdoors). The brief mandated green, so
+The design contract warns that unwatched AI design passes converge on *soft
+serif + sage green + warm cream* (`design-directions.md` § the gravity well).
+The brief mandated green, so
 the build exits the well on the other three axes instead: a saturated deep
 **signal** green rather than a muted sage, **cool** near-white paper rather than
 warm cream, a **heavy grotesque** rather than a serif, and a workflow
@@ -64,8 +65,8 @@ than no form. Contact is a real `tel:` and `mailto:` instead.
   alongside `.btn`, which carries the `:focus-visible` and `:disabled` rules;
   the `.contact` grid track holds no images).
 - Rendered and swept in Chrome across **4 pages × 12 widths, 320–1920 px**: no
-  horizontal scroll (gate 34), no two-line clickable text (gate 49).
-- Hero clears the **1280 × 800** fold with 159 px to spare (gate 44b).
+  horizontal scroll, no two-line clickable text.
+- Hero clears the **1280 × 800** fold with 159 px to spare.
 - Every text node measured in sRGB against its computed background: **WCAG
   4.5:1** body / **3:1** large, on all four pages, light and charcoal surfaces
   (gates 40–41).

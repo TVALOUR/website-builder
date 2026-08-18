@@ -20,6 +20,7 @@ and lock the brief before auto-proceeding to sitemap/content (see `AGENTS.md`).
 - Layer 3 (reference): `../../_config/website-builder-config.md` — author, default stack, deploy/git policy.
 - Layer 3 (reference): `../../_config/deploy.md` — deploy options (GitHub storage vs Cloudflare Pages host) + preservation rule.
 - Layer 3 (reference): `../../shared/design/anti-slop-rules.md` — so the brief is framed against the quality bar from the start.
+- Layer 3 (reference): `../../_config/model-routing.md` § Complexity tiers — the simple/standard/complex criteria; the brief sets the build tier.
 
 ## Process
 
@@ -73,6 +74,14 @@ the intake nor the human has said, propose a sensible default from
    host for the owner — record it as an open question if unstated.
 9. **References / inspiration** — any sites the human likes or wants to avoid
    (useful for stage 04's `study` step).
+10. **Legal pages & jurisdiction** — the four baseline legal pages (privacy,
+    cookies, terms, accessibility) ship by default as a footer-only tail
+    (`../../shared/legal/legal-pages.md`). Say so, then ask two things: keep
+    all four (a site collecting no data may drop some — this is the one place
+    the opt-out can happen; otherwise stage 02 appends them), and **which
+    jurisdiction / audience region** the business serves — the templates are
+    jurisdiction-neutral and stage 03 writes to the recorded law, never an
+    assumed country. Record both in the brief.
 
 Write a tight, decision-dense brief. No fluff. Every later stage will cite it.
 
@@ -82,8 +91,10 @@ Write a tight, decision-dense brief. No fluff. Every later stage will cite it.
 came from which file) and a **Client assets** catalogue (real files + intended use),
 plus the usual open-questions/assumptions list.
 
+Plus: update `../../SESSION.md` — tick stage 01, one-line note, mark 02 **NEXT**.
+
 ## Review
 
-Before stage 02, the human confirms purpose, audience, voice, stack, and the
-page list are right. If you keep rewriting the same assumption each run, fix the
+Before stage 02, the human confirms purpose, audience, voice, stack, the page
+list, and the legal-pages + jurisdiction decision are right. If you keep rewriting the same assumption each run, fix the
 default in `../../_config/website-builder-config.md` instead.

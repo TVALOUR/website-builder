@@ -43,7 +43,7 @@ For each stage, make **one** sub-agent call:
   read/write/edit, search, and shell). In Claude Code that is the Agent tool with
   `subagent_type: "general-purpose"`.
 - **Model:** the tier from the routing matrix, translated to your ecosystem's
-  model names (`_config/model-routing.md` § Tier mapping). **This is the whole
+  model names (`_config/model-routing.md` § The three tiers). **This is the whole
   point** — it sets the model for that stage's work independent of the
   conductor's own model. If your spawn tool cannot set a model, spawn anyway:
   the context isolation alone is worth it.
@@ -154,7 +154,7 @@ or `shared/`.
 
 For a **simple** one/two-page build, six cold-start spawns can cost more than
 they save. The conductor may instead run the stages **inline** (do them itself,
-i.e. drop to solo mode) on a single cheap model for the whole build — *but the
+i.e. drop to solo mode) on a single standard-tier model for the whole build — *but the
 collaborative checkpoints (01 brief, 04 design, 06 QA) are still mandatory*. See
 `model-routing.md` § When to skip the sub-agent. Standard and complex builds
 should use the spawn pattern so the strongest model stays boxed into stage 04 and

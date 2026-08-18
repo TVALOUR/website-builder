@@ -1,4 +1,4 @@
-/* Website-builder baseline consent manager (PECR reg.6 / UK GDPR consent standard).
+/* Website-builder baseline consent manager (consent-by-default — the EU/UK ePrivacy-class standard, a safe global floor).
  * Copied verbatim into every build's output/site/js/consent.js by stage 05 —
  * see ../legal/legal-pages.md. Rename the KEY constant per-site if two builds
  * could ever share a browser profile/origin; otherwise leave as-is.

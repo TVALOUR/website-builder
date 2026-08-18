@@ -51,6 +51,8 @@ so stage 05 can drop copy straight into the build.
 
 `content.md` -> output/
 
+Plus: update `../../SESSION.md` — tick stage 03, one-line note, mark 04 **NEXT**.
+
 ## Review
 
 Before stage 04, confirm there's no invented fact and no `lorem`; resolve or

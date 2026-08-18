@@ -12,9 +12,13 @@ breached.
 ## 1. Have a point of view
 
 Before any layout, decide the *why* — the position this site takes. A design is a
-set of decisions, not a template filled in. Score the plan on six axes before
-building (Philosophy, Hierarchy, Execution, Specificity, Restraint, Variety); fix
-anything weak before writing code. The output must look like **this brief**, not
+set of decisions, not a template filled in. Test the plan on six axes before
+building — **Philosophy** (a nameable point of view), **Hierarchy** (one thing
+clearly matters most per screen), **Execution** (every token deliberate),
+**Specificity** (could only be this brand), **Restraint** (nothing decorative
+that says nothing), **Variety** (a real distance from the last builds) —
+writing a one-line defence for each; fix any axis you cannot defend before
+writing code. The output must look like **this brief**, not
 "a page that could be anyone's."
 
 ## 2. Typography — one coherent voice, never the tells
@@ -153,8 +157,8 @@ the last — not just by colour swap. This is enforced, not aspirational:
 Rules 1–10 are mostly *pass/fail*: a build either uses Inter or it doesn't, either
 gradients text or it doesn't. A site can clear **every** one of them and still read
 as AI-made, because the remaining tells are about **composition, not correctness**.
-These are the ones a example-agency-style review keeps surfacing after the mechanical
-gates are green. Judge them with the world-class-studio test, at stage 04 *and* 06.
+These are the ones the stage-06 composition pass keeps surfacing after the
+mechanical gates are green. Judge them with the world-class-studio test, at stage 04 *and* 06.
 
 - **Composed negative space, never a blank half.** Mechanical asymmetry — shove the
   content into cols 1–8 and leave the rest empty — satisfies Rule 4 and still looks

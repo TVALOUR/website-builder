@@ -70,5 +70,9 @@ Write `stages/05_build/output/build-report.md` containing:
 - A short self-check against `shared/design/pre-ship-gates.md` — list any gate you
   are unsure about so stage-06 QA can focus there.
 
+Footer credit: if `_config/website-builder-config.md` carries a real owner name
+(not `<<OWNER_NAME>>`), credit it in the site footer per the config's author
+row; if unset, omit the credit — never ship the literal token.
+
 Then **stop**. Stage 06 runs QA and decides on promotion. Do not QA or promote in
 the same breath as the build.

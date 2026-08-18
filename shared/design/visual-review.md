@@ -76,8 +76,8 @@ mobile widths as the evidence attached to the QA report.
 §2 catches the *obvious* tells. This pass catches the ones that survive a green
 checklist — the [`anti-slop-rules.md §11`](anti-slop-rules.md) tells that are about
 **composition, not correctness**. A site can pass every mechanical gate and still read
-as generated; this is the pass that found and fixed example-agency's blank-half hero
-*after* the gates were all green. Run it every build. It is deliberately **adversarial
+as generated; this is the pass that catches the classic blank-half hero
+*after* the gates are all green. Run it every build. It is deliberately **adversarial
 and per-section** — the mechanism that makes it work is that it forces you to *look at
 each band and defend it in writing*, which a tickable checklist never does.
 
@@ -93,8 +93,8 @@ not tick a box — **write a one-line verdict**: either `HELD/EARNED — <why>` 
    open side of an asymmetric hero, the wide gutter beside a text column, the band under
    a CTA. Name what *anchors* it (a hairline/rule, an honest index or figure, structural
    numerals, oversized type bleeding in, an interaction target). **If the answer is
-   "nothing," it's a void, not negative space** — compose it or restructure. (This is
-   the example-agency hero: content in cols 1–8, right ~35% blank → FIX: a hairline-divided
+   "nothing," it's a void, not negative space** — compose it or restructure. (The classic
+   case: content in cols 1–8, right ~35% blank → FIX: a hairline-divided
    honest index holding the right column.)
 2. **Is the signature rationed, or stamped?** Does this section open with the same motif
    (eyebrow / `>` / `// label` / numeral) as most others? Count its uses across the page.

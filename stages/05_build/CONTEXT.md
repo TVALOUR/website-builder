@@ -36,7 +36,13 @@ build uses each asset's named CSS/SVG/typographic **fallback** and leaves a
 ### 05b — Build the site
 
 1. Confirm all four input files exist and are free of unresolved `<<PLACEHOLDER>>`
-   / `[NEEDS: …]` tokens. If not, stop and resolve the upstream stage first.
+   config tokens — a missing file or config token stops the stage: resolve the
+   upstream stage first. `[NEEDS: …]` content markers are different: one the
+   human saw and deferred at a checkpoint proceeds per
+   `references/build-prompt.md` point 5 (an honest `<!-- TODO: needs <thing> -->`
+   + a build-report line); a load-bearing one nobody has seen — a fact the
+   design or a legal page cannot ship truthfully without — stops and goes back
+   upstream.
 2. Read the four inputs + `anti-slop-rules.md` + `references/build-prompt.md`.
    The build-prompt's contract binds you in full — verbatim content, exact tokens,
    every anti-slop rule, invent nothing. In addition:
@@ -65,6 +71,8 @@ build uses each asset's named CSS/SVG/typographic **fallback** and leaves a
 
 `site/` (the built website) -> output/
 `build-report.md` -> output/
+
+Plus: update `../../SESSION.md` — tick stage 05, one-line note, mark 06 **NEXT**.
 
 ## Review
 

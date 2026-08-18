@@ -41,6 +41,8 @@ section needs, and stage 05 knows exactly what to build.
 
 `sitemap.md` -> output/
 
+Plus: update `../../SESSION.md` — tick stage 02, one-line note, mark 03 **NEXT**.
+
 ## Review
 
 Before stage 03, confirm the page list and per-page sections match the brief's

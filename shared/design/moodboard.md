@@ -58,6 +58,8 @@ during stage 04, the already-running design sub-agent dissects new drops itself.
    macrostructure, display/body faces, paper, accent + footprint, motion, density.
    Diagnosis-level use only: **never** copy pixels, never reproduce a layout
    section-for-section.
+   No fetch tool? Ask the human for a screenshot instead — a bare URL without
+   web access parks the card as `[NEEDS: screenshot]`, never a guessed verdict.
 3. **Write the why-it-wins verdict** — the layer `study` doesn't do. Answer these,
    in prose, ~5 sentences (for a disliked reference, invert: why it loses):
    - **Load-bearing move.** The single element doing the most work. If you removed

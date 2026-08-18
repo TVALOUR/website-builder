@@ -6,8 +6,8 @@ text-only art direction that the stage-05a image step (if an image tool is wired
 hands to stage 05. Keep it tight — one block per asset. No pixels live here.
 
 Read [`../../../shared/design/imagery.md`](../../../shared/design/imagery.md) first:
-it defines allowed subjects (§4), the honesty floor (§5), the slop checklist (§6),
-and prompt discipline (§7). Every asset below must satisfy them.
+it defines allowed subjects (§2), the honesty floor (§3), the slop checklist (§4),
+and prompt discipline (§5). Every asset below must satisfy them.
 
 If the design needs **no** generated imagery, write exactly:
 `No generated assets — imagery is CSS/SVG/typographic and/or client-supplied.`

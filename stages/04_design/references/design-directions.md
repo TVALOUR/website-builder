@@ -24,7 +24,7 @@ Left unconstrained, this workspace converges on one look:
 > **soft serif (almost always Fraunces) + sage/teal-green accent + warm off-white
 > "paper" + generous editorial whitespace.**
 
-Both real builds so far landed there (see the ledger). It is a *fine* look — that's
+Unwatched builds land there again and again — watch your own ledger fill. It is a *fine* look — that's
 the trap. It's the local maximum the model relaxes into. **If your chosen direction
 is drifting toward Fraunces + green + cream and the brief did not specifically
 demand a warm-organic feel, stop and pick a different direction.** Variety is a
@@ -167,7 +167,7 @@ never use the banned tells (Inter/Roboto/Open Sans/Poppins/Lato/system as displa
 - **Type:** a professional grotesque or humanist sans + an optional serif for headlines — **Albert Sans, Onest, Figtree, Schibsted Grotesk** + (opt.) **Newsreader/Spectral**.
 - **Colour:** **one confident brand hue** done deliberately (deep blue, teal, burgundy, forest, slate) + tinted neutrals. **No purple→blue gradient.**
 - **Signature:** a structured proof band, a credential rail, a deliberate accent system.
-- **Avoid the well by:** commit to a *non-green* brand hue when the last build was green (example-clinic drifted from this into the warm-organic well — don't repeat that).
+- **Avoid the well by:** commit to a *non-green* brand hue when the last build was green (this direction's classic drift is a "confident hue" relaxing back into the warm-organic well — don't let it).
 
 ### 10. Geometric / Bauhaus
 - **POV:** Primary shapes, geometric type, the joy of the grid and the circle.

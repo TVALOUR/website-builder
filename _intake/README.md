@@ -36,7 +36,7 @@ answer the gaps in chat.
    listed as an open question / assumption to confirm — not silently guessed.
 4. **Catalogues real assets.** Files in `assets/` are inventoried in the brief (what
    each is, where it should be used) and marked **client-supplied / real**, so stage 04
-   prefers them over generated imagery (`shared/design/imagery.md` §3) and stage 06
+   prefers them over generated imagery (`shared/design/imagery.md` §1) and stage 06
    copies them into the shipped site.
 
 ## Lifecycle (one client at a time)
