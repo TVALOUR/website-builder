@@ -44,11 +44,11 @@ const SECTIONS = [
     ask: 'The ONE outcome. Not "an online presence" — "more enquiries for remedial work from vets".' },
   { key: 'audience', min: 8, match: /audience|who visits|customers?$/i,
     ask: 'Who visits, on what device, worried about what. Questions 8-12.' },
-  { key: 'vision', min: 25, match: /vision/i,
+  { key: 'vision', min: 25, match: /(?<!anti[-\s])vision/i,
     ask: 'Part V. What they could already see: what they handed over, the remake target, the references and their axes, the anti-vision, the five-second answer, the three feel-words, and the colour/type state.' },
   { key: 'voice', min: 6, match: /voice|tone/i,
     ask: '3 to 5 adjectives, and one sentence of theirs you would be happy to quote.' },
-  { key: 'scope', min: 8, match: /scope|page list|sitemap/i,
+  { key: 'scope', min: 5, match: /scope|page list|sitemap/i,
     ask: 'The rough page list. Refined at stage 02, but it starts here.' },
   { key: 'features', min: 15, match: /features?|what the site (has to|must) do|functional/i,
     ask: 'Questions 47-56 — page by page, what must a visitor be able to DO? This is what turns a page list into a website.' },
@@ -56,7 +56,7 @@ const SECTIONS = [
     ask: 'Must-have and must-avoid, including everything they hate. "My last site was purple" is load-bearing.' },
   { key: 'brand', min: 10, match: /brand|assets|materials|logo/i,
     ask: 'Logo, colours, fonts and whether they are licensed for web use, photos and whether they are theirs to publish. Questions 21-24 and 41-46.' },
-  { key: 'market', min: 8, match: /market|jurisdiction|language|country|legal/i,
+  { key: 'market', min: 8, match: /market(?!ing)|jurisdiction|language|country|which country/i,
     ask: 'Questions 57-61 — which country the business trades under, where its customers are, what language, what currency. This picks the legal profile, and there is no default.' },
   { key: 'policy', min: 4, match: /motion|imagery|policies|defaults/i,
     ask: 'Questions 62-63 — motion and generated imagery. Both are OFF unless this section says otherwise, and the gate enforces it.' },
@@ -71,39 +71,60 @@ const SECTIONS = [
 // Blocking questions, by the id used in questions.md, and a pattern that shows
 // the brief actually carries the answer. Deliberately generous: the checker is
 // looking for evidence the subject was ADDRESSED, not grading the prose.
+// [id, evidence pattern, the SECTION that owns the answer]
+//
+// Scoped to its own section, and to a section that passed the substance check.
+// Scanning the whole document meant single common words carried whole questions
+// - A2 and F47 are both satisfied by the word "do" - so 26 words of keyword
+// salad answered all 24, and 277 words of lorem ipsum with one bait line passed
+// the entire check. The heading is the QUESTION. Only the body is an answer.
 const BLOCKING = [
-  ['V1  artifacts handed over', /_intake|handed over|supplied|sent me|dropped|nothing to hand over|no materials/i],
-  ['V2  the site they are remaking', /remak|reference|inspired by|no references|none supplied|delegated/i],
-  ['V4  the anti-vision', /must not|never|avoid|hate|anti.vision/i],
-  ['V5  the five-second answer', /five.second|5.second|above the fold|first impression|hero/i],
-  ['V6  three feel-words', /feel|tone|temperament|adjectiv/i],
-  ['V7  colour state', /colou?r/i],
-  ['A1  legal name and entity type', /limited|ltd|sole trader|partnership|llc|inc\b|corporation|entity|proprietor|not a (real|trading)/i],
-  ['A2  what they sell, in their words', /sell|service|offer|do\b/i],
-  ['C13 prices, or why there are none', /price|quote|per job|cost|£|\$|€|no published/i],
-  ['C14 opening hours', /hour|open|closed|by appointment|24\/7|availab/i],
-  ['C15 where they work', /area|town|city|region|serve|coverage|remote|online only/i],
-  ['C16 phone and email', /@|phone|tel|mobile|contact/i],
-  ['C17 qualifications and registrations', /qualif|accredit|registrat|insur|licen|member|none held|no registrations/i],
-  ['D21 logo', /logo|wordmark|no logo|set type instead/i],
-  ['D22 fonts and their licence', /font|typeface|licen/i],
-  ['D24 photos and whether they are theirs', /photo|image|picture|no photos/i],
-  ['E41 photo rights', /right|permission|copyright|theirs to publish|took the photo|photographer/i],
-  ['F27 can they edit it themselves', /edit|update|cms|static|developer job/i],
-  ['F47 what a visitor must be able to DO', /visitor|must be able|do\b|ring|call|enquir|download|book/i],
-  ['G57 the country they trade under', /jurisdiction|country|profile|uk|united kingdom|us\b|united states|eu\b|canada|australia|trades? (in|under)/i],
-  ['H62 motion', /motion/i],
-  ['H63 generated imagery', /imagery|generated/i],
-  ['I31 who owns the domain', /domain|registrar|dns/i],
-  ['I32 the existing site', /existing site|old site|current site|no existing|new domain|nothing to replace/i],
+  ['V1  artifacts handed over', /_intake|handed over|supplied|sent me|dropped|nothing to hand over|no materials/i, 'vision'],
+  ['V2  the site they are remaking', /remak|reference|inspired by|no references|none supplied|delegated/i, 'vision'],
+  ['V4  the anti-vision', /must not|never|avoid|hate|anti.vision/i, 'constraints'],
+  ['V5  the five-second answer', /five.second|5.second|above the fold|first impression|hero/i, 'vision'],
+  ['V6  three feel-words', /feel|tone|temperament|adjectiv/i, 'voice'],
+  ['V7  colour state', /colou?r/i, 'vision'],
+  ['A1  legal name and entity type', /limited|ltd|sole trader|partnership|llc|inc\b|corporation|entity|proprietor|not a (real|trading)/i, 'regime'],
+  ['A2  what they sell, in their words', /sell|service|offer|do\b/i, 'goal'],
+  ['C13 prices, or why there are none', /price|quote|per job|cost|£|\$|€|no published/i, 'goal'],
+  ['C14 opening hours', /hour|open|closed|by appointment|24\/7|availab/i, 'features'],
+  ['C15 where they work', /area|town|city|region|serve|coverage|remote|online only/i, 'audience'],
+  ['C16 phone and email', /@|phone|tel|mobile|contact/i, 'features'],
+  ['C17 qualifications and registrations', /qualif|accredit|registrat|insur|licen|member|none held|no registrations/i, 'brand'],
+  ['D21 logo', /logo|wordmark|no logo|set type instead/i, 'brand'],
+  ['D22 fonts and their licence', /font|typeface|licen/i, 'brand'],
+  ['D24 photos and whether they are theirs', /photo|image|picture|no photos/i, 'brand'],
+  ['E41 photo rights', /right|permission|copyright|theirs to publish|took the photo|photographer/i, 'brand'],
+  ['F27 can they edit it themselves', /edit|update|cms|static|developer job/i, 'features'],
+  ['F47 what a visitor must be able to DO', /visitor|must be able|do\b|ring|call|enquir|download|book/i, 'features'],
+  ['G57 the country they trade under', /jurisdiction|country|profile|uk|united kingdom|us\b|united states|eu\b|canada|australia|trades? (in|under)/i, 'market'],
+  ['H62 motion', /motion/i, 'policy'],
+  ['H63 generated imagery', /imagery|generated/i, 'policy'],
+  ['I31 who owns the domain', /domain|registrar|dns/i, 'stack'],
+  ['I32 the existing site', /existing site|old site|current site|no existing|new domain|nothing to replace/i, 'stack'],
 ];
 
-const PLACEHOLDER = /^(tbd|tbc|todo|n\/?a|-+|\?+|<[^>]*>|\[[^\]]*\]|none yet|to be confirmed|\.\.\.|…)$/i;
+// `[NEEDS: the callout charge]` is NOT a placeholder. It is this repo's own
+// required notation for a gap somebody recorded on purpose, and the Open
+// questions section consists of nothing else — so the one section whose correct
+// content is [NEEDS:] lines was reported as unfilled. A checker that punishes
+// its own conventions teaches people to stop using them.
+const NEEDS = /^\[\s*NEEDS?\s*:/i;
+const PLACEHOLDER_RE = /^(tbd|tbc|todo|n\/?a|-+|\?+|<[^>]*>|\[[^\]]*\]|none yet|to be confirmed|\.\.\.|…)$/i;
+const PLACEHOLDER = { test: (v) => !NEEDS.test(String(v).trim()) && PLACEHOLDER_RE.test(v) };
 
 function sectionsOf(md) {
   const out = [];
   const lines = md.split(/\r?\n/);
   let current = null;
+  // A `- **Vision:** …` bullet counts as a heading ONLY in a brief that has no
+  // real headings at all. Applying it everywhere fragmented properly-written
+  // documents: `- **Motion:** none` under `## Motion and imagery` started a new
+  // section whose body was the word "none", so the section that held the answer
+  // was reported as saying nothing. The rule exists for briefs written as a
+  // bullet list; it has no business inside one written with headings.
+  const bulletsAreHeadings = !/^#{2,4}\s+\S/m.test(md);
   for (const line of lines) {
     const h = /^(#{2,4})\s+(.*)$/.exec(line);
     if (h) {
@@ -113,7 +134,7 @@ function sectionsOf(md) {
     }
     // A `- **Vision:** …` bullet is a heading in everything but syntax, and
     // plenty of real briefs are written that way. Treat it as one.
-    const b = /^\s*[-*]\s*\*\*([^*]{2,40})\*\*\s*[-—:]\s*(.*)$/.exec(line);
+    const b = bulletsAreHeadings && /^\s*[-*]\s*\*\*([^*]{2,40})\*\*\s*[-—:]\s*(.*)$/.exec(line);
     if (b) {
       if (current) out.push(current);
       current = { title: b[1].trim(), body: [b[2]] };
@@ -198,15 +219,42 @@ for (const spec of SECTIONS) {
 // document scored a completely unfilled skeleton as having answered 23 of 24
 // blocking questions. Headings are the questions. Bodies are the answers.
 const thinKeys = new Set(thin.map((t) => t.key));
-const answersOnly = found
-  .filter((s) => !SECTIONS.some((spec) => spec.match.test(s.title) && thinKeys.has(spec.key)))
-  .map((s) => s.text)
-  .join('\n')
+const clean = (t) => String(t)
   .replace(/```[\s\S]*?```/g, ' ')
   .replace(/<!--[\s\S]*?-->/g, ' ')
   .replace(/<[^>]{10,}>/g, ' ');
 
-const unanswered = BLOCKING.filter(([, re]) => !re.test(answersOnly));
+// Body text per section key, for sections that carried substance. A thin or
+// placeholder section contributes nothing: its heading is the question.
+const bodyByKey = new Map();
+for (const sec of found) {
+  const spec = SECTIONS.find((x) => x.match.test(sec.title));
+  if (!spec || thinKeys.has(spec.key)) continue;
+  bodyByKey.set(spec.key, `${bodyByKey.get(spec.key) || ''}\n${clean(sec.text)}`);
+}
+const allBodies = [...bodyByKey.values()].join('\n');
+
+const unanswered = BLOCKING.filter(([, re, owner]) => {
+  // Look in the owning section first. Briefs are written by people and by
+  // agents, and both put things in reasonable-but-different places, so an
+  // answer found anywhere in the substantive body still counts — it just cannot
+  // be found in a HEADING any more, which is what made the check theatre.
+  const scoped = owner ? bodyByKey.get(owner) : null;
+  return !(scoped && re.test(scoped)) && !re.test(allBodies);
+});
+
+// LEXICAL DIVERSITY. A brief is full of proper nouns, prices, places and the
+// client's own phrasing. Filler is not: 277 words of lorem ipsum has about 40
+// distinct lemmas, and it passed every check above because each check asks
+// whether a subject was mentioned, not whether anything was said.
+//
+// This is a floor, not a grade. Real briefs measured well above it; the failing
+// case is padding.
+const bodyWords = allBodies.toLowerCase().match(/[a-z][a-z'-]{1,}/g) || [];
+const distinct = new Set(bodyWords).size;
+const diversity = bodyWords.length >= 80 ? distinct / bodyWords.length : 1;
+const filler = bodyWords.length >= 80 && diversity < 0.32;
+const loremish = /\b(lorem|ipsum|dolor sit amet|consectetur)\b/i.test(md);
 
 // Policy values must be present AND valid. A misspelt policy silently applies
 // the default, and the default for imagery is the one that matters.
@@ -251,8 +299,12 @@ if (!existsSync(manifestPath)) siblings.push(`no asset manifest yet. Run \`node 
 // generation on, the gate believed it was off, and nobody was told they
 // disagreed. A typo that changes what the build is allowed to do has to fail.
 const invalidPolicy = policyProblems.filter((p) => /which is not one of/.test(p));
+const fillerProblems = [];
+if (loremish) fillerProblems.push('brief.md contains lorem ipsum. That is not a placeholder to fill in later; it is a document that has not been written.');
+if (filler) fillerProblems.push(`brief.md's sections repeat themselves — ${distinct} distinct words across ${bodyWords.length} (${Math.round(diversity * 100)}%). A real brief is full of names, places, prices and the client's own phrasing. This one is padding.`);
+
 const problems = missing.length + thin.length + unanswered.length
-  + jurisdictionProblems.length + invalidPolicy.length;
+  + jurisdictionProblems.length + invalidPolicy.length + fillerProblems.length;
 const ok = problems === 0;
 
 if (asJson) {
@@ -261,7 +313,8 @@ if (asJson) {
     missingSections: missing.map((m) => m.key),
     thinSections: thin.map((t) => ({ key: t.key, title: t.title, words: t.words, floor: t.min, reason: t.reason })),
     unansweredBlocking: unanswered.map(([id]) => id),
-    policyProblems, jurisdictionProblems, notes: siblings,
+    policyProblems, jurisdictionProblems, fillerProblems, notes: siblings,
+    lexicalDiversity: Math.round(diversity * 100) / 100,
     motion: motion || 'none (default)', imagery: imagery || 'client-assets-only (default)',
   }, null, 2) + '\n');
   process.exit(ok ? 0 : 1);
@@ -284,6 +337,10 @@ if (unanswered.length) {
   console.log('\n  A refusal is a valid answer and it must be WRITTEN DOWN: "prices — REFUSED,');
   console.log('  owner does not want them published". Recorded, the build works around it.');
   console.log('  Absent, stage 03 fills the gap with something plausible and invented.');
+}
+if (fillerProblems.length) {
+  console.log(bar('This is not a brief'));
+  for (const p of fillerProblems) console.log(`  ${p}`);
 }
 if (jurisdictionProblems.length) {
   console.log(bar('Jurisdiction'));

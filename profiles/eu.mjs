@@ -193,6 +193,10 @@ export default {
     // A member-state profile MUST replace this with its own national shape; the
     // union will happily accept a Portuguese postcode on a German site.
     postcodePattern: '/^(?:\\d{4}\\s?[A-Z]{2}|\\d{4}-\\d{3}|\\d{2}-\\d{3}|[A-Z]{2}-\\d{4,5}|[A-Z]{3}\\s?\\d{4}|[A-Z]\\d{2}\\s?[A-Z0-9]{4}|\\d{3}\\s?\\d{2}|\\d{4,5})$/i',
+    phonePattern: '/\\+\\d{2,3}[\\s.-]?\\d{1,4}[\\s.-]?\\d{3,4}[\\s.-]?\\d{3,5}\\b/g',
+    phoneCountryCode: null,
+    phoneNationalPrefix: null,
+    phoneNationalPattern: null,
 
     addressOrder: 'street, postcode city, country',
     measurement: 'metric',

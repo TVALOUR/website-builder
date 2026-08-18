@@ -69,6 +69,15 @@ export default {
     phoneExample: null,
     fictionalPhoneRange: null,
     postcodePattern: null,
+    // Phone handling, read by checks/lib/locale.mjs. A profile that leaves these
+    // null gets a permissive international fallback rather than another
+    // country's shape - which is what three gates used to do, so the repo's
+    // flagship "no unsourced phone number ships" promise was OFF everywhere
+    // except the UK.
+    phonePattern: null,          // '/(?:\\+61|\\b0)[\\d\\s()-]{8,14}\\d/g'
+    phoneCountryCode: null,      // '61'  - stripped when normalising
+    phoneNationalPrefix: null,   // '0'   - re-added when normalising
+    phoneNationalPattern: null,  // '/^0\\d{9}$/' - what a valid national number looks like
     addressOrder: null,
     measurement: 'metric',
     // Right-to-left scripts change layout, not just text. A build whose content

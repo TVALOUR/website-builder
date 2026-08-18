@@ -108,6 +108,10 @@ export default {
     // position) follow Canada Post's forward-sortation-area rules. As a
     // STRING because the loader compiles it; case-insensitive is assumed.
     postcodePattern: '^[ABCEGHJ-NPRSTVXY]\\d[ABCEGHJ-NPRSTV-Z] ?\\d[ABCEGHJ-NPRSTV-Z]\\d$',
+    phonePattern: '/(?:\\+1[\\s.-]?)?(?:\\(\\d{3}\\)|\\d{3})[\\s.-]?\\d{3}[\\s.-]?\\d{4}\\b/g',
+    phoneCountryCode: '1',
+    phoneNationalPrefix: '',
+    phoneNationalPattern: '/^\\d{10}$/',
     addressOrder: 'street, city, province postalcode',
     measurement: 'metric',
   },

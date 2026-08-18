@@ -70,6 +70,10 @@ export default {
     // person. A fictional build uses them; a real one never does.
     fictionalPhoneRange: 'Ofcom drama ranges — 01632 960000-960999, 07700 900000-900999, 020 7946 0000-0999',
     postcodePattern: '/\\b[A-Z]{1,2}\\d{1,2}[A-Z]?\\s?\\d[A-Z]{2}\\b/i',
+    phonePattern: '/(?:\\+44|\\b0)[\\d\\s()-]{8,16}\\d/g',
+    phoneCountryCode: '44',
+    phoneNationalPrefix: '0',
+    phoneNationalPattern: '/^0\\d{9,10}$/',
     addressOrder: 'street, town, county, postcode',
     measurement: 'metric',
     direction: 'ltr',

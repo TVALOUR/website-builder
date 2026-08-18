@@ -129,6 +129,10 @@ export default {
     // Australian postcodes are exactly four digits. Supplied as a STRING; the
     // profile loader (checks/lib/profile.mjs) compiles it to a RegExp.
     postcodePattern: '^\\d{4}$',
+    phonePattern: '/(?:\\+61[\\s.-]?|\\b0)(?:\\(?\\d\\)?[\\s.-]?)?\\d{4}[\\s.-]?\\d{4}\\b/g',
+    phoneCountryCode: '61',
+    phoneNationalPrefix: '0',
+    phoneNationalPattern: '/^0\\d{9}$/',
     addressOrder: 'street, suburb STATE postcode', // e.g. "12 Example St, Fremantle WA 6160"
     measurement: 'metric',
   },

@@ -170,15 +170,22 @@ for (const g of ['assets/unmanifested', 'assets/rights-unrecorded', 'assets/sour
 // to stop running the tool. This fixture proves the managed half; the external
 // half is proven by their absence from the negative control.
 console.log('\nmanaged build — the policy gates bind inside builds/, not outside');
-const managed = run(['examples/managed-control/site', '--profile', 'uk', '--only', 'assets,design',
+const managed = run(['examples/managed-control/site', '--profile', 'uk', '--only', 'assets,design,discovery',
   '--json', '--no-color']);
 say(managed.code === 1, `exit code 1 (got ${managed.code})`);
 const managedGates = new Set((managed.json?.findings || [])
   .filter((f) => f.severity === 'blocker').map((f) => f.gate));
 say(managedGates.has('assets/manifest-exists'), 'assets/manifest-exists blocks inside a build');
 say(managedGates.has('design/motion-policy'), 'design/motion-policy blocks inside a build');
+// The discovery family exists so stage 01 is enforced by the ONE command every
+// harness runs, not only by the Claude hook. This fixture has a STATE.md and no
+// brief at all, which is the shape of a build that skipped the interview.
+say(managedGates.has('discovery/brief-incomplete'),
+  'discovery/brief-incomplete blocks a build with no brief — on every harness, not just Claude Code');
+const managedAll = new Set((managed.json?.findings || []).map((f) => f.gate));
+say(managedAll.has('discovery/no-manifest'), 'discovery/no-manifest flags a build that never ran the asset scan');
 
-const audited = run(['examples/negative-control', '--profile', 'uk', '--only', 'assets,design',
+const audited = run(['examples/negative-control', '--profile', 'uk', '--only', 'assets,design,discovery',
   '--json', '--no-color']);
 const auditedBlockers = new Set((audited.json?.findings || [])
   .filter((f) => f.severity === 'blocker').map((f) => f.gate));
@@ -186,6 +193,8 @@ say(!auditedBlockers.has('design/motion-policy'),
   'and NOT outside one — an audited third-party site is not blocked for animating');
 say(!auditedBlockers.has('assets/manifest-exists'),
   'nor for having no manifest it was never going to have');
+say(!auditedBlockers.has('discovery/brief-incomplete'),
+  'nor for having no brief — an audited site was never interviewed by us');
 
 // ---------------------------------------------------------------- jurisdiction
 //
@@ -242,6 +251,111 @@ const briefMissing = spawnSync(process.execPath,
   [join(here, 'brief.mjs'), join(root, 'examples'), '--json'],
   { cwd: root, encoding: 'utf8', maxBuffer: 8 * 1024 * 1024 });
 say(briefMissing.status === 2, `a folder with no brief.md exits 2, not 0 (got ${briefMissing.status})`);
+
+// And the cases that decide whether the gate is real: 277 words of lorem ipsum
+// with one keyword-bait line used to PASS it, while a genuinely thorough
+// 900-word brief failed with twelve sections reported "not there at all".
+{
+  const { runBriefCases, CASES: BRIEF_CASES } = await import('./brief-cases.mjs');
+  for (const r of runBriefCases()) {
+    say(r.ok, `${r.name} ${r.expected ? 'PASSES' : 'FAILS'} the discovery gate  (${r.detail})`);
+  }
+  say(BRIEF_CASES.length >= 4, `${BRIEF_CASES.length} brief cases exercised`);
+}
+
+// ---------------------------------------------------------- motion gate
+//
+// The false-positive half of the motion gate, run as part of the suite rather
+// than as something somebody remembers. Every "must NOT block" case in there is
+// real code an earlier version stopped a ship on — a rAF-debounced resize
+// handler, a JS comment saying the client did NOT want scroll reveals, CSS whose
+// keyframes were commented out because the client asked for no movement.
+console.log('\nmotion gate — false positives and true positives');
+{
+  const { runMotionCases, CASES: MOTION_CASES } = await import('./motion-cases.mjs');
+  for (const r of runMotionCases()) {
+    const want = r.expected === 'flag' ? 'is flagged' : r.expected ? 'blocks' : 'does NOT block';
+    say(r.ok, `${r.name} ${want}${r.ok ? '' : ` <- ${r.severities.join(' | ') || 'no finding'}`}`);
+  }
+  say(MOTION_CASES.length >= 14, `${MOTION_CASES.length} motion cases exercised`);
+}
+
+// ---------------------------------------------------------- asset gate
+//
+// Not "can each gate fire" — that is examples/assets-control/ — but "can the
+// gate be walked around". Every must-be-caught case is a real bypass an earlier
+// version shipped.
+console.log('\nasset provenance — laundering routes and false positives');
+{
+  const { runAssetCases, CASES: ASSET_CASES } = await import('./asset-cases.mjs');
+  for (const r of runAssetCases()) {
+    say(r.ok, `${r.name} ${r.expected ? 'is caught' : 'is allowed'}${r.ok ? '' : ` <- ${r.detail.join(' | ') || 'nothing found'}`}`);
+  }
+  say(ASSET_CASES.length >= 10, `${ASSET_CASES.length} asset cases exercised`);
+}
+
+// ------------------------------------------------------- policy reading
+//
+// The regression this locks down was invisible for exactly the reason it was
+// dangerous: the reader matched `**Motion**: subtle` while the house format
+// everywhere is `- **Motion:** subtle`, colon INSIDE the bold. So it read
+// nothing, applied the safe default, and looked like it was working. Every
+// build silently ignored its own declared policy.
+console.log('\npolicy reading — the declared format must actually be read');
+{
+  const { mkdtempSync, writeFileSync: wf, mkdirSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const { loadPolicy } = await import('./lib/policy.mjs');
+  const cases = [
+    ['- **Motion:** subtle\n- **Imagery:** generated-allowed\n', 'subtle', 'generated-allowed', 'colon inside the bold (the house format)'],
+    ['- **Motion**: expressive\n- **Imagery**: generated-allowed\n', 'expressive', 'generated-allowed', 'colon outside the bold'],
+    ['Motion: subtle\nImagery: generated-allowed\n', 'subtle', 'generated-allowed', 'no emphasis at all'],
+    ['nothing relevant here\n', 'none', 'client-assets-only', 'absent — the safe defaults apply'],
+  ];
+  for (const [body, wantMotion, wantImagery, label] of cases) {
+    const dir = mkdtempSync(join(tmpdir(), 'wb-policy-'));
+    mkdirSync(join(dir, 'site'));
+    wf(join(dir, 'brief.md'), `# Brief\n\n## Motion and imagery\n\n${body}`);
+    const p = loadPolicy(join(dir, 'site'));
+    say(p.motion === wantMotion && p.imagery === wantImagery,
+      `${label} -> motion=${p.motion}, imagery=${p.imagery}`);
+  }
+}
+
+// ---------------------------------------------------------- gate drift
+//
+// A PASS is a claim about a site AND about the ruleset that judged it. Add
+// gates and yesterday's PASS is a statement nobody has re-checked. Not
+// hypothetical: the reference build's verify.md said "136 gates ran … PASS"
+// while the same command on the same unchanged files returned 149 and two
+// blockers, and nothing noticed, because nothing re-ran.
+//
+// builds/ is gitignored, so in CI this is a no-op — it is a local guard for
+// exactly the person changing the rules.
+console.log('\ngate drift — a PASS on disk must still be a PASS under today\'s rules');
+{
+  const buildsDir = join(root, 'builds');
+  let claimedPasses = 0;
+  try {
+    for (const d of readdirSync(buildsDir, { withFileTypes: true })) {
+      if (!d.isDirectory()) continue;
+      let verify = '';
+      try { verify = readFileSync(join(buildsDir, d.name, 'verify.md'), 'utf8'); } catch { continue; }
+      if (!/\bPASS\b/.test(verify)) continue;
+      claimedPasses++;
+      const args = [`builds/${d.name}/site`, '--json', '--no-color'];
+      try { readFileSync(join(buildsDir, d.name, 'facts.md')); args.push('--facts', `builds/${d.name}/facts.md`); } catch { /* none */ }
+      const again = run(args);
+      const blockers = again.json?.counts?.blocker ?? -1;
+      say(again.code === 0,
+        blockers === 0
+          ? `builds/${d.name}/ still passes under the current ruleset`
+          : `builds/${d.name}/ claims PASS in verify.md but now has ${blockers} blocker(s) — `
+            + 'a stale PASS is a false claim, not a stale file');
+    }
+  } catch { /* no builds/ — the CI case */ }
+  if (!claimedPasses) console.log('  --    no build claims a PASS on disk (this is the CI case)');
+}
 
 // ------------------------------------------------------- claim patterns
 //

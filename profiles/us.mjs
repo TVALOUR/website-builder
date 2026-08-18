@@ -147,6 +147,10 @@ export default {
     fictionalPhoneRange: '555-0100 to 555-0199, in any area code, reserved by NANPA for entertainment and advertising use. Numbers outside this block, including the familiar 555-1234, were returned to assignable inventory in September 2016 and may be live.',
     // As a STRING; the loader compiles it. Matches ZIP and ZIP+4.
     postcodePattern: '/\\b\\d{5}(-\\d{4})?\\b/',
+    phonePattern: '/(?:\\+1[\\s.-]?)?(?:\\(\\d{3}\\)|\\d{3})[\\s.-]?\\d{3}[\\s.-]?\\d{4}\\b/g',
+    phoneCountryCode: '1',
+    phoneNationalPrefix: '',
+    phoneNationalPattern: '/^\\d{10}$/',
     addressOrder: 'street, city, state ZIP',
     measurement: 'imperial',
   },

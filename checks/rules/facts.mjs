@@ -36,8 +36,9 @@
 
 import { read, displayPath, exists, lineAt } from '../lib/fs.mjs';
 import { visibleTextPositional, decodeEntities, meta, jsonLd, references } from '../lib/html.mjs';
-import { parseLedger, norm } from '../lib/ledger.mjs';
+import { parseLedger, norm, localise } from '../lib/ledger.mjs';
 import { BLOCKER, MAJOR, MINOR, plural } from '../lib/report.mjs';
+import { phoneOf, postcodeOf } from '../lib/locale.mjs';
 import { join } from 'node:path';
 
 export const gates = [
@@ -59,7 +60,7 @@ export const gates = [
 // normalised identically. The absence of that symmetry is what produced false
 // blockers on entirely correct work: stage 03's whole job is turning ledger rows
 // into natural prose, so format drift is the expected case, not an edge case.
-const EXTRACTORS = [
+const BASE_EXTRACTORS = [
   {
     gate: 'facts/unsourced-price', severity: BLOCKER, label: 'price', key: 'price',
     // `£` and `&pound;` are in here because that is how a currency symbol
@@ -70,8 +71,11 @@ const EXTRACTORS = [
     why: 'A price the owner never quoted is a price they may be held to, and it is the failure a customer notices first.',
   },
   {
+    // The pattern comes from the profile at run time (see localise() below).
+    // This literal is the UK fallback, kept only so the shape is readable here.
     gate: 'facts/unsourced-phone', severity: BLOCKER, label: 'phone number', key: 'phone',
     re: /(?:\+44|\b0)[\d\s()-]{8,16}\d/g,
+    localeKey: 'phone',
     why: 'A wrong number sends every enquiry to a stranger, and it is the hardest error to notice from the inside — the owner never rings their own phone.',
   },
   {
@@ -82,6 +86,7 @@ const EXTRACTORS = [
   {
     gate: 'facts/unsourced-address', severity: BLOCKER, label: 'postcode', key: 'postcode',
     re: /\b[A-Z]{1,2}\d{1,2}[A-Z]?\s?\d[A-Z]{2}\b/g,
+    localeKey: 'postcode',
     why: 'A plausible-but-wrong postcode sends customers to somebody else\'s house.',
   },
   {
@@ -149,7 +154,29 @@ function claimSurfaces(raw, jsText) {
 }
 
 export async function run(ctx, report) {
-  const { siteDir, htmlFiles, jsFiles } = ctx;
+  const { siteDir, htmlFiles, jsFiles, profile } = ctx;
+
+  // The phone and postcode shapes come from the JURISDICTION, not from this
+  // file. Hardcoding the UK ones here meant facts/unsourced-phone and
+  // facts/unsourced-address silently never fired outside Britain — the repo's
+  // flagship promise, off in four of the six countries it ships profiles for,
+  // with nothing in the report saying so.
+  const phone = phoneOf(profile);
+  const postcode = postcodeOf(profile);
+  localise({ phone, postcode });
+  const EXTRACTORS = BASE_EXTRACTORS.map((ex) => {
+    if (ex.localeKey === 'phone') return { ...ex, re: phone.re };
+    if (ex.localeKey === 'postcode' && postcode) return { ...ex, re: postcode };
+    if (ex.localeKey === 'postcode') {
+      // No stated shape for this jurisdiction. Say so rather than applying a
+      // British one to Ohio.
+      report.skip('facts/unsourced-address',
+        `profile "${profile?.id || 'unknown'}" states no postcode or ZIP shape (locale.postcodePattern), `
+        + 'so addresses on the page are not being checked against facts.md. Add one to the profile.');
+      return { ...ex, re: null };
+    }
+    return ex;
+  }).filter((ex) => ex.re);
   for (const id of gates.map((g) => g.id)) report.ranGate(id);
 
   const jsText = jsFiles.map(read).join('\n');

@@ -21,6 +21,7 @@
 import { read, displayPath, exists, lineAt } from '../lib/fs.mjs';
 import { references, tags, attr, hasAttr, body, visibleTextPositional, decodeEntities } from '../lib/html.mjs';
 import { BLOCKER, MAJOR, MINOR } from '../lib/report.mjs';
+import { phoneOf } from '../lib/locale.mjs';
 import { join, dirname, resolve, relative, sep } from 'node:path';
 
 export const gates = [
@@ -71,9 +72,21 @@ function resolveRef(value, fromFile, siteDir) {
   return candidates;
 }
 
+// A dialable href in the jurisdiction's own country code — the fix text used to
+// hand every country a `tel:+44`, which is worse than no suggestion.
+const telHrefFor = (phone, cc) => (raw) => {
+  const d = String(raw).replace(/[^\d]/g, '');
+  if (!cc) return `+${d}`;
+  return `+${cc}${d.replace(/^0/, '')}`;
+};
+
 export async function run(ctx, report) {
   const { siteDir, htmlFiles, jsFiles, everyFile } = ctx;
   for (const id of gates.map((g) => g.id)) report.ranGate(id);
+
+  // Phone shape from the jurisdiction, not from this file.
+  const phone = phoneOf(ctx.profile);
+  const telHref = telHrefFor(phone, ctx.profile?.locale?.phoneCountryCode);
 
   const jsText = jsFiles.map(read).join('\n');
   const onDisk = new Set(everyFile.map((f) => relative(siteDir, f).split(sep).join('/')));
@@ -228,7 +241,7 @@ export async function run(ctx, report) {
     const visible = decodeEntities(visibleTextPositional(raw));
     const telHrefs = references(raw)
       .filter((r) => /^tel:/i.test(r.value))
-      .map((r) => r.value.replace(/[^\d+]/g, '').replace(/^\+?44/, '0'));
+      .map((r) => phone.normalise(r.value));
 
     // Numbers that ARE the label of some tel: link, even a mismatched one.
     // Those are owned by facts/href-mismatch, which describes the defect far
@@ -237,16 +250,20 @@ export async function run(ctx, report) {
     const linkedLabels = new Set(
       [...raw.matchAll(/<a\b[^>]*href\s*=\s*["']tel:[^"']+["'][^>]*>([\s\S]*?)<\/a>/gi)]
         .map((m) => decodeEntities(m[1].replace(/<[^>]+>/g, ' ')))
-        .map((t) => t.replace(/[^\d+]/g, '').replace(/^\+?44/, '0'))
-        .filter((d) => /^0\d{9,10}$/.test(d))
+        .map((t) => phone.normalise(t))
+        .filter((d) => phone.valid(d))
     );
 
-    const phoneRe = /(?:\+44|0)[\d\s()-]{8,16}\d/g;
+    // The shape comes from the jurisdiction profile. Hardcoding the UK one
+    // meant integrity/contact-route asserted "no phone number anywhere on the
+    // site" on a page whose first line was a US number — a gate stating
+    // something false about the site, which is worse than one staying silent.
+    const phoneRe = new RegExp(phone.re.source, phone.re.flags);
     let pm;
     const untappable = [];
     while ((pm = phoneRe.exec(visible)) !== null) {
-      const norm = pm[0].replace(/[\s()-]/g, '').replace(/^\+?44/, '0');
-      if (!/^0\d{9,10}$/.test(norm)) continue;
+      const norm = phone.normalise(pm[0]);
+      if (!phone.valid(norm)) continue;
       anyContactRoute = true;
       if (!telHrefs.includes(norm) && !linkedLabels.has(norm)) {
         untappable.push({ text: pm[0].trim(), line: lineAt(visible, pm.index) });
@@ -265,7 +282,7 @@ export async function run(ctx, report) {
         { file: shown, line: untappable[0].line, count: untappable.length },
         isReference
           ? 'A cited number on a legal page, so not a conversion path — but it costs one line to make it tappable.'
-          : `Wrap it: <a href="tel:+44${untappable[0].text.replace(/[^\d]/g, '').replace(/^0/, '')}">${untappable[0].text}</a>. Most visitors to a local business site arrive on a phone, and the tap IS the conversion.`);
+          : `Wrap it: <a href="tel:${telHref(untappable[0].text)}">${untappable[0].text}</a>. Most visitors to a local business site arrive on a phone, and the tap IS the conversion.`);
     }
   }
 

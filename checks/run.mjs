@@ -40,8 +40,9 @@ import security from './rules/security.mjs';
 import facts from './rules/facts.mjs';
 import responsive from './rules/responsive.mjs';
 import assets from './rules/assets.mjs';
+import discovery from './rules/discovery.mjs';
 
-const FAMILIES = { copy, legal, seo, a11y, design, perf, integrity, security, facts, responsive, assets };
+const FAMILIES = { copy, legal, seo, a11y, design, perf, integrity, security, facts, responsive, assets, discovery };
 
 // ------------------------------------------------------------------ argv
 

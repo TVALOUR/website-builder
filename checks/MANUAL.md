@@ -202,6 +202,17 @@ no file, do not substitute the nearest one — research it (`profiles/README.md`
 | `responsive/safe-area` | Any `position: fixed; bottom: 0` without `env(safe-area-inset-bottom)`. The iPhone home indicator sits over it. |
 | `responsive/table-overflow` | Any `<table>` not wrapped in an `overflow-x: auto` container. |
 
+## discovery
+
+The half the site gate cannot see. A fabricated brief produces a fabricated site whose every claim
+traces perfectly to a fabricated `facts.md` — the facts family checks the TRACE, not the truth — so
+the only place to catch it is before the writing starts.
+
+| Gate | By hand |
+|---|---|
+| `discovery/brief-incomplete` | Open `builds/<slug>/brief.md`. Does it have all fourteen sections, each with something DECIDED under it rather than a template prompt in angle brackets? Is every BLOCKING question in `stages/01_discover/questions.md` answered somewhere in a section body — or explicitly refused, in writing? Does it name a `- **Profile:**` that exists in `profiles/`? Read it out loud: if it could describe any business in that trade, nobody was interviewed. **Blocker.** |
+| `discovery/no-manifest` | Is there a `builds/<slug>/assets/MANIFEST.md`? If the client sent anything at all and there is no manifest, nothing records what they sent or what is theirs to publish. |
+
 ## assets
 
 Provenance for FILES, the same discipline `facts.md` applies to CLAIMS. An image on a page is a

@@ -159,6 +159,12 @@ const briefGaps = (slug) => {
     if (j.thinSections?.length) out.push(`brief.md's ${j.thinSections.map((t) => t.key).join(', ')} section${j.thinSections.length === 1 ? ' is' : 's are'} a heading with nothing decided under it`);
     if (j.unansweredBlocking?.length) out.push(`${j.unansweredBlocking.length} BLOCKING question${j.unansweredBlocking.length === 1 ? '' : 's'} unanswered (${j.unansweredBlocking.slice(0, 4).join('; ')}${j.unansweredBlocking.length > 4 ? '; …' : ''})`);
     if (j.jurisdictionProblems?.length) out.push(j.jurisdictionProblems[0]);
+    // ANY failure reason inherits enforcement, not just the four named above.
+    // Rebuilding the list from specific keys meant a brief.mjs failure outside
+    // them — an invalid policy value, say — returned [] and the write was
+    // allowed: the hook silently disagreeing with the checker it had just run,
+    // and every future check needing a matching hook edit to have any effect.
+    if (!out.length) out.push('checks/brief.mjs reports the brief is not ready — run it and read the output');
     return out;
   } catch { return []; }
 };
@@ -330,6 +336,22 @@ try {
             verifyM = statSync(verifyPath).mtimeMs;
           }
         } catch { /* fail open */ }
+      }
+      // A verify.md newer than the site is not proof the site was checked — it
+      // is proof a file with a later timestamp exists. Writing `VERDICT: PASS`
+      // LAST, after the site files, satisfied this comparison and the checker
+      // was never spawned at all. So the discovery documents are checked on
+      // EVERY stop regardless of mtime, and only the expensive full gate run is
+      // skipped when the timestamps say nothing changed.
+      const docs = [...docGaps(slug), ...briefGaps(slug)];
+      if (docs.length) {
+        out({
+          decision: 'block',
+          reason: `builds/${slug}/ has a site/ and ${docs.join('; ')}. The site was built ahead of its own `
+            + `discovery, so nothing here rests on anything the client said. Run stage 01 `
+            + `(stages/01_discover/CONTEXT.md), then node checks/brief.mjs builds/${slug}. If this build is `
+            + `genuinely dead, write ABANDONED in its STATE.md and it stops being policed.`,
+        });
       }
       if (changedM <= verifyM) continue;
 

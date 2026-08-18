@@ -89,7 +89,15 @@ export const norm = {
     if (!m) return null;
     return String(parseFloat(m[1]));
   },
-  /** +44 1548 852341 / (01548) 852-341 / 01548 852 341 -> "01548852341" */
+  /**
+   * +44 1548 852341 / (01548) 852-341 / 01548 852 341 -> "01548852341"
+   *
+   * REPLACED AT RUN TIME by `localise()` below, with the shape the jurisdiction
+   * profile states. This body is the UK default, and leaving it as the only
+   * implementation is what silently switched facts/unsourced-phone off for every
+   * non-UK build: a US number normalised to null, so the page "asserted nothing
+   * checkable" and the whole family reported clean.
+   */
   phone(s) {
     const d = String(s).replace(/[^\d+]/g, '').replace(/^\+?44/, '0');
     return /^0\d{9,10}$/.test(d) ? d : null;
@@ -123,6 +131,34 @@ export const norm = {
     return String(s).toLowerCase().replace(/[^a-z0-9]/g, '');
   },
 };
+
+/**
+ * Point `norm.phone` and `norm.postcode` at the loaded jurisdiction.
+ *
+ * Called once per run by the facts family. Mutating the shared object is
+ * deliberate: `buildIndex` and every extractor read `norm` directly, and one
+ * process only ever gates one site under one profile, so threading a parameter
+ * through six call sites would buy nothing.
+ */
+export function localise({ phone, postcode }) {
+  if (phone) {
+    norm.phone = (s) => {
+      const d = phone.normalise(s);
+      return phone.valid(d) ? d : null;
+    };
+  }
+  if (postcode) {
+    norm.postcode = (s) => {
+      const c = String(s).replace(/\s+/g, '').toUpperCase();
+      const re = new RegExp(`^(?:${postcode.source})$`, postcode.flags.replace(/g/g, ''));
+      return re.test(c) ? c : null;
+    };
+  } else {
+    // No stated shape: a postcode cannot be normalised, so nothing compares.
+    // The facts family says so out loud rather than applying a British one.
+    norm.postcode = () => null;
+  }
+}
 
 /**
  * Build a lookup of normalised values per claim class from the ledger's rows.
