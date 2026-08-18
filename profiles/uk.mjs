@@ -50,17 +50,52 @@ export default {
       // part of the review step — the substance was right and the citation was not.
       { claim: 'PECR (SI 2003/2426) as amended, including the Sch A1 consent exceptions', url: 'https://www.legislation.gov.uk/uksi/2003/2426/contents', accessed: '2026-08-18', class: 'primary' },
       { claim: 'Commencement of the DUAA 2025 PECR amendments, 5 Feb 2026 (SI 2026/82)', url: 'https://www.legislation.gov.uk/uksi/2026/82/contents/made', accessed: '2026-08-18', class: 'primary' },
-      { claim: 'DMCC Act 2024 Part 4 Ch.1, in force 6 Apr 2025, replacing CPUT 2008', url: 'https://www.legislation.gov.uk/ukpga/2024/13/part/4', accessed: '2026-08-18' },
-      { claim: 'Trading disclosures on a website — SI 2015/17, which revoked the 2008 Regs', url: 'https://www.legislation.gov.uk/uksi/2015/17/made', accessed: '2026-08-18' },
-      { claim: 'Companies Act 2006 s.82 (trading disclosures power)', url: 'https://www.legislation.gov.uk/ukpga/2006/46/section/82', accessed: '2026-08-18' },
-      { claim: 'E-Commerce (EC Directive) Regulations 2002 reg.6 (trader information)', url: 'https://www.legislation.gov.uk/uksi/2002/2013/regulation/6/made', accessed: '2026-08-18' },
-      { claim: 'Equality Act 2010 reasonable-adjustments duty', url: 'https://www.legislation.gov.uk/ukpga/2010/15/section/20', accessed: '2026-08-18' },
+      { claim: 'DMCC Act 2024 Part 4 Ch.1, in force 6 Apr 2025, replacing CPUT 2008', url: 'https://www.legislation.gov.uk/ukpga/2024/13/part/4', accessed: '2026-08-18', class: 'primary' },
+      { claim: 'Trading disclosures on a website — SI 2015/17, which revoked the 2008 Regs', url: 'https://www.legislation.gov.uk/uksi/2015/17/made', accessed: '2026-08-18', class: 'primary' },
+      { claim: 'Companies Act 2006 s.82 (trading disclosures power)', url: 'https://www.legislation.gov.uk/ukpga/2006/46/section/82', accessed: '2026-08-18', class: 'primary' },
+      { claim: 'E-Commerce (EC Directive) Regulations 2002 reg.6 (trader information)', url: 'https://www.legislation.gov.uk/uksi/2002/2013/regulation/6/made', accessed: '2026-08-18', class: 'primary' },
+      { claim: 'Equality Act 2010 reasonable-adjustments duty', url: 'https://www.legislation.gov.uk/ukpga/2010/15/section/20', accessed: '2026-08-18', class: 'primary' },
+
+      // Added 2026-08-19. Both of these were ASSERTED by this profile and cited
+      // by NEITHER — the UK GDPR in the privacy page's `why`, the Ofcom drama
+      // ranges in a locale field. This is the profile the repo held up as its
+      // best-sourced one, at 7/7 primary, and the rate said nothing about the
+      // two instruments it leant on hardest without a row. A percentage counts
+      // what is there; only the coverage map below asks what is missing.
+      { claim: 'UK GDPR Art.13(1) — the transparency duty that makes a privacy notice required the moment personal data is collected from the visitor. Asserted throughout this profile and, until now, cited nowhere in it.',
+        url: 'https://www.legislation.gov.uk/eur/2016/679/article/13', accessed: '2026-08-19', class: 'primary',
+        quote: 'the controller shall, at the time when personal data are obtained, provide the data subject with all of the following information' },
+      { claim: 'PECR reg.22 — consent before unsolicited electronic marketing mail. The site itself is not in scope; sending from it is.',
+        url: 'https://www.legislation.gov.uk/uksi/2003/2426/regulation/22', accessed: '2026-08-19', class: 'primary' },
+      { claim: 'Ofcom drama number ranges. NOTE the shape: it is not one national block. Each listed area code reserves 496 0000-496 0999 (Leeds 0113 496 0xxx, Sheffield 0114 496 0xxx, and so on), and 01632 960000-960999 covers any geographic area code NOT listed. Mobile is 07700 900000-900999, freephone 08081 570000-570999.',
+        url: 'https://www.ofcom.org.uk/phones-and-broadband/phone-numbers/numbers-for-drama', accessed: '2026-08-19', class: 'regulator',
+        quote: 'The use of any telephone number in the ranges below does not imply that the number has been allocated' },
+      { claim: 'ICO guidance on the use of storage and access technologies, final version published 29 April 2026 — the regulator\'s reading of the DUAA-amended reg.6, including the five exceptions and the "simple means of objecting" test that goes with the statistical-purposes one. This is what settles the uk/eu divergence recorded in profiles/_research/uk.md.',
+        url: 'https://ico.org.uk/for-organisations/direct-marketing-and-privacy-and-electronic-communications/guidance-on-the-use-of-storage-and-access-technologies/what-are-the-exceptions/', accessed: '2026-08-19', class: 'regulator',
+        quote: 'exception applies when the sole purpose of the storage or access is so you can collect information for statistical purposes about the use of your service' },
     ],
     caveats: [
       'Regulated trades (healthcare, finance, law, gas, electrical) carry obligations no static checker can know about.',
       'Scotland and Northern Ireland diverge on some consumer and accessibility points; this profile is written to the UK-wide floor.',
       'A green run means the site is not obviously exposed on what a static file can prove. It does not mean compliant, and nothing here is legal advice.',
     ],
+  },
+
+  // Seven questions every country profile must answer, each pointing at the row
+  // in provenance.sources that carries the answer. `checks/citations.mjs` fails
+  // a profile that leaves one blank or answers it from a secondary source.
+  // Filling this in on THIS profile is what surfaced the missing UK GDPR and
+  // Ofcom rows: 7/7 primary, and two of the instruments it relied on most had
+  // no citation at all. See ca.mjs's coverage block for the omission that
+  // produced the check.
+  coverage: {
+    privacyNotice: 'https://www.legislation.gov.uk/eur/2016/679/article/13',
+    consentModel: 'https://www.legislation.gov.uk/uksi/2026/82/contents/made',
+    accessibilityDuty: 'https://www.legislation.gov.uk/ukpga/2010/15/section/20',
+    businessIdentity: 'https://www.legislation.gov.uk/uksi/2015/17/made',
+    misleadingClaims: 'https://www.legislation.gov.uk/ukpga/2024/13/part/4',
+    electronicMarketing: 'https://www.legislation.gov.uk/uksi/2003/2426/regulation/22',
+    fictionalData: 'https://www.ofcom.org.uk/phones-and-broadband/phone-numbers/numbers-for-drama',
   },
 
   locale: {
@@ -72,7 +107,17 @@ export default {
     phoneExample: '01234 567890',
     // Ofcom reserves these for drama so a broadcast number cannot ring a real
     // person. A fictional build uses them; a real one never does.
-    fictionalPhoneRange: 'Ofcom drama ranges — 01632 960000-960999, 07700 900000-900999, 020 7946 0000-0999',
+    // Ofcom drama ranges. The earlier one-line version named three ranges as if
+    // they were the whole reservation; they are three of about thirty. The rule
+    // has a shape: <listed area code> 496 0000-496 0999, with 01632 960xxx as
+    // the catch-all for area codes Ofcom does not list. See provenance.sources
+    // — which, until 2026-08-19, did not contain Ofcom at all.
+    fictionalPhoneRange: 'Ofcom drama ranges. GEOGRAPHIC: each listed area code reserves 496 0000-496 0999 '
+      + '(Leeds 0113 496 0xxx, Sheffield 0114 496 0xxx, Nottingham 0115, Leicester 0116, Bristol 0117, '
+      + 'Reading 0118, Birmingham 0121, London 020 7946 0xxx and so on); for any area code NOT on Ofcom\'s '
+      + 'list use 01632 960000-960999. MOBILE 07700 900000-900999. FREEPHONE 08081 570000-570999. '
+      + 'UK-WIDE 03069 990000-990999. Premium 0909 8790000-8790999. Check the source page for the current '
+      + 'area-code list before inventing one.',
     postcodePattern: '/\\b[A-Z]{1,2}\\d{1,2}[A-Z]?\\s?\\d[A-Z]{2}\\b/i',
     phonePattern: '/(?:\\+44|\\b0)[\\d\\s()-]{8,16}\\d/g',
     phoneCountryCode: '44',

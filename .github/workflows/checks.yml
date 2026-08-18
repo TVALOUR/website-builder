@@ -26,8 +26,17 @@ jobs:
       # jurisdiction nobody exercises is one nobody finds out is broken. Exit 1
       # is expected and fine here — clean-control is a UK fixture, so the other
       # profiles flagging it is them being right. Exit 2 is a crash.
+      #
+      # `set +e` is load-bearing and was missing. GitHub runs every `run:` block
+      # as `bash -e {0}`, so the very exit 1 the paragraph above calls expected
+      # aborted the step on the SECOND profile — before ca, au or intl-baseline
+      # ran at all. The guard against a broken profile was itself broken, and it
+      # failed in the direction that reads as "the profile is bad". Caught by
+      # replaying the step locally under `bash -e` rather than by reading it.
       - name: Every jurisdiction profile loads and runs
         run: |
+          set +e
+          fail=0
           for p in uk us eu ca au intl-baseline; do
             echo "--- $p ---"
             node checks/run.mjs examples/clean-control \
@@ -37,9 +46,19 @@ jobs:
             code=$?
             if [ "$code" -gt 1 ]; then
               echo "profile $p exited $code — that is a crash, not a verdict"
-              exit 1
+              fail=1
             fi
           done
+          exit $fail
+
+      # How the law in profiles/ was SOURCED. Structural only here — no network
+      # in CI, so this checks that every citation carries a class derived from
+      # its publisher, that no researched profile leaves one of the seven
+      # coverage questions unanswered, and that no answer rests on a law-firm
+      # blog. `--online` re-reads every source and checks the quoted words are
+      # still there; run it by hand at each review.
+      - name: Citations are classified, and every profile answers every question
+        run: node checks/citations.mjs
 
       # The discovery gate has to be able to fail, for the same reason the site
       # gate does: the unfilled brief template must not pass it.

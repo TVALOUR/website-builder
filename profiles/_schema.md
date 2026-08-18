@@ -29,11 +29,65 @@ Two rules govern every field:
 | `verifiedBy` | string \| null | A real name, or `null`. `status: 'verified'` with a null name is itself a blocker: unverifiable self-certification is the thing this repo exists to stop. |
 | `lawLastVerified` | `YYYY-MM-DD` | When the sources were last actually opened. |
 | `nextReview` | `YYYY-MM-DD` | Six months out. The loader shouts once it passes. |
-| `sources` | `[{claim, url, accessed}]` | One row per citation used anywhere in the file. **This list is the audit trail** — a citation not represented here is a citation nobody can check. |
+| `sources` | `[{claim, url, accessed, class, quote?, quoteUrl?}]` | One row per citation used anywhere in the file. **This list is the audit trail** — a citation not represented here is a citation nobody can check. Fields below. |
 | `caveats` | `string[]` | Plain-English statements of what this profile cannot know. Read by a human before it goes near a client. |
 
 `status: 'researched'` makes the gate label every legal finding as unverified, on every run. That
 label is not decoration and it is not removable from the report.
+
+### A source row
+
+| Field | Required | What it does |
+|---|---|---|
+| `claim` | yes | What this URL is cited *for*. A URL with no claim is a bookmark. |
+| `url` | yes | Where a human should go to read it. |
+| `accessed` | yes | `YYYY-MM-DD`. An undated citation cannot be told apart from one nobody opened. |
+| `class` | yes | `primary` · `primary-mirror` · `regulator` · `court` · `secondary`. **Not your choice** — see below. |
+| `quote` | for load-bearing claims | The source's own words, verbatim, long enough not to appear by accident. |
+| `quoteUrl` | rarely | Where the *words* are, when that is not `url`. The Australian register gives a stable per-Act URL that renders a table of contents and hides the text behind a date-stamped path. |
+
+**`class` is derived from the publisher, not declared by the author.**
+`checks/lib/source-class.mjs` maps each host to a class and `checks/citations.mjs` re-derives it;
+a row that labels a law-firm bulletin `primary` is a check failure, not a judgement call. A host
+nobody has classified is a **blocker** — add it to the map in the same commit, rather than letting
+it default to something and look considered. `secondary` is not banned: commencement timetables and
+"has the Bill been introduced yet" genuinely have no primary source. What is banned is a
+BLOCKER-severity claim resting on secondary alone, and a primary-source rate nobody can reproduce.
+
+**`quote` is what makes a wrong citation detectable.** A Canadian greenwashing claim in this repo
+quoted a phrase Parliament had struck. The URL was live, the page loaded, the claim was false, and
+it reached the client inside a BLOCKER — because nothing compared the claim to the source's words.
+`node checks/citations.mjs --online` re-reads every source and fails when a quote is gone. Never
+write a `quote` you have not read: a fabricated quote wearing a verification badge is worse than
+no quote at all, and a row with no `quote` is honest.
+
+## `coverage` — the seven questions, and the check for silence
+
+```js
+coverage: {
+  privacyNotice:       'https://…',   // what makes a privacy notice required, or not
+  consentModel:        'https://…',   // what makes prior-opt-in, or notice-and-opt-out, right here
+  accessibilityDuty:   'https://…',   // the route to liability, INCLUDING discrimination law
+  businessIdentity:    'https://…',   // what must be disclosed on the site itself
+  misleadingClaims:    'https://…',   // the statute behind the claim gates
+  electronicMarketing: 'https://…',   // is the SITE in scope of spam law, or only sending from it
+  fictionalData:       'https://…',   // the reserved phone range a demo must use
+}
+```
+
+Each value must be a URL that appears in `provenance.sources`, and should not be `secondary`.
+Required on every `researched` profile; `baseline` is exempt and says so on every run.
+
+**Why this exists.** The Canadian profile told clients accessibility was "best practice, not law"
+for a small business. It analysed both accessibility-*standards* statutes correctly and never
+mentioned human-rights law — the only route that actually reaches a small business, and the route
+every other profile names. Nothing caught it, because nothing checked whether a question had been
+**asked**. A percentage counts what is there; only this map asks what is missing. Filling it in on
+the UK profile — the best-sourced one, 7/7 primary — immediately surfaced that the UK GDPR and the
+Ofcom drama ranges were both asserted throughout the file and cited nowhere in it.
+
+Answer every one, including when the answer is "nothing here requires it". That is a finding too,
+and it needs a source.
 
 ## `locale`
 

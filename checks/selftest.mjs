@@ -19,7 +19,7 @@
 // Exit: 0 all proven and both fixtures behaved · 1 otherwise.
 
 import { spawnSync } from 'node:child_process';
-import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { readdirSync, readFileSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -230,6 +230,66 @@ say(intl.json?.provenance?.status === 'baseline',
 say(!/UNVERIFIED|researched/i.test(intl.stdout || ''),
   'and does not call a deliberately-neutral baseline "researched"');
 
+// ---------------------------------------------------------------- citations
+//
+// The citation gate has to be able to fail, for the same reason every other
+// gate here does — and it has three failure modes worth proving, because all
+// three were live defects rather than hypotheticals.
+//
+//   1. `class` was read by the loader, printed in the report, and set on 2 of
+//      125 rows. The primary-source rate everyone quoted was hand-counted from
+//      prose and disagreed with the code.
+//   2. The class was self-certified, so nothing stopped a law-firm bulletin
+//      being labelled `primary` and inflating that rate.
+//   3. Nothing checked whether a profile had ANSWERED a question. The Canadian
+//      profile called accessibility "best practice, not law" while omitting the
+//      only statute that reaches a small business — silently, because silence
+//      has no gate.
+console.log('\ncitation gate — sourcing must be checkable, not asserted');
+const cites = spawnSync(process.execPath, [join(here, 'citations.mjs'), '--json'],
+  { cwd: root, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
+let citesJson = null;
+try { citesJson = JSON.parse(cites.stdout); } catch { /* handled below */ }
+say(citesJson !== null, 'checks/citations.mjs produces parseable --json');
+say(cites.status === 0,
+  `exit code 0 on the shipped profiles (got ${cites.status})`);
+const researched = (citesJson?.summary || []).filter((r) => r.status === 'researched');
+say(researched.length >= 5, `at least five researched profiles measured (got ${researched.length})`);
+say(researched.every((r) => r.sources > 0 && r.loadBearing !== null),
+  'every researched profile reports a computed primary-or-regulator count');
+
+// The rate has to come from the data, not from a comment. If a profile's
+// sources are unclassified the tool must say so rather than print a number.
+{
+  const tmp = join(root, 'tmp', 'selftest-profiles');
+  rmSync(tmp, { recursive: true, force: true });
+  mkdirSync(tmp, { recursive: true });
+  // A profile whose only citation is a law firm, self-certified as primary, and
+  // whose coverage map is empty. Every one of the three defects, in one file.
+  writeFileSync(join(tmp, 'atlantis.mjs'), `export default {
+  id: 'atlantis', name: 'Atlantis', country: 'Atlantis', iso2: 'AT',
+  provenance: { status: 'researched', verifiedBy: null,
+    lawLastVerified: '2026-08-19', nextReview: '2027-02-19',
+    sources: [{ claim: 'everything', url: 'https://www.ashurst.com/insight', accessed: '2026-08-19', class: 'primary' }],
+    caveats: [] },
+  locale: {}, legal: {}, seo: {},
+};\n`);
+  const bad = spawnSync(process.execPath, [join(here, 'citations.mjs'), '--json'],
+    { cwd: root, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024,
+      env: { ...process.env, WEBSITE_BUILDER_PROFILES_DIR: tmp } });
+  let badJson = null;
+  try { badJson = JSON.parse(bad.stdout); } catch { /* asserted below */ }
+  const gates = new Set((badJson?.findings || []).map((f) => f.gate));
+  say(bad.status === 1, `a bad profile exits 1 (got ${bad.status})`);
+  say(gates.has('citations/class-mismatch'),
+    'citations/class-mismatch fires when a law-firm URL is labelled primary');
+  say(gates.has('citations/coverage-missing'),
+    'citations/coverage-missing fires when a profile answers none of the seven questions');
+  say(gates.has('citations/notes-missing'),
+    'citations/notes-missing fires when a researched profile has no working notes');
+  rmSync(tmp, { recursive: true, force: true });
+}
+
 // ---------------------------------------------------------------- brief gate
 //
 // Stage 01 is the stage this whole repo exists for, and it was the one stage
@@ -413,6 +473,32 @@ const firedKeys = new Set([
 
 const unproven = declaredKeys.filter((k) => !firedKeys.has(k) && !UNPROVABLE[k]);
 say(allGates.length > 0, `${allGates.length} gates registered`);
+
+// ------------------------------------------------------- usage text drift
+//
+// The ratified rule from the last review, applied: a claim about the code
+// belongs in a probe, and where prose must carry it, the probe cites the prose
+// file so the two fail together.
+//
+// run.mjs's own usage block listed ten families while FAMILIES held twelve.
+// `assets` and `discovery` — the two newest, and `discovery` is the headline
+// gate of the last release — were undiscoverable from the tool's own help. A
+// comment cannot drift silently once something reads it.
+console.log('\nusage text — the header must list the families that exist');
+{
+  const runSrc = readFileSync(join(here, 'run.mjs'), 'utf8');
+  // [a-z0-9,] not [a-z,] — the first draft of this probe stopped at the `1` in
+  // `a11y` and compared four families against twelve, which is a probe failing
+  // for a reason that has nothing to do with what it is watching.
+  const declared = (runSrc.match(/--only <families>\s+comma-separated:\s*([a-z0-9,]+)/) || [])[1];
+  const listed = declared ? declared.split(',').filter(Boolean).sort() : [];
+  const real = [...new Set(allGates.map((g) => g.id.split('/')[0]))].sort();
+  say(listed.length > 0, 'the --only line names a family list at all');
+  say(JSON.stringify(listed) === JSON.stringify(real),
+    `checks/run.mjs usage lists exactly the ${real.length} shipped families `
+    + `(usage: ${listed.join(',') || 'none'})`);
+}
+
 say(unproven.length === 0,
   unproven.length === 0
     ? `every declared gate+severity fired on a fixture, or is documented`

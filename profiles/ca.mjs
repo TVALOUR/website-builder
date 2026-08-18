@@ -44,28 +44,120 @@ export default {
     nextReview: '2027-02-18',
 
     sources: [
-      { claim: 'Bill C-27 (which carried the Consumer Privacy Protection Act) died when Parliament was prorogued 6 January 2025; PIPEDA remains the operative federal private-sector privacy statute; as of this article, no successor bill has been reintroduced under a confirmed number', url: 'https://gowlingwlg.com/en/insights-resources/articles/2025/federal-privacy-reform', accessed: '2026-08-18' },
-      { claim: 'PIPEDA current landing page — confirms the 10 fair information principles (accountability, identifying purposes, consent, limiting collection, limiting use/disclosure/retention, accuracy, safeguards, openness, individual access, challenging compliance) are still the live framework', url: 'https://www.priv.gc.ca/en/privacy-topics/privacy-laws-in-canada/the-personal-information-protection-and-electronic-documents-act-pipeda/', accessed: '2026-08-18' },
-      { claim: '"Commercial activity" under PIPEDA s.2(1) turns on the nature of the activity, not the size, revenue, or for-profit status of the organization — no small-business or revenue-threshold exemption exists', url: 'https://www.priv.gc.ca/en/privacy-topics/privacy-laws-in-canada/the-personal-information-protection-and-electronic-documents-act-pipeda/pipeda-compliance-help/pipeda-interpretation-bulletins/interpretations_03_ca/', accessed: '2026-08-18' },
-      { claim: 'Alberta PIPA and BC PIPA (and Quebec\'s private-sector Act) are designated "substantially similar" to PIPEDA; the designation exempts in-province activity from PIPEDA but PIPEDA still applies to interprovincial/cross-border transfers and to federally regulated businesses regardless of province', url: 'https://www.priv.gc.ca/en/privacy-topics/privacy-laws-in-canada/the-personal-information-protection-and-electronic-documents-act-pipeda/r_o_p/prov-pipeda/', accessed: '2026-08-18' },
-      { claim: 'PIPEDA consent must be express when information is sensitive or the use falls outside reasonable expectations; implied consent (opt-out) can be acceptable for less-sensitive information with clear notice — retrieved via search snippet quoting the OPC\'s "Interpretation Bulletin: Form of Consent" and "Guidelines for obtaining meaningful consent" pages, not independently re-fetched in full', url: 'https://www.priv.gc.ca/en/privacy-topics/privacy-laws-in-canada/the-personal-information-protection-and-electronic-documents-act-pipeda/pipeda-compliance-help/pipeda-interpretation-bulletins/interpretations_07_consent/', accessed: '2026-08-18' },
-      { claim: 'Quebec Law 25 (formerly Bill 64) came into force in three phases — 22 Sept 2022, 22 Sept 2023, and the final phase 22 Sept 2024, which introduced the right to data portability (structured, commonly-used technological format; 30/20+10 day response windows)', url: 'https://www.blg.com/en/insights/2024/ri/quebec-law-25-still-has-more-to-say-answers-to-your-questions-on-the-new-data-portability-right/', accessed: '2026-08-18' },
-      { claim: 'Law 25 applies based on the location of the individual, not the organization — an out-of-province or out-of-country business offering goods/services to, or monitoring the behaviour of, people in Quebec is in scope, with no size or revenue threshold', url: 'https://www.bclplaw.com/en-US/events-insights-news/quebec-law-no-25-a-little-known-privacy-law-with-a-big-reach.html', accessed: '2026-08-18' },
-      { claim: 'Law 25 requires a designated Privacy Officer whose contact information is made public (default: the person with the highest authority in the organization, i.e. often the owner of a small business, unless the role is delegated); requires clear prior notice — separate from the general privacy notice — before activating any technology that identifies, locates or profiles a person, with non-essential tracking/profiling technology off by default until the visitor activates it', url: 'https://www.mccarthy.ca/en/insights/blogs/techlex/quebecs-law-25-and-cookies-not-so-cookie-cutter', accessed: '2026-08-18' },
-      { claim: 'CASL regulates commercial electronic messages (CEMs) sent to an electronic address — it does not regulate a website\'s existence or content by itself; the scope is defined around messages, not pages', url: 'https://ised-isde.canada.ca/site/canada-anti-spam-legislation/en', accessed: '2026-08-18' },
-      { claim: 'CASL implied consent arises from an existing business relationship — a purchase, contract, or (narrower) an inquiry — valid for 2 years from the transaction or 6 months from a bare inquiry; the burden of proving consent, express or implied, sits with the sender, who must keep records', url: 'https://help.klaviyo.com/hc/en-us/articles/4402385511579', accessed: '2026-08-18' },
-      { claim: 'CASL s.74.011 of the Competition Act (parallel electronic-advertising provision) and CASL itself both touch sender-identification in electronic messages; testimonials/endorsements are policed under Competition Act ss.52, 74.01 and 74.02 as false-or-misleading representations, including an undisclosed material connection (payment, free product, employment) between the endorser and the business', url: 'https://www.ipvancouverblog.com/testimonials/', accessed: '2026-08-18' },
-      { claim: 'Competition Bureau drip-pricing rule: never advertise an unattainable price — mandatory fixed fees the buyer cannot avoid must be in the headline price, with the only exception being a fee imposed directly by a statute; a variable charge can still raise concerns', url: 'https://competition-bureau.canada.ca/en/deceptive-marketing-practices/drip-pricing', accessed: '2026-08-18' },
-      { claim: 'Bill C-59 added Competition Act s.74.01(b.1) (product-level environmental-benefit claims must be based on "adequate and proper testing," burden on the claimant) and s.74.01(b.2) (business/business-activity-level environmental claims must be based on "adequate and proper substantiation in accordance with internationally recognized methodology," burden on the claimant) — reverse-onus, in force 20 June 2024 (royal assent); "internationally recognized methodology" is not defined in the Act itself', url: 'https://www.blg.com/en/insights/2024/07/false-advertising-and-greenwashing-bill-c-59-changes-to-competition-act', accessed: '2026-08-18' },
-      { claim: 'The Competition Act\'s new private right of access (leave from the Competition Tribunal on a public-interest test) for deceptive-marketing conduct under s.74.01/74.1 and civil collaborations under s.90.1 came into force 20 June 2025', url: 'https://www.osler.com/en/insights/updates/private-right-of-access-for-relief-from-anti-competitive-harm-now-in-force-in-canada/', accessed: '2026-08-18' },
-      { claim: 'The Accessible Canada Act applies to the federal public sector and to federally regulated private-sector organizations only (banking, interprovincial transport, telecoms, etc.) — an ordinary provincially-regulated small business is outside its scope entirely', url: 'https://allyant.com/compliance/aca-compliance-the-accessible-canada-act/', accessed: '2026-08-18' },
-      { claim: 'Ontario\'s AODA Information and Communications Standard requires WCAG 2.0 Level AA for public web content posted after 1 January 2012, but ONLY for designated public-sector organizations and private/non-profit organizations with 50 or more employees; a business under that threshold has no AODA website obligation', url: 'https://www.ontario.ca/page/how-make-websites-accessible', accessed: '2026-08-18' },
-      { claim: 'Charter of the French Language s.52: catalogues, brochures and "other publications of the same nature, regardless of the medium used" must be available in French, and if bilingual the French version must be displayed at least as prominently and on terms at least as favourable; a 2024 regulation clarified this reaches website and social-media content, with a package of final Bill 96 amendments (including the trademark/signage "markedly predominant" rule) in force 1 June 2025', url: 'https://www.weglot.com/blog/bill-96-explained', accessed: '2026-08-18' },
-      { claim: 'On 1 June 2025 the employee threshold for mandatory francisation (workplace) registration with the OQLF dropped from 50 to 25 — a separate obligation from the s.52 website-content rule, which carries no employee-count threshold at all', url: 'https://gowlingwlg.com/en/insights-resources/articles/2025/entree-dernieres-dispositions-loi-96', accessed: '2026-08-18' },
-      { claim: 'No Canadian statute requires a corporation number or registered-office address to be published on a business\'s own website; the CBCA\'s individuals-with-significant-control register is filed with, and searched through, Corporations Canada, not displayed on the company\'s site', url: 'https://ised-isde.canada.ca/site/corporations-canada/en/business-corporations/public-disclosure-corporate-information', accessed: '2026-08-18' },
-      { claim: 'Ontario\'s Consumer Protection Act, 2002 "internet agreement" disclosure duty (supplier name, address, etc.) is triggered only when a consumer is entering an actual internet AGREEMENT with a payment obligation over $50 — it does not reach an informational brochure site with no checkout', url: 'https://www.mannlawyers.com/resources/internet-agreements-with-ontario-consumers-consumer-protection-act-considerations-for-businesses/', accessed: '2026-08-18' },
-      { claim: 'PIPEDA mandatory breach-reporting rules (report to the OPC and affected individuals on a "real risk of significant harm" threshold; keep records of every breach regardless) came into force 1 November 2018 and remain current', url: 'https://ehlaw.ca/new-pipeda-breach-reporting-obligations/', accessed: '2026-08-18' },
-      { claim: 'NANPA permanently reserves 555-0100 through 555-0199 inside every North American area code (Canada is part of the NANP) for fictional/testing use; 555-1212 (directory assistance) and 555-4334 are separately reserved and are NOT fictional-safe', url: 'https://en.wikipedia.org/wiki/555_(North_American_Numbering_Plan)', accessed: '2026-08-18' },
+      // ---------------------------------------------------------------- primary
+      //
+      // Added 2026-08-19 in the re-sourcing pass. Before it this profile was 36%
+      // primary-or-regulator and the rest law-firm client alerts, and that base
+      // rate had already produced one flatly wrong citation (the repealed
+      // greenwashing wording) and, it turned out, two more: a Law 25 scope claim
+      // the Act does not make, and an accessibility answer that omitted the only
+      // route that reaches a small business.
+      //
+      // Every row below carries `quote` — the source's own words, checked by
+      // `node checks/citations.mjs --online`. That is what makes a repeal
+      // detectable instead of invisible.
+
+      { claim: 'PIPEDA s.2(1) — "commercial activity" is defined by the character of the conduct. There is no size, revenue or employee threshold anywhere in the Act.',
+        url: 'https://laws-lois.justice.gc.ca/eng/acts/P-8.6/FullText.html', accessed: '2026-08-19', class: 'primary',
+        quote: 'commercial activity means any particular transaction, act or conduct or any regular course of conduct that is of a commercial character' },
+      { claim: 'PIPEDA s.4(1)(a) — the Part applies to every organization in respect of personal information it collects, uses or discloses in the course of commercial activities.',
+        url: 'https://laws-lois.justice.gc.ca/eng/acts/P-8.6/page-1.html', accessed: '2026-08-19', class: 'primary',
+        quote: 'This Part applies to every organization in respect of personal information that' },
+      { claim: 'PIPEDA Schedule 1 cl.4.8.1 (Openness) — the duty that makes a published privacy notice the practical answer.',
+        url: 'https://laws-lois.justice.gc.ca/eng/acts/P-8.6/page-7.html', accessed: '2026-08-19', class: 'primary',
+        quote: 'Organizations shall be open about their policies and practices with respect to the management of personal information' },
+      { claim: 'PIPEDA Schedule 1 cl.4.1.2 — the accountable individual must be identifiable ON REQUEST. This is the baseline Quebec s.3.1 goes beyond, and the difference is why the profile treats a named privacy contact as a Quebec obligation rather than a federal one.',
+        url: 'https://laws-lois.justice.gc.ca/eng/acts/P-8.6/page-7.html', accessed: '2026-08-19', class: 'primary',
+        quote: 'shall be made known upon request' },
+      { claim: 'PIPEDA s.10.1(1) — breach reporting on a real-risk-of-significant-harm threshold.',
+        url: 'https://laws-lois.justice.gc.ca/eng/acts/P-8.6/FullText.html', accessed: '2026-08-19', class: 'primary',
+        quote: 'if it is reasonable in the circumstances to believe that the breach creates a real risk of significant harm to an individual' },
+
+      { claim: 'Competition Act s.52(1) — criminal false or misleading representations, made knowingly or recklessly, to promote a product or any business interest.',
+        url: 'https://laws-lois.justice.gc.ca/eng/acts/C-34/section-52.html', accessed: '2026-08-19', class: 'primary',
+        quote: 'knowingly or recklessly make a representation to the public that is false or misleading in a material respect' },
+      { claim: 'Competition Act s.74.01(1)(a) — civil reviewable conduct: a representation to the public that is false or misleading in a material respect. This is the statute behind every claim gate in this profile.',
+        url: 'https://laws-lois.justice.gc.ca/eng/acts/C-34/section-74.01.html', accessed: '2026-08-19', class: 'primary',
+        quote: 'makes a representation to the public that is false or misleading in a material respect' },
+      { claim: 'Competition Act s.74.01(1)(b.2) as it now reads — the reverse-onus environmental-claim provision. The phrase "internationally recognized methodology" is GONE, struck by 2026, c.3, s.597; the page\'s own amendment history records the 2026 amendment.',
+        url: 'https://laws-lois.justice.gc.ca/eng/acts/C-34/section-74.01.html', accessed: '2026-08-19', class: 'primary',
+        quote: 'is not based on adequate and proper substantiation, the proof of which lies on the person making the representation' },
+      { claim: 'Competition Act s.103.1(6.2) — private access does not reach a 74.01(1)(b.2) application. Added by 2026, c.3, s.598.',
+        url: 'https://laws-lois.justice.gc.ca/eng/acts/C-34/section-103.1.html', accessed: '2026-08-19', class: 'primary',
+        quote: 'the Tribunal is not to consider an application for leave' },
+
+      { claim: 'CASL s.6(1) — the prohibition is on SENDING a commercial electronic message to an electronic address. Publishing a web page is not sending, and a website is not an electronic address (s.1(1)).',
+        url: 'https://laws-lois.justice.gc.ca/eng/acts/E-1.6/FullText.html', accessed: '2026-08-19', class: 'primary',
+        quote: 'It is prohibited to send or cause or permit to be sent to an electronic address a commercial electronic message' },
+
+      { claim: 'Quebec P-39.1 s.1 — the Act\'s SCOPE provision. It binds a person who collects, holds, uses or communicates personal information in the course of carrying on an enterprise. It contains no test based on where the individual is: the words "resident" and "located in" do not appear in the Act at all.',
+        url: 'https://www.legisquebec.gouv.qc.ca/en/document/cs/p-39.1', accessed: '2026-08-19', class: 'primary',
+        quote: 'in the course of carrying on an enterprise within the meaning of article 1525 of the Civil Code' },
+      { claim: 'Quebec P-39.1 s.3.1 — the person in charge of the protection of personal information, and the duty to publish their title and contact information ON THE WEBSITE. This one is unusually direct: the statute names the website.',
+        url: 'https://www.legisquebec.gouv.qc.ca/en/document/cs/p-39.1', accessed: '2026-08-19', class: 'primary',
+        quote: 'must be published on the enterprise' },
+      { claim: 'Quebec P-39.1 s.8.1 — technology that identifies, locates or profiles. Read the verb: the duty is to INFORM, of the use and of the means available to activate. It is not written as a consent provision, and the off-by-default reading is an inference from "activate", not a phrase in the Act.',
+        url: 'https://www.legisquebec.gouv.qc.ca/en/document/cs/p-39.1', accessed: '2026-08-19', class: 'primary',
+        quote: 'must first inform the person' },
+      { claim: 'Quebec P-39.1 s.27 — the portability right: computerized personal information collected from the applicant, communicated in a structured, commonly used technological format on request.',
+        url: 'https://www.legisquebec.gouv.qc.ca/en/document/cs/p-39.1', accessed: '2026-08-19', class: 'primary',
+        quote: 'in a structured, commonly used technological format' },
+      { claim: 'Charter of the French Language s.52 — the website duty. "Regardless of the medium used" is in the SECTION ITSELF, put there by 2022, c.14, s.44 (Bill 96); it is not a later regulation, and the profile said it was.',
+        url: 'https://www.legisquebec.gouv.qc.ca/en/document/cs/c-11', accessed: '2026-08-19', class: 'primary',
+        quote: 'Regardless of the medium used, catalogues, brochures, folders, commercial directories, order forms and any other documents of the same nature that are available to the public must be drawn up in French' },
+
+      { claim: 'Accessible Canada Act s.7(1) — the Act reaches the federal public sector and businesses within the legislative authority of Parliament. An ordinary provincially-regulated small business is outside it.',
+        url: 'https://laws-lois.justice.gc.ca/eng/acts/A-0.6/page-1.html', accessed: '2026-08-19', class: 'primary',
+        quote: 'that is within the legislative authority of Parliament' },
+      { claim: 'Ontario O. Reg. 191/11 s.14(2) — the WCAG duty binds designated public sector organizations and LARGE organizations only.',
+        url: 'https://www.ontario.ca/laws/regulation/110191', accessed: '2026-08-19', class: 'primary',
+        quote: 'Designated public sector organizations and large organizations shall make their internet websites and web content conform' },
+      { claim: 'Ontario O. Reg. 191/11 s.2 — "large organization" is 50 or more employees in Ontario, so a business under that has no s.14 duty.',
+        url: 'https://www.ontario.ca/laws/regulation/110191', accessed: '2026-08-19', class: 'primary',
+        quote: 'large organization” means an organization with 50 or more employees in Ontario' },
+      { claim: 'Canadian Human Rights Act s.5 — discrimination in the provision of services customarily available to the general public. THE ROUTE THIS PROFILE PREVIOUSLY OMITTED: the accessibility answer is not exhausted by the ACA and the AODA.',
+        url: 'https://laws-lois.justice.gc.ca/eng/acts/h-6/section-5.html', accessed: '2026-08-19', class: 'primary',
+        quote: 'It is a discriminatory practice in the provision of goods, services, facilities or accommodation customarily available to the general public' },
+      { claim: 'Ontario Human Rights Code s.1 — the provincial equivalent, naming disability expressly. Every province has one; Ontario is the worked example, not the only one.',
+        url: 'https://www.ontario.ca/laws/statute/90h19', accessed: '2026-08-19', class: 'primary',
+        quote: 'Every person has a right to equal treatment with respect to services, goods and facilities, without discrimination because of' },
+
+      // -------------------------------------------------------------- secondary
+      //
+      // Kept, not deleted. Commencement timetables, "has a Bill been introduced
+      // yet", and enforcement posture genuinely have no primary source, and a
+      // profile that pretended otherwise would be worse than one that counts them.
+      { claim: 'Bill C-27 (which carried the Consumer Privacy Protection Act) died when Parliament was prorogued 6 January 2025; PIPEDA remains the operative federal private-sector privacy statute; as of this article, no successor bill has been reintroduced under a confirmed number', url: 'https://gowlingwlg.com/en/insights-resources/articles/2025/federal-privacy-reform', accessed: '2026-08-18', class: 'secondary' },
+      { claim: 'PIPEDA current landing page — confirms the 10 fair information principles (accountability, identifying purposes, consent, limiting collection, limiting use/disclosure/retention, accuracy, safeguards, openness, individual access, challenging compliance) are still the live framework', url: 'https://www.priv.gc.ca/en/privacy-topics/privacy-laws-in-canada/the-personal-information-protection-and-electronic-documents-act-pipeda/', accessed: '2026-08-18', class: 'regulator' },
+      { claim: '"Commercial activity" under PIPEDA s.2(1) turns on the nature of the activity, not the size, revenue, or for-profit status of the organization — no small-business or revenue-threshold exemption exists', url: 'https://www.priv.gc.ca/en/privacy-topics/privacy-laws-in-canada/the-personal-information-protection-and-electronic-documents-act-pipeda/pipeda-compliance-help/pipeda-interpretation-bulletins/interpretations_03_ca/', accessed: '2026-08-18', class: 'regulator' },
+      { claim: 'Alberta PIPA and BC PIPA (and Quebec\'s private-sector Act) are designated "substantially similar" to PIPEDA; the designation exempts in-province activity from PIPEDA but PIPEDA still applies to interprovincial/cross-border transfers and to federally regulated businesses regardless of province', url: 'https://www.priv.gc.ca/en/privacy-topics/privacy-laws-in-canada/the-personal-information-protection-and-electronic-documents-act-pipeda/r_o_p/prov-pipeda/', accessed: '2026-08-18', class: 'regulator' },
+      { claim: 'PIPEDA consent must be express when information is sensitive or the use falls outside reasonable expectations; implied consent (opt-out) can be acceptable for less-sensitive information with clear notice — retrieved via search snippet quoting the OPC\'s "Interpretation Bulletin: Form of Consent" and "Guidelines for obtaining meaningful consent" pages, not independently re-fetched in full', url: 'https://www.priv.gc.ca/en/privacy-topics/privacy-laws-in-canada/the-personal-information-protection-and-electronic-documents-act-pipeda/pipeda-compliance-help/pipeda-interpretation-bulletins/interpretations_07_consent/', accessed: '2026-08-18', class: 'regulator' },
+      { claim: 'Quebec Law 25 (formerly Bill 64) came into force in three phases — 22 Sept 2022, 22 Sept 2023, and the final phase 22 Sept 2024, which introduced the right to data portability (structured, commonly-used technological format; 30/20+10 day response windows)', url: 'https://www.blg.com/en/insights/2024/ri/quebec-law-25-still-has-more-to-say-answers-to-your-questions-on-the-new-data-portability-right/', accessed: '2026-08-18', class: 'secondary' },
+      { claim: 'Law 25 applies based on the location of the individual, not the organization — an out-of-province or out-of-country business offering goods/services to, or monitoring the behaviour of, people in Quebec is in scope, with no size or revenue threshold', url: 'https://www.bclplaw.com/en-US/events-insights-news/quebec-law-no-25-a-little-known-privacy-law-with-a-big-reach.html', accessed: '2026-08-18', class: 'secondary' },
+      { claim: 'Law 25 requires a designated Privacy Officer whose contact information is made public (default: the person with the highest authority in the organization, i.e. often the owner of a small business, unless the role is delegated); requires clear prior notice — separate from the general privacy notice — before activating any technology that identifies, locates or profiles a person, with non-essential tracking/profiling technology off by default until the visitor activates it', url: 'https://www.mccarthy.ca/en/insights/blogs/techlex/quebecs-law-25-and-cookies-not-so-cookie-cutter', accessed: '2026-08-18', class: 'secondary' },
+      { claim: 'CASL regulates commercial electronic messages (CEMs) sent to an electronic address — it does not regulate a website\'s existence or content by itself; the scope is defined around messages, not pages', url: 'https://ised-isde.canada.ca/site/canada-anti-spam-legislation/en', accessed: '2026-08-18', class: 'regulator' },
+      { claim: 'CASL implied consent arises from an existing business relationship — a purchase, contract, or (narrower) an inquiry — valid for 2 years from the transaction or 6 months from a bare inquiry; the burden of proving consent, express or implied, sits with the sender, who must keep records', url: 'https://help.klaviyo.com/hc/en-us/articles/4402385511579', accessed: '2026-08-18', class: 'secondary' },
+      { claim: 'CASL s.74.011 of the Competition Act (parallel electronic-advertising provision) and CASL itself both touch sender-identification in electronic messages; testimonials/endorsements are policed under Competition Act ss.52, 74.01 and 74.02 as false-or-misleading representations, including an undisclosed material connection (payment, free product, employment) between the endorser and the business', url: 'https://www.ipvancouverblog.com/testimonials/', accessed: '2026-08-18', class: 'secondary' },
+      { claim: 'Competition Bureau drip-pricing rule: never advertise an unattainable price — mandatory fixed fees the buyer cannot avoid must be in the headline price, with the only exception being a fee imposed directly by a statute; a variable charge can still raise concerns', url: 'https://competition-bureau.canada.ca/en/deceptive-marketing-practices/drip-pricing', accessed: '2026-08-18', class: 'regulator' },
+      { claim: 'Bill C-59 added Competition Act s.74.01(b.1) (product-level environmental-benefit claims must be based on "adequate and proper testing," burden on the claimant) and s.74.01(b.2) (business/business-activity-level environmental claims must be based on "adequate and proper substantiation in accordance with internationally recognized methodology," burden on the claimant) — reverse-onus, in force 20 June 2024 (royal assent); "internationally recognized methodology" is not defined in the Act itself', url: 'https://www.blg.com/en/insights/2024/07/false-advertising-and-greenwashing-bill-c-59-changes-to-competition-act', accessed: '2026-08-18', class: 'secondary' },
+      { claim: 'The Competition Act\'s new private right of access (leave from the Competition Tribunal on a public-interest test) for deceptive-marketing conduct under s.74.01/74.1 and civil collaborations under s.90.1 came into force 20 June 2025', url: 'https://www.osler.com/en/insights/updates/private-right-of-access-for-relief-from-anti-competitive-harm-now-in-force-in-canada/', accessed: '2026-08-18', class: 'secondary' },
+      { claim: 'The Accessible Canada Act applies to the federal public sector and to federally regulated private-sector organizations only (banking, interprovincial transport, telecoms, etc.) — an ordinary provincially-regulated small business is outside its scope entirely', url: 'https://allyant.com/compliance/aca-compliance-the-accessible-canada-act/', accessed: '2026-08-18', class: 'secondary' },
+      { claim: 'Ontario\'s AODA Information and Communications Standard requires WCAG 2.0 Level AA for public web content posted after 1 January 2012, but ONLY for designated public-sector organizations and private/non-profit organizations with 50 or more employees; a business under that threshold has no AODA website obligation', url: 'https://www.ontario.ca/page/how-make-websites-accessible', accessed: '2026-08-18', class: 'primary' },
+      { claim: 'Charter of the French Language s.52: catalogues, brochures and "other publications of the same nature, regardless of the medium used" must be available in French, and if bilingual the French version must be displayed at least as prominently and on terms at least as favourable; a 2024 regulation clarified this reaches website and social-media content, with a package of final Bill 96 amendments (including the trademark/signage "markedly predominant" rule) in force 1 June 2025', url: 'https://www.weglot.com/blog/bill-96-explained', accessed: '2026-08-18', class: 'secondary' },
+      { claim: 'On 1 June 2025 the employee threshold for mandatory francisation (workplace) registration with the OQLF dropped from 50 to 25 — a separate obligation from the s.52 website-content rule, which carries no employee-count threshold at all', url: 'https://gowlingwlg.com/en/insights-resources/articles/2025/entree-dernieres-dispositions-loi-96', accessed: '2026-08-18', class: 'secondary' },
+      { claim: 'No Canadian statute requires a corporation number or registered-office address to be published on a business\'s own website; the CBCA\'s individuals-with-significant-control register is filed with, and searched through, Corporations Canada, not displayed on the company\'s site', url: 'https://ised-isde.canada.ca/site/corporations-canada/en/business-corporations/public-disclosure-corporate-information', accessed: '2026-08-18', class: 'regulator' },
+      { claim: 'Ontario\'s Consumer Protection Act, 2002 "internet agreement" disclosure duty (supplier name, address, etc.) is triggered only when a consumer is entering an actual internet AGREEMENT with a payment obligation over $50 — it does not reach an informational brochure site with no checkout', url: 'https://www.mannlawyers.com/resources/internet-agreements-with-ontario-consumers-consumer-protection-act-considerations-for-businesses/', accessed: '2026-08-18', class: 'secondary' },
+      { claim: 'PIPEDA mandatory breach-reporting rules (report to the OPC and affected individuals on a "real risk of significant harm" threshold; keep records of every breach regardless) came into force 1 November 2018 and remain current', url: 'https://ehlaw.ca/new-pipeda-breach-reporting-obligations/', accessed: '2026-08-18', class: 'secondary' },
+      // Re-sourced 2026-08-19 from Wikipedia to the numbering administrator's own
+      // page — the same row us.mjs cites. Canada is inside the NANP, so the
+      // reservation is the identical one; there was never a reason for the two
+      // profiles to cite different classes of source for the same fact.
+      { claim: 'NANPA reserves 555-0100 through 555-0199 in every North American area code for fictional use, and Canada is inside the NANP. 555-1212 (directory assistance) is separately assigned and is NOT fictional-safe.',
+      // No `quote` on this row on purpose: the page's exact wording was not read
+      // in this pass, and a quote nobody has read is a fabrication wearing a
+      // verification badge — precisely the failure the quote field exists to
+      // stop. Liveness is still checked; anchor it at the next review.
+        url: 'https://www.nanpa.com/numbering/555-line-numbers', accessed: '2026-08-19', class: 'primary' },
     ],
 
     caveats: [
@@ -79,6 +171,25 @@ export default {
       'A significant share of this profile\'s citations are law-firm bulletins and regulator summaries rather than the consolidated statute. That is how the greenwashing entry came to repeat two things that had been legislated away by the time it was written — see the correction note on claimCitations.environmental. Treat any claim here that is not sourced to laws-lois.justice.gc.ca or legisquebec.gouv.qc.ca as needing a primary check before it is quoted to a client.',
       'CASL\'s implied-consent time windows and record-keeping duty are documented here for completeness but describe an EMAIL-MARKETING operational practice, not a website-content gate — nothing in checks/rules/legal.mjs currently checks CASL compliance at all, and this profile does not invent a check for it.',
     ],
+  },
+
+  // Seven questions every country profile must answer, each pointing at the row
+  // in provenance.sources that carries the answer. `checks/citations.mjs` fails
+  // a profile that leaves one blank or answers it from a secondary source.
+  //
+  // This exists because of accessibilityDuty. This profile answered "best
+  // practice, not law" and was the only one of six that never mentioned its own
+  // discrimination statute — an omission that reads to a client exactly like a
+  // considered "no obligation here", and that nothing could catch, because
+  // nothing checked whether a question had been ASKED.
+  coverage: {
+    privacyNotice: 'https://laws-lois.justice.gc.ca/eng/acts/P-8.6/page-7.html',
+    consentModel: 'https://www.legisquebec.gouv.qc.ca/en/document/cs/p-39.1',
+    accessibilityDuty: 'https://laws-lois.justice.gc.ca/eng/acts/h-6/section-5.html',
+    businessIdentity: 'https://ised-isde.canada.ca/site/corporations-canada/en/business-corporations/public-disclosure-corporate-information',
+    misleadingClaims: 'https://laws-lois.justice.gc.ca/eng/acts/C-34/section-74.01.html',
+    electronicMarketing: 'https://laws-lois.justice.gc.ca/eng/acts/E-1.6/FullText.html',
+    fictionalData: 'https://www.nanpa.com/numbering/555-line-numbers',
   },
 
   locale: {
@@ -130,23 +241,51 @@ export default {
     // GDPR-style prior opt-in, and a business that operates entirely outside
         // Quebec and can prove it may legitimately ship a lighter cookie story.
     //
-    // But a static brochure site on the open internet cannot prove a Quebec
-    // visitor will never arrive, and Quebec Law 25 is stricter on exactly
-    // the mechanism this repo cares about: any technology that identifies,
-    // locates or profiles a visitor — which reaches ordinary analytics and
-    // ad pixels, not just narrowly-defined "cookies" — must be OFF BY
-    // DEFAULT until the visitor takes an action to turn it on. That is
-    // functionally prior-opt-in.
+    // Quebec is the stricter edge, and the earlier version of this comment
+    // overstated it TWICE — both times sourced to a law-firm client alert
+    // rather than to the Act, and both times in the direction that makes the
+    // client's obligation look bigger. Corrected 2026-08-19 against the
+    // official consolidation (legisquebec, "Ce document a valeur officielle",
+    // à jour au 1er avril 2026):
     //
-    // So the shipped default here is the stricter one, exactly as the UK
-    // profile ships PECR's stricter reading rather than assuming every
-    // visitor is a "non-cookie-averse" one. A business that can genuinely
-    // rule out Quebec traffic (a hyper-local service area, verified) is the
-    // one case where 'notice-and-opt-out' would be the honest, lighter
-    // answer instead — that is a judgment call for the human building the
-    // site, not something this file should silently assume.
+    //   * It said "Law 25 applies based on the VISITOR's location, not the
+    //     business's." The Act does not say that. s.1 binds a person handling
+    //     personal information "in the course of carrying on an enterprise";
+    //     the words "resident" and "located in" appear nowhere in it. Whether
+    //     Quebec's regime reaches an out-of-province enterprise with Quebec
+    //     visitors is a real and unsettled question, argued by analogy to the
+    //     GDPR — it is not a sentence in the statute, and this file must not
+    //     quote it as one.
+    //   * It cited s.8.1 as a prior-CONSENT rule. s.8.1 is a NOTICE rule: the
+    //     collector "must first inform the person" of the use of the
+    //     technology and "of the means available to activate" its identifying,
+    //     locating or profiling functions. Off-by-default is a reasonable
+    //     inference from the word "activate" — you cannot be told how to
+    //     activate something already running — but it is an inference, and
+    //     s.14's consent standard is a separate provision doing separate work.
+    //
+    // The shipped default is still the stricter one, and it is a JUDGMENT,
+    // labelled as one, not a citation: a public brochure site cannot rule out
+    // a Quebec visitor, the cost of prior-opt-in on a site with no analytics
+    // is zero (there is nothing to gate), and the cost of being wrong the
+    // other way is a regulator's view of profiling technology running
+    // un-notified. A business that can genuinely rule out Quebec exposure has
+    // the lighter PIPEDA answer available and should take it — implied
+    // consent with clear notice, for non-sensitive in-expectation collection,
+    // is squarely within the OPC's meaningful-consent guidance.
     consentModel: 'prior-opt-in',
-    consentModelWhy: 'Quebec Law 25 requires profiling/tracking technology to be off by default with a specific prior notice before activation (see provenance.sources — McCarthy Tetrault, "Law 25 and Cookies"), and Law 25 applies based on the VISITOR\'s location, not the business\'s, so any site reachable from Quebec without geofencing is in scope. PIPEDA alone, for a business genuinely outside Quebec\'s reach, would tolerate notice-and-opt-out (implied consent with clear notice) for non-sensitive, in-expectation collection like basic first-party analytics — see the OPC\'s guidance on meaningful consent. Ship the Quebec-safe default; treat the lighter PIPEDA-only answer as an explicit, documented exception, not the default.',
+    consentModelWhy: 'This is the cautious default, not a statutory command, and the difference matters. '
+      + 'Quebec P-39.1 s.8.1 requires a person collecting personal information with technology that '
+      + 'identifies, locates or profiles to "first inform" the visitor of its use and of "the means '
+      + 'available to activate" those functions — a notice duty, from which off-by-default follows by '
+      + 'inference rather than by wording. The Act\'s scope provision (s.1) binds enterprises, not '
+      + 'visitors; the common claim that Law 25 "applies based on where the visitor is" is an argument '
+      + 'by analogy to the GDPR, not text in the statute, and this profile no longer repeats it as one. '
+      + 'Outside Quebec, PIPEDA tolerates implied consent with clear notice for non-sensitive, '
+      + 'in-expectation collection — ordinary disclosed first-party analytics is the textbook case, and '
+      + 'a business that can rule out Quebec exposure may legitimately ship notice-and-opt-out instead. '
+      + 'The stricter default is shipped because a public brochure site cannot prove it has no Quebec '
+      + 'visitors and because a site with no analytics pays nothing for it. Record the choice either way.',
 
     pages: {
       privacy: {
@@ -183,7 +322,7 @@ export default {
       accessibility: {
         patterns: [/accessib/i],
         required: 'recommended',
-        why: 'The Accessible Canada Act reaches only the federal public sector and federally regulated businesses (banking, interprovincial transport, telecoms) — not an ordinary provincially-regulated small business. Ontario\'s AODA Information and Communications Standard sets WCAG 2.0 AA for public web content, but ONLY for organizations with 50+ employees; a business under that threshold has no AODA website obligation at all, and other provinces (outside Ontario, Manitoba, Nova Scotia, BC) have no equivalent website standard in force. So for the overwhelming majority of clients this checker will ever build for, an accessibility statement is best practice, not law — and claiming otherwise wastes build effort and misleads the client, exactly as the UK profile says about the European Accessibility Act.',
+        why: 'Two routes, and this profile used to name only the first. (1) ACCESSIBILITY-STANDARDS statutes: the Accessible Canada Act s.7(1) reaches the federal public sector and businesses "within the legislative authority of Parliament" — banking, interprovincial transport, telecoms — not an ordinary provincially-regulated small business; and Ontario\'s AODA standard (O. Reg. 191/11 s.14(2)) binds "designated public sector organizations and large organizations", where s.2 defines large as "50 or more employees in Ontario". A small Canadian business is outside both. That much was right. (2) HUMAN-RIGHTS law, which the earlier version of this entry never mentioned, and which is the route that actually reaches a small business: Canadian Human Rights Act s.5 makes it "a discriminatory practice in the provision of goods, services, facilities or accommodation customarily available to the general public" to deny access on a prohibited ground, and every province has its own code — Ontario\'s Human Rights Code s.1 gives "every person ... a right to equal treatment with respect to services, goods and facilities, without discrimination because of ... disability". This is the same route Australia\'s DDA s.24 takes, which au.mjs has always cited and Maguire v SOCOG turned on, and it is why an inaccessible site is not simply a matter of taste. FOUND 2026-08-19 by diffing this question across all six profiles: uk cited the Equality Act, us cited ADA Title III, au cited the DDA, eu analysed the EAA, and ca answered "best practice, not law" — the only profile to omit its own discrimination-law hook, in the direction that understates the client\'s exposure. No reported Canadian decision applying s.5 or a provincial code to a small business\'s brochure site was found in this pass, so the profile still ships the statement as RECOMMENDED rather than required, and says why: the duty exists, the enforcement path is a human-rights complaint rather than a website-standards audit, and nobody should tell a client there is no duty at all.',
         mustMention: [
           [/\bwcag\b/i, 'the standard targeted'],
           [/\b(report|contact|email|tell us|get in touch)\b/i, 'how to report a problem'],
@@ -249,23 +388,23 @@ export default {
       {
         id: 'ca/quebec-french-language',
         severity: 'major',
-        what: 'Charter of the French Language s.52 — a commercial website reachable by Quebec residents (no geofencing assumed) must offer French content on terms "at least as favourable" as, and displayed at least as prominently as, any other language. This is not a Bill 96 invention; s.52 predates it and a 2024 regulation clarified it reaches website and social-media content specifically. French cannot be a stub or a lesser summary of the English content.',
+        what: 'Charter of the French Language s.52 — "Regardless of the medium used, catalogues, brochures, folders, commercial directories, order forms and any other documents of the same nature that are available to the public must be drawn up in French", and a version in another language may not be available on terms more favourable than the French one. A commercial brochure site is squarely inside "documents of the same nature". French cannot be a stub or a lesser summary of the English content.',
         detect: 'Prose description for the checker: confirm whether the site is realistically limited to a single non-Quebec market (a strong local-service-area signal in facts.md) or is open to the whole Canadian/global public. If the latter, check for a French-language version that mirrors the English content in completeness, not just a translated homepage.',
-        why: 'See provenance.sources (Weglot / Gowling WLG on Bill 96\'s final 1 June 2025 provisions) — this is one of the sharpest differences from every other jurisdiction this repo covers: it is a LANGUAGE mandate tied to reachability, not a disclosure or consent mandate.',
+        why: 'Quoted from s.52 itself (see provenance.sources, legisquebec). CORRECTED 2026-08-19: this entry used to say "s.52 predates Bill 96 and a 2024 regulation clarified it reaches website content", sourced to a translation-plugin vendor\'s blog. The section predating Bill 96 is right; the rest was not. The words "Regardless of the medium used" ARE the reach-to-websites rule and they were inserted into s.52 BY Bill 96 (2022, c.14, s.44). Attributing a statutory amendment to a later regulation is the kind of error a client repeats to their lawyer. It is one of the sharpest differences from every other jurisdiction here: a LANGUAGE mandate, not a disclosure or consent mandate. Note also that whether it reaches an enterprise carrying on business outside Quebec is the same unsettled scope question flagged under consentModel — do not assert it.',
       },
       {
         id: 'ca/law25-privacy-officer',
         severity: 'major',
-        what: 'Quebec Law 25 requires a designated, publicly identifiable Privacy Officer. Default, absent delegation, is the most senior person in the organization — for a sole trader or small partnership, that is usually the owner by name or title.',
+        what: 'Quebec P-39.1 s.3.1 — the person exercising the highest authority in the enterprise is the person in charge of the protection of personal information unless the function is delegated in writing, and their "title and contact information of the person in charge of the protection of personal information must be published on the enterprise\'s website". For a sole trader or small partnership that is usually the owner, by name or by title.',
         detect: 'Prose description: the privacy policy names a person or role (not only a generic "contact us") responsible for privacy, with a way to reach them.',
-        why: 'See provenance.sources (McCarthy Tetrault) — this is genuinely stricter than PIPEDA\'s baseline, which requires the accountable individual to be identifiable ON REQUEST, not published by default.',
+        why: 'Quoted from s.3.1 itself (see provenance.sources, legisquebec) rather than from a law-firm summary. This is one of the few places in any profile here where a statute names the WEBSITE as the place a thing must appear, so it is unusually safe ground. It is genuinely stricter than PIPEDA Schedule 1 cl.4.1.2, which requires the accountable individual to be identifiable "upon request" and not published at all.',
       },
       {
         id: 'ca/law25-profiling-notice',
         severity: 'major',
-        what: 'Law 25 requires a specific, separate notice — distinct from the general privacy policy — before activating any technology that identifies, locates, or profiles a visitor, and that technology must be OFF by default. This concept is broader than "cookies": it reaches ordinary analytics and ad pixels.',
+        what: 'Quebec P-39.1 s.8.1 — a person collecting personal information using technology "that includes functions allowing the person concerned to be identified, located or profiled must first inform the person (1) of the use of such technology; and (2) of the means available to activate the functions". The section defines profiling as assessing characteristics such as work performance, economic situation, health, personal preferences, interests or behaviour — which is broader than "cookies" and reaches ordinary analytics and ad pixels. The notice is its own notice, distinct from the general privacy policy.',
         detect: 'Prose description: if any nonEssentialScripts hit fires (per _base.mjs), confirm the consent mechanism\'s copy specifically names the technology and frames it as profiling/tracking, not just "cookies" generically.',
-        why: 'See provenance.sources (McCarthy Tetrault, "Law 25 and Cookies: Not So Cookie Cutter") — the same finding drives consentModel above.',
+        why: 'Quoted from s.8.1 itself (see provenance.sources, legisquebec). NARROWED 2026-08-19: this entry used to assert flatly that "that technology must be OFF by default", citing a law-firm blog. The statute says INFORM, and says it before the collection — off-by-default is a sound inference from being told "the means available to ACTIVATE" something, and it is still the right default to ship, but it is an inference and this file now says which is which. The same correction applies to consentModel above. Where a build turns analytics on for a Quebec-exposed site, the honest instruction to the client is: notice first, activation by the visitor, and say plainly that the off-by-default reading is the cautious one.',
       },
       {
         id: 'ca/casl-scope',

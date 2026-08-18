@@ -75,30 +75,84 @@ export default {
     lawLastVerified: '2026-08-18',
     nextReview: '2027-02-18',
     sources: [
-      { claim: "small business exemption ($3m turnover threshold), s.6D definition and its carve-outs (health service, trading in personal information, Commonwealth contract, credit reporting, residential tenancy database, AML/CTF, related bodies corporate)", url: 'https://www.oaic.gov.au/privacy/privacy-guidance-for-organisations-and-government-agencies/organisations/small-business', accessed: '2026-08-18' },
-      { claim: 'opt-in mechanism and the general shape of the exemption', url: 'https://www.oaic.gov.au/privacy/privacy-guidance-for-organisations-and-government-agencies/organisations/opting-in-to-the-privacy-act', accessed: '2026-08-18' },
-      { claim: 'current text of the Privacy Act 1988 (Cth), in force 2026', url: 'https://www.legislation.gov.au/C2004A03712/latest/text', accessed: '2026-08-18' },
-      { claim: "Privacy and Other Legislation Amendment Act 2024 commencement tranches — immediate powers/codes (11 Dec 2024), statutory tort for serious invasion of privacy (in force by 11 June 2025), automated-decision transparency (APP 1.7) and the Children's Online Privacy Code both due 10 December 2026", url: 'https://www.ashurst.com/en/insights/australias-first-tranche-of-privacy-reforms-a-deep-dive-and-why-they-matter/', accessed: '2026-08-18' },
-      { claim: 'DECISIVE: as of May 2026 the small-business exemption removal (Tranche 2) has NOT been introduced as a Bill; government confirmed in Feb 2026 Senate estimates it is "progressing" with no announced timetable', url: 'https://www.biztechlawyers.com/legal-articles/australias-privacy-reform-shaping-the-future-of-data-protection', accessed: '2026-08-18' },
-      { claim: 'as of June 2025, no indication from government of a Tranche 2 timeline at all', url: 'https://www.corrs.com.au/insights/australias-ongoing-privacy-reforms-bolstering-australias-privacy-regulatory-framework', accessed: '2026-08-18' },
-      { claim: 'exemption removal originates as an "agreed in principle" response (28 Sept 2023) to the Privacy Act Review, not enacted law', url: 'https://iapp.org/news/a/amending-australias-privacy-act-small-businesses-bigger-responsibilities', accessed: '2026-08-18' },
-      { claim: 'APP 1.7 automated-decision transparency obligation text and 10 December 2026 commencement, penalties up to $66,000 for a non-compliant privacy policy', url: 'https://jws.com.au/what-we-think/practical-implications-of-new-transparency-requirements-for-automated-decision-making/', accessed: '2026-08-18' },
-      { claim: 'OAIC tracking-pixel guidance (4 Nov 2024): APP 1/5 transparency duties, APP 7 opt-out for direct-marketing use, "set and forget" banners are not sufficient — but no general cookie-banner mandate is asserted', url: 'https://www.oaic.gov.au/privacy/privacy-guidance-for-organisations-and-government-agencies/organisations/tracking-pixels-and-privacy-obligations', accessed: '2026-08-18' },
-      { claim: 'APP 8 cross-border disclosure — "reasonable steps" test, ordinarily an enforceable contract with the overseas recipient', url: 'https://www.oaic.gov.au/privacy/australian-privacy-principles/australian-privacy-principles-guidelines/chapter-8-app-8-cross-border-disclosure-of-personal-information', accessed: '2026-08-18' },
-      { claim: 'Corporations Act 2001 (Cth) s.153 "public document" list (letterhead, invoices, receipts, orders, official notices) and ASIC RG 13.19 treating whether a document qualifies as "a question of fact" — a website is not named on the list', url: 'https://sprintlaw.com.au/articles/displaying-your-australian-company-number-acn-legal-essentials/', accessed: '2026-08-18' },
-      { claim: 'ACL s.18 misleading or deceptive conduct — broad, intent-irrelevant prohibition', url: 'https://sprintlaw.com.au/articles/section-18-of-the-australian-consumer-law-explained/', accessed: '2026-08-18' },
-      { claim: 'ACL s.29 false or misleading representations — quality, sponsorship, price, warranty/guarantee claims; penalties up to the greater of a set amount, 3x benefit obtained, or 10% of turnover', url: 'https://sprintlaw.com.au/articles/understanding-section-29-of-the-australian-consumer-law-for-businesses/', accessed: '2026-08-18' },
-      { claim: 'ACL s.64 — a contract term purporting to exclude a consumer guarantee is void; s.64A narrow carve-out for non-personal/household goods, fair-and-reasonable test only', url: 'https://www.accc.gov.au/consumers/buying-products-and-services/warranties', accessed: '2026-08-18' },
-      { claim: "ACCC guide to environmental claims (published Dec 2023) — clear/accurate, substantiated, not overstated; ACCC states the guide itself is due an update and does not yet reflect the 28 March 2026 penalty increase ($100m fixed component for corporations)", url: 'https://www.accc.gov.au/about-us/publications/a-guide-to-making-environmental-claims-for-business', accessed: '2026-08-18' },
-      { claim: 'ACCC named environmental claims / greenwashing a 2025-26 compliance and enforcement priority', url: 'https://www.ashurst.com/en/insights/australias-greenwashing-regulatory-landscape-asic-and-the-accc-stay-focused/', accessed: '2026-08-18' },
-      { claim: 'ACCC review/testimonial internet sweep — 37% of 137 businesses reviewed showed concerning conduct; incentive/connection must be disclosed', url: 'https://www.accc.gov.au/about-us/publications/online-reviews-and-testimonials', accessed: '2026-08-18' },
-      { claim: "ABN is not legally required on a website — it is required on tax invoices/receipts (ATO); a missing ABN on an invoice can trigger 47% withholding", url: 'https://lawpath.com.au/blog/do-i-need-to-display-my-abn-on-my-businesss-website', accessed: '2026-08-18' },
-      { claim: "WA electrical contractor licence-number display duty as a representative example of state-based trade licensing rules that DO reach advertising, including web pages (Electrical (Licensing) Regulations 1991 (WA) reg.45)", url: 'https://ecawa.org.au/news-insights/display-of-electrical-contractor-s-licence-number-faqs', accessed: '2026-08-18' },
-      { claim: 'Maguire v SOCOG (2000) HREOC decision — website found to unlawfully discriminate under the DDA 1992, $20,000 damages, partial-compliance history', url: 'https://en.wikipedia.org/wiki/Maguire_v_Sydney_Organising_Committee_for_the_Olympic_Games_(2000)', accessed: '2026-08-18' },
-      { claim: 'Digital Service Standard binds Australian Government agencies only (WCAG 2.2 AA); no equivalent statutory mandate for private business websites', url: 'https://iconagency.com.au/news/2025-10-21-australian-government-website-accessibility-2025-dss-wcag-22-and-multilingual', accessed: '2026-08-18' },
-      { claim: "Business Names Registration Act 2011 (Cth) governs registration and disclosure \"in written communications and public places\" for a trading name distinct from the trader's own name; no website-specific disclosure clause was found", url: 'https://sprintlaw.com.au/business-law-library/legislation/cth/business-names-registration-act-2011/', accessed: '2026-08-18' },
-      { claim: 'Spam Act 2003 (Cth) — consent (express or inferred), sender ID, and a functional unsubscribe for commercial electronic messages', url: 'https://sprintlaw.com.au/articles/understanding-the-commercial-electronic-messages-law-what-australian-businesses-need-to-know-about-the-spam-act-2003/', accessed: '2026-08-18' },
-      { claim: 'Do Not Call Register Act 2006 (Cth) — governs unsolicited telemarketing CALLS and marketing FAXES made by a business; does not reach an inbound web contact form or click-to-call link', url: 'https://www.donotcall.gov.au/about/about-the-do-not-call-register', accessed: '2026-08-18' },
+      { claim: "small business exemption ($3m turnover threshold), s.6D definition and its carve-outs (health service, trading in personal information, Commonwealth contract, credit reporting, residential tenancy database, AML/CTF, related bodies corporate)", url: 'https://www.oaic.gov.au/privacy/privacy-guidance-for-organisations-and-government-agencies/organisations/small-business', accessed: '2026-08-18', class: 'regulator' },
+      { claim: 'opt-in mechanism and the general shape of the exemption', url: 'https://www.oaic.gov.au/privacy/privacy-guidance-for-organisations-and-government-agencies/organisations/opting-in-to-the-privacy-act', accessed: '2026-08-18', class: 'regulator' },
+      { claim: 'current text of the Privacy Act 1988 (Cth), in force 2026', url: 'https://www.legislation.gov.au/C2004A03712/latest/text', accessed: '2026-08-18', class: 'primary' },
+      // ---------------------------------------------------------------- primary
+      //
+      // Added 2026-08-19 in the re-sourcing pass. Before it, this profile's
+      // consumer-law, company-disclosure and spam citations all pointed at one
+      // law firm's explainer articles rather than at the Acts, and its
+      // fictional-phone answer cited a page that was named in a code comment and
+      // was not in provenance.sources at all — a citation nobody could check,
+      // which is the one thing this array exists to prevent.
+      //
+      // Every row carries `quote`, verified by `node checks/citations.mjs --online`.
+
+      { claim: 'Privacy Act 1988 (Cth) s.6D(1) — the small-business turnover threshold, verbatim. This is the single most consequential line in the profile: most clients this repo builds for are under it.',
+        url: 'https://www.legislation.gov.au/C2004A03712/latest/text', accessed: '2026-08-19', class: 'primary', quoteUrl: 'https://www.legislation.gov.au/C2004A03712/2026-06-04/2026-06-04/text/original/epub/OEBPS/document_1/document_1.html',
+        quote: 'A business is a small business at a time' },
+      { claim: 'Privacy Act 1988 (Cth) Schedule 1, APP 1.3 — the APP privacy policy duty for entities the Act covers.',
+        url: 'https://www.legislation.gov.au/C2004A03712/latest/text', accessed: '2026-08-19', class: 'primary', quoteUrl: 'https://www.legislation.gov.au/C2004A03712/2026-06-04/2026-06-04/text/original/epub/OEBPS/document_1/document_1.html',
+        quote: 'An APP entity must have a clearly expressed and up' },
+      { claim: 'Privacy Act 1988 (Cth) Schedule 1, APP 1.4 — the closed list of what the policy must contain, which is what the privacy-page mustMention entries below are built from.',
+        url: 'https://www.legislation.gov.au/C2004A03712/latest/text', accessed: '2026-08-19', class: 'primary', quoteUrl: 'https://www.legislation.gov.au/C2004A03712/2026-06-04/2026-06-04/text/original/epub/OEBPS/document_1/document_1.html',
+        quote: 'the kinds of personal information that the entity collects and holds' },
+
+      { claim: 'Australian Consumer Law (Competition and Consumer Act 2010 Sch 2) s.18 — misleading or deceptive conduct, verbatim. Re-sourced from a law firm\'s explainer to the Act.',
+        url: 'https://www.legislation.gov.au/C2004A00109/latest/text', accessed: '2026-08-19', class: 'primary', quoteUrl: 'https://www.legislation.gov.au/C2004A00109/2026-07-01/2026-07-01/text/original/epub/OEBPS/document_4/document_4.html',
+        quote: 'A person must not, in trade or commerce, engage in conduct that is misleading or deceptive or is likely to mislead or deceive' },
+      { claim: 'ACL s.29(1)(e) and (f) — false or misleading representations about TESTIMONIALS specifically, which is the statutory hook for the rating and review gates. s.29(1)(g) covers sponsorship, approval and performance; (h) covers a claimed affiliation; (m) covers a guarantee or warranty.',
+        url: 'https://www.legislation.gov.au/C2004A00109/latest/text', accessed: '2026-08-19', class: 'primary', quoteUrl: 'https://www.legislation.gov.au/C2004A00109/2026-07-01/2026-07-01/text/original/epub/OEBPS/document_4/document_4.html',
+        quote: 'make a false or misleading representation that purports to be a testimonial by any person' },
+      { claim: 'ACL s.64 — a contract term purporting to exclude a consumer guarantee is void. The statutory basis for refusing "no refunds" copy in terms pages.',
+        url: 'https://www.legislation.gov.au/C2004A00109/latest/text', accessed: '2026-08-19', class: 'primary', quoteUrl: 'https://www.legislation.gov.au/C2004A00109/2026-07-01/2026-07-01/text/original/epub/OEBPS/document_4/document_4.html',
+        quote: 'is void to the extent that the term purports to exclude, restrict or modify' },
+
+      { claim: 'Corporations Act 2001 (Cth) s.153(1) — a company must set out its name on all its PUBLIC DOCUMENTS. The question is therefore what a public document is, not what a website is.',
+        url: 'https://www.legislation.gov.au/C2004A00818/latest/text', accessed: '2026-08-19', class: 'primary', quoteUrl: 'https://www.legislation.gov.au/C2004A00818/2026-07-01/2026-07-01/text/original/epub/OEBPS/document_1/document_1.html',
+        quote: 'A company must set out its name on all its public documents and negotiable instruments' },
+      { claim: 'Corporations Act 2001 (Cth) s.88A — the definition that answers it. The enumerated list is transactional and documentary: a business letter, statement of account, invoice, receipt, order for goods, order for services, official notice. A brochure web page is not on it, and is not issued "for the purposes of a particular transaction or dealing" either.',
+        url: 'https://www.legislation.gov.au/C2004A00818/latest/text', accessed: '2026-08-19', class: 'primary', quoteUrl: 'https://www.legislation.gov.au/C2004A00818/2026-07-01/2026-07-01/text/original/epub/OEBPS/document_1/document_1.html',
+        quote: 'a business letter, statement of account, invoice, receipt, order for goods, order for services or official notice' },
+
+      { claim: 'Disability Discrimination Act 1992 (Cth) s.24 — the route by which an inaccessible site creates liability, and the provision Maguire v SOCOG turned on. Re-sourced from the case\'s encyclopaedia entry to the Act.',
+        url: 'https://www.legislation.gov.au/C2004A04426/latest/text', accessed: '2026-08-19', class: 'primary', quoteUrl: 'https://www.legislation.gov.au/C2004A04426/2026-07-01/2026-07-01/text/original/epub/OEBPS/document_1/document_1.html',
+        quote: 'It is unlawful for a person who, whether for payment or not, provides goods or services, or makes facilities available, to discriminate against another person on the ground of the other person' },
+
+      { claim: 'Spam Act 2003 (Cth) s.16(1) — the prohibition is on SENDING a commercial electronic message with an Australian link. As with CASL in Canada, it does not reach the website\'s own content.',
+        url: 'https://www.legislation.gov.au/C2004A01214/latest/text', accessed: '2026-08-19', class: 'primary', quoteUrl: 'https://www.legislation.gov.au/C2004A01214/2016-03-10/2016-03-10/text/original/epub/OEBPS/document_1/document_1.html',
+        quote: 'A person must not send, or cause to be sent, a commercial electronic message' },
+
+      { claim: 'ACMA\'s reserved fictional number ranges — 5550 XXXX behind each geographic area code and 0491 570 XXX for mobiles. This was named in a code comment beside locale.fictionalPhoneRange and was NOT in this array, so nothing could check it; a fictional number that turns out to be allocated rings a real household.',
+        url: 'https://www.acma.gov.au/phone-numbers-use-tv-shows-films-and-creative-works', accessed: '2026-08-19', class: 'regulator' },
+
+      // -------------------------------------------------------------- secondary
+      //
+      // Kept. Commencement timetables and "has the Bill been introduced yet"
+      // have no primary source by their nature, and the count should show that
+      // honestly rather than hide it.
+      { claim: "Privacy and Other Legislation Amendment Act 2024 commencement tranches — immediate powers/codes (11 Dec 2024), statutory tort for serious invasion of privacy (in force by 11 June 2025), automated-decision transparency (APP 1.7) and the Children's Online Privacy Code both due 10 December 2026", url: 'https://www.ashurst.com/en/insights/australias-first-tranche-of-privacy-reforms-a-deep-dive-and-why-they-matter/', accessed: '2026-08-18', class: 'secondary' },
+      { claim: 'DECISIVE: as of May 2026 the small-business exemption removal (Tranche 2) has NOT been introduced as a Bill; government confirmed in Feb 2026 Senate estimates it is "progressing" with no announced timetable', url: 'https://www.biztechlawyers.com/legal-articles/australias-privacy-reform-shaping-the-future-of-data-protection', accessed: '2026-08-18', class: 'secondary' },
+      { claim: 'as of June 2025, no indication from government of a Tranche 2 timeline at all', url: 'https://www.corrs.com.au/insights/australias-ongoing-privacy-reforms-bolstering-australias-privacy-regulatory-framework', accessed: '2026-08-18', class: 'secondary' },
+      { claim: 'exemption removal originates as an "agreed in principle" response (28 Sept 2023) to the Privacy Act Review, not enacted law', url: 'https://iapp.org/news/a/amending-australias-privacy-act-small-businesses-bigger-responsibilities', accessed: '2026-08-18', class: 'secondary' },
+      { claim: 'APP 1.7 automated-decision transparency obligation text and 10 December 2026 commencement, penalties up to $66,000 for a non-compliant privacy policy', url: 'https://jws.com.au/what-we-think/practical-implications-of-new-transparency-requirements-for-automated-decision-making/', accessed: '2026-08-18', class: 'secondary' },
+      { claim: 'OAIC tracking-pixel guidance (4 Nov 2024): APP 1/5 transparency duties, APP 7 opt-out for direct-marketing use, "set and forget" banners are not sufficient — but no general cookie-banner mandate is asserted', url: 'https://www.oaic.gov.au/privacy/privacy-guidance-for-organisations-and-government-agencies/organisations/tracking-pixels-and-privacy-obligations', accessed: '2026-08-18', class: 'regulator' },
+      { claim: 'APP 8 cross-border disclosure — "reasonable steps" test, ordinarily an enforceable contract with the overseas recipient', url: 'https://www.oaic.gov.au/privacy/australian-privacy-principles/australian-privacy-principles-guidelines/chapter-8-app-8-cross-border-disclosure-of-personal-information', accessed: '2026-08-18', class: 'regulator' },
+      { claim: 'Corporations Act 2001 (Cth) s.153 "public document" list (letterhead, invoices, receipts, orders, official notices) and ASIC RG 13.19 treating whether a document qualifies as "a question of fact" — a website is not named on the list', url: 'https://sprintlaw.com.au/articles/displaying-your-australian-company-number-acn-legal-essentials/', accessed: '2026-08-18', class: 'secondary' },
+      { claim: 'ACL s.18 misleading or deceptive conduct — broad, intent-irrelevant prohibition', url: 'https://sprintlaw.com.au/articles/section-18-of-the-australian-consumer-law-explained/', accessed: '2026-08-18', class: 'secondary' },
+      { claim: 'ACL s.29 false or misleading representations — quality, sponsorship, price, warranty/guarantee claims; penalties up to the greater of a set amount, 3x benefit obtained, or 10% of turnover', url: 'https://sprintlaw.com.au/articles/understanding-section-29-of-the-australian-consumer-law-for-businesses/', accessed: '2026-08-18', class: 'secondary' },
+      { claim: 'ACL s.64 — a contract term purporting to exclude a consumer guarantee is void; s.64A narrow carve-out for non-personal/household goods, fair-and-reasonable test only', url: 'https://www.accc.gov.au/consumers/buying-products-and-services/warranties', accessed: '2026-08-18', class: 'regulator' },
+      { claim: "ACCC guide to environmental claims (published Dec 2023) — clear/accurate, substantiated, not overstated; ACCC states the guide itself is due an update and does not yet reflect the 28 March 2026 penalty increase ($100m fixed component for corporations)", url: 'https://www.accc.gov.au/about-us/publications/a-guide-to-making-environmental-claims-for-business', accessed: '2026-08-18', class: 'regulator' },
+      { claim: 'ACCC named environmental claims / greenwashing a 2025-26 compliance and enforcement priority', url: 'https://www.ashurst.com/en/insights/australias-greenwashing-regulatory-landscape-asic-and-the-accc-stay-focused/', accessed: '2026-08-18', class: 'secondary' },
+      { claim: 'ACCC review/testimonial internet sweep — 37% of 137 businesses reviewed showed concerning conduct; incentive/connection must be disclosed', url: 'https://www.accc.gov.au/about-us/publications/online-reviews-and-testimonials', accessed: '2026-08-18', class: 'regulator' },
+      { claim: "ABN is not legally required on a website — it is required on tax invoices/receipts (ATO); a missing ABN on an invoice can trigger 47% withholding", url: 'https://lawpath.com.au/blog/do-i-need-to-display-my-abn-on-my-businesss-website', accessed: '2026-08-18', class: 'secondary' },
+      { claim: "WA electrical contractor licence-number display duty as a representative example of state-based trade licensing rules that DO reach advertising, including web pages (Electrical (Licensing) Regulations 1991 (WA) reg.45)", url: 'https://ecawa.org.au/news-insights/display-of-electrical-contractor-s-licence-number-faqs', accessed: '2026-08-18', class: 'secondary' },
+      { claim: 'Maguire v SOCOG (2000) HREOC decision — website found to unlawfully discriminate under the DDA 1992, $20,000 damages, partial-compliance history', url: 'https://en.wikipedia.org/wiki/Maguire_v_Sydney_Organising_Committee_for_the_Olympic_Games_(2000)', accessed: '2026-08-18', class: 'secondary' },
+      { claim: 'Digital Service Standard binds Australian Government agencies only (WCAG 2.2 AA); no equivalent statutory mandate for private business websites', url: 'https://iconagency.com.au/news/2025-10-21-australian-government-website-accessibility-2025-dss-wcag-22-and-multilingual', accessed: '2026-08-18', class: 'secondary' },
+      { claim: "Business Names Registration Act 2011 (Cth) governs registration and disclosure \"in written communications and public places\" for a trading name distinct from the trader's own name; no website-specific disclosure clause was found", url: 'https://sprintlaw.com.au/business-law-library/legislation/cth/business-names-registration-act-2011/', accessed: '2026-08-18', class: 'secondary' },
+      { claim: 'Spam Act 2003 (Cth) — consent (express or inferred), sender ID, and a functional unsubscribe for commercial electronic messages', url: 'https://sprintlaw.com.au/articles/understanding-the-commercial-electronic-messages-law-what-australian-businesses-need-to-know-about-the-spam-act-2003/', accessed: '2026-08-18', class: 'secondary' },
+      { claim: 'Do Not Call Register Act 2006 (Cth) — governs unsolicited telemarketing CALLS and marketing FAXES made by a business; does not reach an inbound web contact form or click-to-call link', url: 'https://www.donotcall.gov.au/about/about-the-do-not-call-register', accessed: '2026-08-18', class: 'regulator' },
     ],
     caveats: [
       "A significant share of current-dated Australian \"privacy law 2026\" marketing content (compliance-tool vendors, SEO blogs) states or implies the small-business exemption has ALREADY been removed, or names a fixed December 2026 removal date. Neither is correct as of 2026-08-18: the removal is a Tranche 2 proposal the government has agreed to \"in principle\" since September 2023, no Bill has been introduced, and no commencement date exists. December 2026 is real, but belongs to two DIFFERENT, already-legislated provisions (automated-decision transparency, the Children's Online Privacy Code) that this profile's comments deliberately do not conflate with exemption removal.",
@@ -111,21 +165,50 @@ export default {
     ],
   },
 
+  // Seven questions every country profile must answer, each pointing at the row
+  // in provenance.sources that carries the answer. `checks/citations.mjs` fails
+  // a profile that leaves one blank or answers it from a secondary source.
+  // See ca.mjs's coverage block for the omission that produced this check.
+  coverage: {
+    privacyNotice: 'https://www.legislation.gov.au/C2004A03712/latest/text',
+    consentModel: 'https://www.oaic.gov.au/privacy/privacy-guidance-for-organisations-and-government-agencies/organisations/tracking-pixels-and-privacy-obligations',
+    accessibilityDuty: 'https://www.legislation.gov.au/C2004A04426/latest/text',
+    businessIdentity: 'https://www.legislation.gov.au/C2004A00818/latest/text',
+    misleadingClaims: 'https://www.legislation.gov.au/C2004A00109/latest/text',
+    electronicMarketing: 'https://www.legislation.gov.au/C2004A01214/latest/text',
+    fictionalData: 'https://www.acma.gov.au/phone-numbers-use-tv-shows-films-and-creative-works',
+  },
+
   locale: {
     language: 'en-AU',
     spelling: 'gb', // Australian English follows British spelling conventions (colour, organise, licence/license split)
     dateFormat: 'D MMMM YYYY',
     currency: 'AUD',
     currencySymbol: '$',
-    // ACMA-reserved fictional ranges (source: acma.gov.au, "Phone numbers for use in
-    // TV shows, films and creative works"). NSW/ACT landline shown as the example;
-    // swap the area code for the build's actual state.
+    // ACMA's reserved fictional numbers. See provenance.sources — this used to
+    // be a citation living only in this comment, which meant nothing checked it.
+    // NSW/ACT landline shown as the example; swap the area code for the state.
     phoneExample: '(02) 5550 1234',
+    //
+    // CORRECTED 2026-08-19. The earlier text said "0491 570 XXX nationally for
+    // mobiles", i.e. that any number in that block was safe. It is not a block.
+    // ACMA reserves an ENUMERATED LIST of individual mobile numbers, and the
+    // list runs past 0491 570 — 0491 571 266, 0491 572 549, 0491 579 760 and
+    // others are on it, while most of 0491 570 XXX is not. A demo that shipped
+    // "0491 570 999" on the old wording would have published a number ACMA has
+    // never reserved, which is how a fictional business ends up ringing a real
+    // phone. The geographic ranges were also incomplete: 7010 is reserved
+    // alongside 5550 behind every area code.
     fictionalPhoneRange:
-      'ACMA reserves 5550 XXXX behind every geographic area code for fiction — '
-      + '02 5550 XXXX (NSW/ACT), 03 5550 XXXX (VIC/TAS), 07 5550 XXXX (QLD), '
-      + '08 5550 XXXX (WA/SA/NT) — plus 0491 570 XXX nationally for mobiles. '
-      + 'Never ship a real allocated number as a placeholder.',
+      'GEOGRAPHIC (any last four digits): (02) 5550 xxxx and (02) 7010 xxxx for NSW/ACT; '
+      + '(03) 5550/7010 xxxx for VIC/TAS; (07) 5550/7010 xxxx for QLD; '
+      + '(08) 5550/7010 xxxx for SA/WA/NT. '
+      + 'MOBILE is NOT a range — ACMA reserves individual numbers and you must use one of them '
+      + 'exactly: 0491 570 006 / 156 / 157 / 158 / 159 / 110 / 313 / 737, 0491 571 266 / 491 / 804, '
+      + '0491 572 549 / 665 / 983, 0491 573 770, 0491 574 632, 0491 575 254 / 789, '
+      + '0491 576 398 / 801, 0491 577 426 / 644, 0491 578 957 / 148 / 888, 0491 579 212 / 760 / 455. '
+      + 'FREEPHONE: 1800 160 401, 1800 975 707-711, 1300 975 707-711. '
+      + 'Anything else in 0491 is somebody\'s actual phone. Never ship a real allocated number.',
     // Australian postcodes are exactly four digits. Supplied as a STRING; the
     // profile loader (checks/lib/profile.mjs) compiles it to a RegExp.
     postcodePattern: '^\\d{4}$',

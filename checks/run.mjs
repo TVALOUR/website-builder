@@ -5,7 +5,7 @@
 //
 // Options:
 //   --json              machine-readable output on stdout, nothing else
-//   --only <families>   comma-separated: copy,legal,seo,a11y,design,perf,integrity,security,facts,responsive
+//   --only <families>   comma-separated: copy,legal,seo,a11y,design,perf,integrity,security,facts,responsive,assets,discovery
 //   --skip <families>   same list, inverted
 //   --profile <name>    jurisdiction profile from profiles/ (no default - config.md or --profile)
 //   --assets <path>     asset manifest (default: <site>/../assets/MANIFEST.md)
