@@ -163,6 +163,11 @@ full pipeline.
 
 ## Licence
 
-MIT — see [`LICENSE`](LICENSE). The example site is fictional; the design
-references and font names in `shared/design/` are pointers to third-party work,
-not redistributions of it.
+MIT — see [`LICENSE`](LICENSE). Fork it, rename it, ship sites with it, no
+attribution required. The example site is fictional; the design references and
+font names in `shared/design/` are pointers to third-party work, not
+redistributions of it.
+
+---
+
+Built by [Tom MacKellar](https://www.youtube.com/@TomMacKellar).
