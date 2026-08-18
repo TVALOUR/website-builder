@@ -128,7 +128,7 @@ Next — stage 01 discover, and it is a stop, not a formality:
 
      One dropped sketch answers twenty questions.
   2. Read stages/01_discover/CONTEXT.md and run the interview from
-     stages/01_discover/questions.md — 63 questions across ten parts, and you
+     stages/01_discover/questions.md — 72 questions across ten parts, and you
      ask every BLOCKING one. Batch them, lead with why, take the answer you get.
   3. node assets.mjs ${slug} scan
      Indexes everything that landed, creates assets/MANIFEST.md, and prints

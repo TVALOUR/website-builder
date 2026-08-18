@@ -18,7 +18,7 @@ said yes.
   reference URLs, an old site. Put it all in `builds/<slug>/_intake/` first.
 - The human in this conversation.
 - `../../config.md` — your defaults, written by stage 00 from `../../config.example.md`.
-- `questions.md` — the question bank, 63 questions across ten parts (Layer 3). **Read it. Do
+- `questions.md` — the question bank, 72 questions across ten parts (Layer 3). **Read it. Do
   not improvise the interview.**
 - `../../shared/references.md` — how a dropped reference becomes a dissected card.
 - `../../shared/writing.md` — so the brief is written against the bar from the start.

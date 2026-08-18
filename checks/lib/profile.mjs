@@ -122,7 +122,8 @@ function buildRegulatedClaims(L) {
  *   told but that do not by themselves stop a ship, chiefly the provenance of a
  *   researched profile.
  */
-export async function loadProfile(name) {
+export async function loadProfile(nameArg) {
+  let name = nameArg;
   const problems = [];
   const notices = [];
 
@@ -132,6 +133,23 @@ export async function loadProfile(name) {
       + `and running one country's rules on another produces confident wrong advice. Run stage 00 to write config.md, `
       + `or pass --profile <id>. Available: ${listProfiles().join(', ') || '(none)'}.`);
     return { profile: null, problems, notices, name: null };
+  }
+
+  // The name is interpolated into an import specifier, so it is constrained to
+  // the shape a profile id actually has. Nothing here is reachable by an
+  // attacker — you already run this checker on your own machine — but a
+  // `--profile ../../something` that resolves to a file outside profiles/ would
+  // load rules from a place nobody would think to look for them, and a rule set
+  // whose origin is not obvious is the one problem this whole subsystem exists
+  // to remove.
+  // `--profile UK` is a person being reasonable, not an error. Case is folded;
+  // anything that is still not an id after that is genuinely not one.
+  name = String(name).trim().toLowerCase();
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(name)) {
+    problems.push(
+      `"${name}" is not a profile id. Ids are lowercase letters, digits and hyphens — they name a file in `
+      + `profiles/, not a path. Available: ${listProfiles().join(', ') || '(none)'}.`);
+    return { profile: null, problems, notices, name };
   }
 
   let raw;

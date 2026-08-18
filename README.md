@@ -48,7 +48,7 @@ halves. The *vision* half asks for artifacts first: sketches (a photo of paper i
 screenshots, reference sites you love or want to remake, the one you hate, brand colours,
 fonts, your old site. Every reference gets dissected into a card — what grabbed you, what
 to steal, what to leave — that the design stage is bound to. The *facts* half is a
-**63-question bank across ten parts**, where every question carries the documented cost of
+**72-question bank across ten parts**, where every question carries the documented cost of
 skipping it: real prices, real hours, font licences, photo rights, what a visitor must be
 able to *do* on each page, which country you trade under, who owns the domain. "Just build
 it, don't ask me questions" gets the smallest set of questions that cannot be answered

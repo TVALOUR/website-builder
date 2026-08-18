@@ -8,8 +8,8 @@
 //
 // WHY THIS EXISTS, stated plainly because it is the same lesson twice.
 //
-// The question bank in stages/01_discover/questions.md had 40 questions before
-// this change and has 63 now. Stage 01 already said "artifacts before
+// The question bank in stages/01_discover/questions.md had 49 questions before
+// this change and has 72 now. Stage 01 already said "artifacts before
 // questions", already said which questions were BLOCKING, already told the
 // agent to put everything in `_intake/`. And a real build still reached the
 // point of asking the client to choose a legal jurisdiction from a two-item
