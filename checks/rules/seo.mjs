@@ -1,4 +1,4 @@
-// sitewright — discoverability gates.
+// website-builder — discoverability gates.
 //
 // Measured motivation: across 45 pages shipped by the predecessor system,
 // Open Graph appeared on 9, canonical on 17, structured data on 10, and no site

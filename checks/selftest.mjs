@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// sitewright — the checker's own test.
+// website-builder — the checker's own test.
 //
 //   node checks/selftest.mjs
 //
@@ -76,7 +76,7 @@ const say = (ok, msg) => {
   console.log(`  ${ok ? 'ok  ' : 'FAIL'}  ${msg}`);
 };
 
-console.log('\nsitewright selftest\n');
+console.log('\nwebsite-builder selftest\n');
 
 // ---------------------------------------------------------------- negative
 console.log('negative control — must fail loudly');

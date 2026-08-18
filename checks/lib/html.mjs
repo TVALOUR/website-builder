@@ -1,4 +1,4 @@
-// sitewright — a small HTML reader for static analysis.
+// website-builder — a small HTML reader for static analysis.
 //
 // Regex over markup, deliberately. A real parser would be a dependency, and the
 // whole point of this repo is that a fresh clone runs with nothing installed.

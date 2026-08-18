@@ -1,4 +1,4 @@
-// sitewright — the facts ledger parser.
+// website-builder — the facts ledger parser.
 //
 // WHY THIS FILE EXISTS. The first version of the provenance gate did not parse
 // facts.md at all. It lowercased the whole file, stripped punctuation, and asked

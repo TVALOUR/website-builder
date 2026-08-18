@@ -1,4 +1,4 @@
-// sitewright — a small CSS reader for static analysis.
+// website-builder — a small CSS reader for static analysis.
 //
 // PROVENANCE: the rule tokenizer, custom-property resolver and the
 // hex/rgb/hsl/oklch -> contrast pipeline are ported from `check-slop-gates.mjs`

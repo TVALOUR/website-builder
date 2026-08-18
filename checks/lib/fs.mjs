@@ -1,4 +1,4 @@
-// sitewright — filesystem helpers for the checkers.
+// website-builder — filesystem helpers for the checkers.
 // Zero dependencies. Node 18+.
 
 import { readdirSync, statSync, readFileSync, existsSync } from 'node:fs';

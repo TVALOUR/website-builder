@@ -1,4 +1,4 @@
-// sitewright — security and privacy gates for a static front end.
+// website-builder — security and privacy gates for a static front end.
 //
 // "It's just a static site, there's nothing to hack" is mostly true and
 // entirely beside the point. The realistic harms here are: a secret committed

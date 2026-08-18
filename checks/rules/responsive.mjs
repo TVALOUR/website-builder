@@ -1,4 +1,4 @@
-// sitewright — responsive and real-device gates.
+// website-builder — responsive and real-device gates.
 //
 // An AI never opens the site on a phone. It cannot, and it does not know what
 // it is missing. Most responsive failure needs a browser to see — that part

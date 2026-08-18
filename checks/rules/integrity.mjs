@@ -1,4 +1,4 @@
-// sitewright — integrity gates: is the thing actually wired up?
+// website-builder — integrity gates: is the thing actually wired up?
 //
 // This family exists for one defect above all others: a contact form that
 // looks perfect and does nothing when submitted. A brochure site has exactly

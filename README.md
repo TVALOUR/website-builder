@@ -1,172 +1,242 @@
-# Website-Builder
+# website-builder
 
-An **agent workspace** that turns a description of a website into a finished,
-distinctively designed static site — and refuses to ship AI slop while doing it.
+**Websites that look made, not generated.**
 
-It is not a prompt, and it is not tied to one AI vendor. It is a six-stage
-pipeline with a design contract, human review gates, and a memory of what it has
-already built, so the tenth site doesn't look like the first. One folder, one
-contract (`AGENTS.md`), and it runs the same under **Claude Code, Codex CLI,
-Gemini CLI, Grok CLI, Cursor — or any coding agent that can read and write
-files**. Agents with more capabilities use them; agents with fewer degrade
-gracefully; the quality bar never moves.
+A folder of markdown, a zero-dependency checker, and (on Claude Code) working hook
+enforcement, that together make an AI coding agent build the website in *your* head —
+instead of the website it builds for everyone.
 
+No install. No framework. No account. Works with **Claude Code, Codex CLI, Cursor, Gemini
+CLI, Grok CLI, Windsurf, Cline** — or a person with a text editor.
+
+```bash
+git clone https://github.com/TVALOUR/website-builder
+cd website-builder
+# open your coding agent here and say: "build me a website for <business>"
 ```
-01_brief ──► 02_sitemap ──► 03_content ──► 04_design ──► 05_build ──► 06_qa
-◆checkpoint   →auto          →auto          ◆checkpoint   →auto       ◆checkpoint
-purpose       structure      copy           direction     code        ship
-```
-
-`◆ checkpoint` = the agent stops and discusses it with you. `→ auto` = it runs
-the stage, sanity-checks the result and continues, pausing only if something
-looks wrong. Never a one-prompt black box; never babysat step by step.
 
 ---
+
+## The problem
+
+Ask any model to build a site and two things go wrong at once, for the same reason.
+
+**It invents the facts.** A site for a dog groomer in Devon gets the *category's* services,
+invented prices, invented opening hours, a testimonial from a person who does not exist.
+It looks fine, which is the problem — nobody catches it, and the person whose name is on
+the site is the one who finds out.
+
+**It defaults the design.** You had a picture in your head — a sketch on paper, a site you
+half-remember wanting to remake, the exact blue on your van — and none of it entered the
+build, because nothing asked. So you got the layout, palette and type the model gives
+everyone: the same gradient, the same hero, the same three cards.
+
+> **Every AI builds the same website because none of them ask what is in the person's
+> head.**
+
+## What this folder does about it
+
+**1. It interviews you before it builds — by default, not on request.** Stage 01 has two
+halves. The *vision* half asks for artifacts first: sketches (a photo of paper is fine),
+screenshots, reference sites you love or want to remake, the one you hate, brand colours,
+fonts, your old site. Every reference gets dissected into a card — what grabbed you, what
+to steal, what to leave — that the design stage is bound to. The *facts* half is a
+40-question bank where every question carries the documented cost of skipping it: real
+prices, real hours, font licences, who owns the domain. "Just build it, don't ask me
+questions" gets the smallest set of questions that cannot be answered without inventing
+something about you — not silence, and not a lecture.
+
+**2. You choose between rendered samples, not adjectives.** The design stop shows you the
+top of your homepage executed two or three ways — with your real headline — and you point
+at one. "No opinion, show me options" is a first-class answer from the first minute.
+
+**3. A gate decides whether it ships, and the gate is not the model's opinion.**
+
+```bash
+node checks/run.mjs builds/<slug>/site --facts builds/<slug>/facts.md
+```
+
+```
+  ✗ BLOCKER  facts/unsourced-price   4 prices with no sourced row in facts.md: "£120", "£80", …
+  ✗ BLOCKER  facts/href-mismatch     link reads "Call 01271 860 442" but dials 01271860999
+  ✗ BLOCKER  integrity/form-dead     form has no action and nothing in the JS handles its submit
+  ✗ BLOCKER  legal/privacy-policy    no privacy page found
+```
+
+Exit `0` ships. Exit `1` does not. **Ten rule families, 130+ gates**, no npm install, no
+lockfile, no `node_modules`:
+
+| Family | What it will not let past |
+|---|---|
+| `facts` | **any price, phone, email, postcode, opening time or claim with no sourced row** — read from the page text, the `tel:`/`mailto:` hrefs, the meta tags, the JSON-LD and the JavaScript |
+| `copy` | em-dash density above the measured human range, the AI lexicon ("seamless", "elevate", "build your dreams"), "not just X — it's Y", lorem, TODO |
+| `design` | Inter-as-display and its successors, four typefaces, the purple gradient, emoji in headings and buttons, a zoo of border-radii and shadows, hover states that hide things, `transition: all` |
+| `legal` | missing privacy policy, tracking that fires before consent, unevidenced claims |
+| `integrity` | dead forms, broken links, dead social icons, missing assets, no 404 |
+| `a11y` | contrast, unlabelled inputs, removed focus rings, icon buttons with no name |
+| `seo` | no viewport, no OG tags, a title that still says "Home", a stray `noindex` |
+| `perf` | render-blocking fonts, no image dimensions, a lazy-loaded hero |
+| `security` | API keys in client code, `.env` in the deploy folder, no headers file |
+| `responsive` | `100vh` on iOS, fixed widths, hover-only menus, no breakpoints |
+
+**4. On Claude Code, the process is enforced, not suggested.** This repo ships hooks
+(`.claude/settings.json`): mentioning a build injects the stage-01 marching orders; site
+files cannot be written until the build's `brief.md` and `design.md` exist; and the
+session cannot end while a changed site fails the gate. Other harnesses run the same
+contract structurally — the entry command creates the build folder, the gate fails
+closed, and `STATE.md` makes a skipped stage visible.
+
+## Why rules alone do not fix it
+
+The system this one replaces had a 197-line anti-slop style contract and a 58-item
+pre-ship checklist. Both were good prose. Here is what it actually shipped, measured
+across the four sites it had promoted:
+
+| | |
+|---|---|
+| Em dashes in one site's copy | **241** |
+| Required legal pages delivered | **9 of 16** |
+| Sites failing that system's own checker | **3 of 4** |
+| Sites with a 404 page | **0 of 4** |
+
+And the night the first public version of *this* repo went live, an agent pointed at it
+built an entire site with no brief, no session state and no QA — the contract was
+prose, and prose got skipped. **A rule that nothing checks reaches zero adherence.** So
+here the gate is the product, the hooks make the pipeline the path of least resistance,
+and the prose is left to carry only what genuinely needs judgment.
+
+### How you know the gate is real
+
+```bash
+node checks/selftest.mjs
+```
+
+Four fixtures ship with the repo, and the selftest asserts all of them:
+
+| Fixture | Must | Why it exists |
+|---|---|---|
+| `negative-control/` | **FAIL** | an obviously broken site — the easy case |
+| `dishonest-control/` | **FAIL** | valid markup, complete legal pages, professional copy, **every business fact invented**. This is what a model actually produces, and it is the thing this repo claims to be uniquely good at stopping |
+| `bare-control/` | **FAIL** | blocker paths that cannot share a fixture with their own siblings |
+| `clean-control/` | **PASS** | a complete worked reference build |
+
+Coverage is keyed on gate **and severity**; pairs without a live negative control are
+each documented with the reason they cannot be triggered by a static file. The selftest
+refuses phantom gates (declared but never emitted) and fails if any gate is missing from
+`checks/MANUAL.md` — the written fallback that lets the whole system degrade to prose on
+a machine with no Node.
+
+## The pipeline
+
+Eight stages. Each has a `CONTEXT.md` with Inputs, Process and Outputs. Agents read one
+at a time; humans can read them all — they are short.
+
+| # | Stage | | |
+|---|---|---|---|
+| 00 | `setup` | once | who you are, defaults, jurisdiction |
+| 01 | `discover` | ◆ stop | **the vision (sketches, references, colours, fonts) and the facts, both written down** |
+| 02 | `architect` | → auto | pages, nav, what each page must carry |
+| 03 | `write` | → auto | the real copy, every claim tied to a fact |
+| 04 | `design` | ◆ stop | direction chosen from your references, shown as **rendered samples** |
+| 05 | `build` | → auto | the files |
+| 06 | `verify` | ◆ stop | the gate, plus the half only eyes can judge |
+| 07 | `launch` | ◆ stop | redirects, DNS in the safe order, ownership, a test enquiry that actually arrives |
+
+◆ means the agent stops and talks to you. A standard build is a working session with
+four real conversations — never a one-prompt black box, never babysat step by step.
 
 ## Quickstart
 
 1. **Clone it and open the folder in your agent.**
 
-   ```
-   git clone <this repo> website-builder
-   cd website-builder
-   ```
-
    | Your agent | Start it with | It reads |
    |---|---|---|
-   | Claude Code | `claude` | `CLAUDE.md` → imports `AGENTS.md` |
+   | Claude Code | `claude` | `CLAUDE.md` → `AGENTS.md`, plus the hooks |
    | Codex CLI | `codex` | `AGENTS.md` directly |
-   | Gemini CLI | `gemini` | `GEMINI.md` → points at `AGENTS.md` |
-   | Grok CLI | `grok` | `GROK.md` → points at `AGENTS.md` (if not auto-read, say "read AGENTS.md first") |
-   | Cursor / other | open the folder | `AGENTS.md` (tell it to read it first if it doesn't automatically) |
+   | Cursor / Windsurf / Cline | open the folder | `AGENTS.md` (say "read AGENTS.md first" if it doesn't) |
+   | Gemini CLI | `gemini` | `GEMINI.md` → `AGENTS.md` |
+   | Grok CLI | `grok` | `GROK.md` → `AGENTS.md` |
 
-   `AGENTS.md` is the whole contract; the other files are thin pointers into it.
-   You can even switch agents mid-build — state lives in `SESSION.md` and the
+   You can switch agents mid-build: state lives in `builds/<slug>/STATE.md` and the
    stage outputs, not in any one agent's memory.
 
-2. **Fill in `setup/questionnaire.md`** once — your name, default stack, deploy
-   preference. The agent writes the answers into
-   `_config/website-builder-config.md`.
+2. **Say what you want, in plain language.** "Build me a website for my dad's farriery
+   business" is enough — the interview does the rest. Have your materials ready to drop:
+   the logo file, phone photos of sketches, links to sites you like. The more you hand
+   over, the more the site is yours.
 
-3. **Say what you want**, in plain language:
+3. **Talk at the stops** (discover, design, verify, launch). Say "go" to move on, or
+   redirect anything.
 
-   > Build a website for **Harbourline Coffee**, a specialty roastery in
-   > Falmouth. The audience is cafés and restaurants buying wholesale beans. The
-   > main goal is to get them to request a sample box. It should feel precise
-   > and unfussy — not cosy-artisan.
+The finished site lands in `builds/<slug>/site/` as plain static files — open
+`index.html`, or host it anywhere.
 
-   (Harbourline is invented — swap in your real business.)
+## Using the checker on any existing site
 
-4. **Talk to it at the checkpoints** (brief, design, QA). Say "go" to move on,
-   or "show me the sitemap", "gate everything", or "run to QA" to change the
-   rhythm. A standard build is a working session with three real conversations —
-   not a one-prompt generation.
+The gate works on any static site, not just ones built here:
 
-5. The finished site lands in `sites/<name>/`. It is plain static files — open
-   `index.html`, or host it anywhere.
-
-### What you need
-
-| | |
-|---|---|
-| **A coding agent** | Any harness whose agent can read/write files in a folder. That's the only hard requirement. |
-| **Node 18+** | Only for `check-slop-gates.mjs`, the mechanical gate in stage 06. Without it, stage 06 still runs — you check those items by hand and lose the automatic catch. |
-| **A way to look at the built site** | Stage 06 reviews the *rendered* page, not the source. If your agent has a browser/screenshot tool (Claude-in-Chrome, a Playwright MCP), it drives the review; if not, the agent serves the site and directs **your** eyes precisely. Both paths are first-class — see `shared/design/visual-review.md`. |
-
-The agent probes its own capabilities at build start (`AGENTS.md` § Run modes):
-sub-agent spawning, browser access, web fetch, image generation. Each capability
-unlocks a richer path; none is required.
-
----
-
-## What makes it not-slop
-
-Design quality is enforced at the **contract** level, not left to the model's
-mood. `shared/design/` binds every build:
-
-- **Banned by default:** Inter/Roboto as display type, purple-to-blue gradients
-  on white, the hero → three feature cards → CTA rhythm, stock-photo-shaped
-  filler, emoji as iconography, and copy that says nothing at length.
-- **`shared/design/anti-slop-rules.md`** — the non-negotiables, with the
-  reasoning.
-- **`shared/design/pre-ship-gates.md`** — the gates stage 06 runs before
-  anything ships.
-- **`shared/design/check-slop-gates.mjs`** — a script that mechanically checks a
-  built site for the catchable violations (banned fonts, gradient tells,
-  contrast).
-  ```
-  node shared/design/check-slop-gates.mjs sites/your-site
-  ```
-- **`sites/variety-ledger.md`** — cross-build memory. Stage 04 reads every past
-  build's type genre, colour temperament and macrostructure, and has to move a
-  real distance from the last two. This is the part that stops build #4 looking
-  like build #1.
-- **`shared/content/copywriting.md`** — the copy method. The pipeline **never
-  invents facts about a real business**; anything it doesn't know comes back as
-  an explicit `[NEEDS: …]` marker for you to fill.
-- **`shared/legal/`** — privacy / cookies / terms / accessibility pages ship by
-  default, with a working consent script. Templates, not legal advice.
-
----
-
-## The example
-
-One sample site, a fictional company, lives in **`examples/fabric-first/`** —
-four pages for a Devon retrofit / low-carbon-heating firm. Cabinet Grotesk, deep
-signal green, a drawn building cross-section as the signature device. Every
-placeholder is declared in the colophon; the phone number is an Ofcom drama
-number reserved for fiction.
-
-> **Be clear about what it is.** It demonstrates the *design bar* — what
-> clearing the anti-slop gates looks like — not a recorded end-to-end pipeline
-> run. The first site you build yourself is that evidence, and if it doesn't
-> hold up, that's a bug worth an issue.
-
-```
-cd examples/fabric-first && python -m http.server 8731
+```bash
+node checks/run.mjs /path/to/any/site            # full report
+node checks/run.mjs /path/to/site --json         # machine-readable
+node checks/run.mjs --list                       # every gate it knows about
 ```
 
----
+Useful as an audit before quoting for a redesign — or on the site your last vibe-coding
+session produced.
 
-## How it's laid out
+## What it will not do
 
-| Path | What it is |
-|------|-----------|
-| `AGENTS.md` | The contract: identity, rhythm, run modes, routing, hard rules |
-| `CLAUDE.md` / `GEMINI.md` / `GROK.md` | Per-harness pointers into `AGENTS.md` |
-| `SESSION.md` | Live build state — how a fresh session (any agent) resumes mid-build |
-| `setup/` | The one-time questionnaire |
-| `_config/` | Your answers, the model-tier matrix, deploy policy |
-| `_intake/` | Drop a client's brief, assets, or design references here before stage 01 |
-| `_clients/` | Queued briefs, one folder per client (git-ignored, never committed) |
-| `shared/` | The conductor recipe, design contract, copy method, QA gates, legal templates |
-| `stages/01…06/` | The pipeline. Each stage has a `CONTEXT.md` (its job) and an `output/` |
-| `sites/` | Finished sites, the registry, and the variety ledger |
+Stated up front, because a tool that oversells its coverage is worse than one that has
+less.
 
-**The one rule that makes it work:** each stage reads only what its `CONTEXT.md`
-lists, does only its own job, and writes only to its own `output/`. The folder
-structure *is* the orchestration — and it's what keeps context (and cost) small.
+- **The gate reads files. It is not a browser.** It cannot judge whether a layout is
+  good, whether a hero is balanced, or whether the site looks designed. Those live in
+  stage 06 as an eyes-on step, labelled as one.
+- **Automated accessibility checking finds roughly a third of real WCAG failures.** A
+  clean run means the cheap failures are gone. It does not mean the site is accessible,
+  and the repo will not say it does.
+- **`facts.md` cannot be machine-verified.** The gate proves every claim on the site
+  traces to a sourced row. It cannot prove the row is true. That gap closes with a human
+  reading the file back to the client, which is stage 07.
+- **Hook enforcement exists where the harness has hooks** (Claude Code today). Elsewhere
+  the same contract holds by structure — visible state, a fail-closed gate — which makes
+  skipping it loud, not impossible.
+- **Front end only.** Static HTML, CSS and JS. No back end, no database, no accounts.
+  For a five-page site for a plumber that is the entire job, and it is a scope boundary
+  rather than a limitation to apologise for.
+- **Not legal advice.** `profiles/uk.mjs` encodes what a competent developer should ship
+  by default so a small business is not obviously exposed. It is UK and EU shaped; other
+  jurisdictions are a profile file nobody has written yet, and contributions are welcome.
 
----
+## Repo layout
 
-## Cost
+```
+AGENTS.md      the contract, for any coding agent     CLAUDE.md / GEMINI.md / GROK.md point here
+start.mjs      opens a build: builds/<slug>/ + STATE.md + the stage-01 marching orders
+stages/        one folder per stage, each a CONTEXT.md
+shared/        writing · design · directions · references · review · imagery · conductor · legal
+checks/        run.mjs + 10 rule families + selftest    zero dependencies
+profiles/      jurisdiction lives in a file, not a hardcode
+templates/     legal pages, consent banner, _headers, robots, structured data
+examples/      clean-control (passes) · dishonest / negative / bare controls (fail on purpose)
+.claude/       the Claude Code hooks (gate.mjs)
+builds/        your work, one folder per site — git-ignored
+```
 
-If your agent can spawn sub-agents (**conductor mode**), each stage runs on the
-cheapest model tier that can do it — cheap for the sitemap, standard for
-brief/copy/build/QA, strongest for exactly one stage (design direction) on a
-standard build. The matrix is `_config/model-routing.md`, written in tiers so it
-maps to any model family — and you can flatten it to one model if you'd rather
-not think about it. Single-model harnesses skip all of this and still get the
-full pipeline.
+## Requirements
 
----
+Node 18 or newer, only for the checker, the hooks and `start.mjs`. Every gate has a
+written manual equivalent in `checks/MANUAL.md`, so the system degrades to prose rather
+than breaking. There is nothing else.
 
 ## Licence
 
-MIT — see [`LICENSE`](LICENSE). Fork it, rename it, ship sites with it, no
-attribution required. The example site is fictional; the design references and
-font names in `shared/design/` are pointers to third-party work, not
-redistributions of it.
+MIT. Take it, fork it, rename it, sell work built with it — no attribution required.
+
+The anti-slop design rules and the CSS contrast engine distil, via two earlier private
+systems, the `hallmark` design skill and Anthropic's `frontend-design` guidance. The
+defect taxonomy behind the gates, including the rules it deliberately rejects, is in
+[`TAXONOMY.md`](TAXONOMY.md).
 
 ---
 

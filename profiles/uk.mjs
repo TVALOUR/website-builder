@@ -1,4 +1,4 @@
-// sitewright — UK / EU profile.
+// website-builder — UK / EU profile.
 //
 // The legal gates are jurisdiction-shaped, so the jurisdiction is a file rather
 // than a hardcode. Swap it with `--profile us` once someone writes profiles/us.mjs.

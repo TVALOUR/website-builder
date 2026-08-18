@@ -1,4 +1,4 @@
-// sitewright — copy gates.
+// website-builder — copy gates.
 //
 // The prose tells. This family exists because the measurement that started this
 // repo found 241 em dashes in a site shipped by a system with a 197-line style

@@ -56,6 +56,12 @@ rather than deciding it quietly in the markup.
    **never** on the hero, `fetchpriority="high"` on the LCP image, modern format where it
    helps. Real alt text describing what the image conveys here, not its filename.
 
+Between the images and the gate: **generated assets, only if `design.md` lists any**
+and the session has an image tool. Produce each per `../../shared/imagery.md` — the
+reject checklist and the declaration rules bind in full — at the listed size, into
+`site/assets/`. A failed, rejected or unavailable asset uses its named fallback and
+leaves `<!-- TODO: needs asset ... -->`; generation never blocks the build.
+
 10. **Run the gate before you report finished.**
     ```
     node ../../checks/run.mjs builds/<slug>/site --facts builds/<slug>/facts.md

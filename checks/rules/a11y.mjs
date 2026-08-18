@@ -1,4 +1,4 @@
-// sitewright — accessibility gates.
+// website-builder — accessibility gates.
 //
 // HONEST COVERAGE STATEMENT, and this must stay in the report rather than the
 // docs: automated tooling detects roughly a third of real WCAG failures. This

@@ -1,4 +1,4 @@
-// sitewright — legal and compliance gates.
+// website-builder — legal and compliance gates.
 //
 // Measured motivation: the system this repo replaces had a written rule saying
 // four legal pages ship on EVERY build. Across four shipped sites it delivered

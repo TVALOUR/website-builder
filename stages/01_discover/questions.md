@@ -5,9 +5,89 @@ cost is written next to it. That is not padding: it is there so you can tell a c
 you are asking, which is the difference between an answer and a shrug.
 
 **BLOCKING** means: without an answer you would have to invent something about a real
-business, or ship a real legal exposure. Ask it, or record the refusal and build less.
+business, default a design nobody chose, or ship a real legal exposure. Ask it, or record
+the refusal and build less.
 
-You will not ask all of this. You will ask all the blocking ones.
+You will not ask all of this. You will ask all the blocking ones — and you will ask them in
+batches with the reason attached, not as an interrogation (`CONTEXT.md` §3).
+
+---
+
+## 0. Before anything — what kind of project is this?
+
+**BLOCKING — Is this a real business or organisation, or a personal / portfolio / demo /
+fictional project?**
+
+*Cost of skipping:* the regimes are different and guessing picks the wrong one. A real
+business binds every part of this bank: every fact sourced, every legal page real. A
+personal or fictional project relaxes what must *exist*, not what must be *honest* — parts
+A–C shrink to what is real about the person or the idea, and anything invented is declared
+on the page as fictional, uses reserved domains (`.example`) and drama phone ranges, and
+never wears real-business dress it did not earn. The failure mode this question prevents
+has a fixture: `examples/dishonest-control/` is a professional-looking site whose every
+fact is invented, and it is what a model produces when nobody asked question 0.
+
+Part V binds in **both** regimes. Nobody's head is empty; a demo has a vision too.
+
+---
+
+## V. The vision in their head
+
+The half of discovery nearly every pipeline skips, and the reason generated sites all look
+alike: nobody asked what the person could already see. Two rules govern this whole part:
+
+- **Artifacts before questions.** A dropped sketch answers twenty questions. Ask them to
+  hand things over into `builds/<slug>/_intake/` *first*; interview only for what the
+  artifacts leave open.
+- **Show, don't interrogate.** Most people cannot answer "what typography do you want?" and
+  should never be asked it. When they have no vocabulary for an axis, offer to decide and
+  show them rendered options at the stage-04 stop instead (that stop presents samples they
+  can see, not adjectives). "No opinion, show me" is a first-class answer — record it.
+
+1. **V1 — BLOCKING — What can you hand me before I ask anything?**
+   Sketches or wireframes (a photo of paper is fine) · screenshots of anything · sites you
+   love · a site you are half-remaking · the site you hate · your logo · brand fonts ·
+   brand colours · your old site · any leaflet, sign, menu, business card or ad you already
+   use. Into `_intake/`, then the interview fills the gaps.
+   *Cost:* without this ask, the person's actual vision never enters the pipeline and the
+   model substitutes its own defaults — which is the single failure this repo exists to
+   fix. "Nothing to hand over" is an acceptable answer; not asking is not.
+2. **V2 — Is there a website you are basically trying to remake?**
+   *Cost:* people often carry a complete reference in their head and never say so because
+   nobody asked. If yes, get the URL or screenshots; it gets dissected into a card per
+   `shared/references.md` (DNA extracted, never copied) and becomes the strongest design
+   input the build has.
+3. **V3 — Walk me round each reference: what grabbed you?**
+   The type, the colour, the layout, the motion, the way it talks, or the whole thing? One
+   axis per reference is enough. (This deepens question 25's three-likes-one-hate.)
+   *Cost:* a reference without a named axis gets averaged into mush, or worse, copied.
+4. **V4 — What must this site NOT look or feel like?**
+   *Cost:* "my last site was purple" and "nothing corporate" are load-bearing constraints,
+   and they only surface when asked. The anti-vision kills more bad directions than the
+   vision picks good ones.
+5. **V5 — Someone lands on the site for five seconds. What must they know, and what must
+   they feel?**
+   *Cost:* this is the hero brief in one answer — what the H1 says, what sits above the
+   fold, what the first impression argues. Unasked, the hero defaults to a slogan.
+6. **V6 — Three words for how it should feel.** Push past "clean and modern", which is what
+   a site says when nobody decided: cheap or premium? warm or precise? loud or quiet?
+   traditional or new?
+   *Cost:* the stage-04 direction choice needs a temperament to aim at, not a shrug.
+7. **V7 — Colours: do you have exact values, or a thing I can take them from, or no
+   opinion?**
+   Hex values if they exist; "the blue on the van" is a legitimate source (eyedropper the
+   photo and say so in `facts.md`); no opinion routes to rendered options at stage 04.
+   (Deepens question 23.)
+   *Cost:* unasked, the palette comes from the model's defaults, and the client's first
+   reaction is the expensive one.
+8. **V8 — Fonts: do you have brand fonts, and are they licensed for web use?**
+   (Deepens question 22 — the licence half is there and it is blocking for a real
+   business.) No fonts is fine; that is the designer's choice to make at stage 04, made as
+   a real choice with the temperament from V6.
+
+Everything Part V collects lands in `brief.md`'s **Vision** section, and every reference is
+dissected into `builds/<slug>/references.md` per `shared/references.md` before stage 04
+opens.
 
 ---
 
@@ -104,7 +184,8 @@ You will not ask all of this. You will ask all the blocking ones.
     page with type and structure, and that is a decision, not a gap.
 25. **Describe three websites you like, and one you hate.**
     *Cost:* taste is not derivable. Without this, stage 04 designs for its own taste and the
-    client's first reaction is the expensive one.
+    client's first reaction is the expensive one. (Part V turns each answer into a dissected
+    reference card.)
 26. **Anything you are stuck with? A colour, a strapline, a name on the van?**
 
 ## E. What the site has to do
@@ -161,6 +242,10 @@ Some will not. Record it, do not route around it:
 
 Then build what the answers support. A services page with no prices and a clear "ring for a
 quote" is honest. A services page with invented prices is not, and the gate will stop it.
+
+The same applies to Part V: a client with no visual opinions is routed to rendered options
+at stage 04, and the brief records "no references supplied, direction delegated" — which is
+a decision on the record, not a gap someone fills with a default.
 
 ## The one to ask even when you think you are finished
 

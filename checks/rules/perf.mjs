@@ -1,4 +1,4 @@
-// sitewright — performance gates.
+// website-builder — performance gates.
 //
 // Static-file signatures only. This does not measure Core Web Vitals — that
 // needs a real browser on a real connection, and a checker that PREDICTS an LCP

@@ -1,4 +1,4 @@
-// sitewright — the finding model, the console report, and the exit contract.
+// website-builder — the finding model, the console report, and the exit contract.
 //
 // THE EXIT CONTRACT (this is the whole point of the tool — do not soften it):
 //   0  no blockers.            The site may ship.
@@ -105,7 +105,7 @@ export class Report {
 
     const out = [];
     out.push('');
-    out.push(`${c.bold}sitewright${c.off} ${c.dim}— ${this.siteDir}${c.off}`);
+    out.push(`${c.bold}website-builder${c.off} ${c.dim}— ${this.siteDir}${c.off}`);
     out.push('');
 
     const list = this.sorted();

@@ -3,8 +3,8 @@
 **Two halves, and the second one is the one people skip.**
 
 The machine half is `checks/run.mjs`. It is fast, it is repeatable, and its verdict is not
-negotiable. The human half is everything a static file reader cannot see, which is most of
-what makes a site good.
+negotiable. The rendered half is everything a static file reader cannot see, which is most
+of what makes a site good.
 
 Reporting only the machine half is how a build gets called "verified" when nobody has looked
 at it. That is the specific failure this stage is shaped to prevent.
@@ -19,6 +19,7 @@ at it. That is the specific failure this stage is shaped to prevent.
 - `builds/<slug>/facts.md` — for provenance.
 - `builds/<slug>/brief.md` — for the trace-back at the end.
 - `../../shared/design.md` — for the judgment items.
+- `../../shared/review.md` — the ladder (who renders), the composition method, the sweep.
 
 ## Process
 
@@ -43,10 +44,15 @@ node checks/run.mjs builds/<slug>/site --facts builds/<slug>/facts.md
 Then triage the majors. Each is a real defect; some are acceptable with a reason, and the
 reason goes in `verify.md`. "Left as-is" with no reason is not triage.
 
-### Part 2 — the human
+### Part 2 — the rendered half
 
-Open it in a browser. Actually open it. The following cannot be checked any other way, and
-each is a thing that has shipped past a green checker.
+Take the **highest rung of the ladder** in `../../shared/review.md` §1: a browser tool in
+the harness renders and screenshots it; otherwise a wired-in Playwright; otherwise the
+human's eyes with you directing precisely. Whichever ran is recorded in `verify.md` by
+name — a rung that did not run is never reported as if it had.
+
+The following cannot be checked any other way, and each is a thing that has shipped past a
+green checker.
 
 **Look at it (1280×800, then drag the window down to 320px)**
 
@@ -63,12 +69,22 @@ each is a thing that has shipped past a green checker.
 - [ ] **Does the design's stated point of view survive contact with the pixels?** If the
       direction is called "Editorial" and there is no measure discipline, the label is doing
       work the page is not. Re-earn it or rename it.
+- [ ] **Is it still the site from `design.md`?** Tokens verbatim, samples direction
+      honoured, each reference card's steal visible where the spec put it.
 - [ ] **Would a competent studio ship this?** Not "is it inoffensive". Would someone sign it.
+
+Write the per-section `HELD`/`FIX` verdicts per `../../shared/review.md` §2 — the written
+trail is the proof the looking happened.
 
 **Use it**
 
 - [ ] Tab through every page from the top. Can you see where you are, on every single stop?
 - [ ] Reach every menu, accordion and modal with the keyboard alone, and get back out.
+- [ ] **Hover with intent:** nothing fades out or vanishes when hovered; nothing important
+      exists *only* behind a hover (touch has no hover); the primary CTA sits still rather
+      than chasing the scroll.
+- [ ] **Scroll honestly:** content is present without waiting for scroll-triggered fades;
+      the next section peeks above the fold; nothing hijacks the wheel.
 - [ ] Read it at 400% zoom. Does it reflow, or does it scroll sideways?
 - [ ] Turn on the OS "reduce motion" setting and reload. Does anything still move?
 - [ ] Click every navigation item and every footer link. All of them.
@@ -85,13 +101,15 @@ each is a thing that has shipped past a green checker.
 
 **Trace back**
 
-- [ ] Re-read `brief.md`. Is this the site that was asked for, or a competent answer to a
-      different question? This is the check that catches a build that is good and wrong.
+- [ ] Re-read `brief.md` — the Vision section especially. Is this the site that was asked
+      for, the one they could see in their head, or a competent answer to a different
+      question? This is the check that catches a build that is good and wrong.
 
 ### Part 3 — write it down
 
-`verify.md` records: the gate output verbatim, every major and what was decided about it, the
-human checklist with real ticks, and the named verdict.
+`verify.md` records: the gate output verbatim, every major and what was decided about it,
+which review rung ran, the per-section composition verdicts, the human checklist with real
+ticks, and the named verdict.
 
 **A verdict is one of three words and nothing else:**
 
@@ -111,7 +129,7 @@ human checklist with real ticks, and the named verdict.
 - [ ] The scanned path in the gate output is this build.
 - [ ] **Zero blockers. Not "zero blockers or a note explaining them".**
       An earlier version of this line said "or an explicit human decision recorded
-      against each remaining one", which quietly contradicted rule 3 in
+      against each remaining one", which quietly contradicted rule 4 in
       `AGENTS.md` — and it did so in the checklist a person actually follows
       rather than the contract they read once. A blocker is fixed or the finding
       is a bug in the checker. There is no third path, and the exit code is the
@@ -122,6 +140,6 @@ human checklist with real ticks, and the named verdict.
       print PARTIAL rather than PASS for exactly this reason; if `verify.md`
       quotes a PARTIAL, the stage did not finish.
 - [ ] Every skipped gate is named in `verify.md`, not silently absent.
-- [ ] The human half was actually done, by a human or by an agent that actually rendered the
-      page, and `verify.md` says which.
+- [ ] The rendered half was actually done — by a browser tool, a Playwright, or a human —
+      and `verify.md` names which rung.
 - [ ] There is a named verdict.

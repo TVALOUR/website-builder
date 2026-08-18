@@ -1,143 +1,192 @@
-# Website-Builder — Agent Contract
+# website-builder — the contract
 
-You are the agent for the **Website-Builder** workspace. You turn a plain-language
-description of a website into a finished, **distinctively designed** static site by
-working through six stages — one at a time, in order, with human checkpoints.
+**You are building a real website for a real person. Read this before you write anything.**
 
-This one file is the contract for **every** agent harness. Codex, Cursor, and
-anything else that reads `AGENTS.md` natively starts here. Claude Code arrives via
-`CLAUDE.md`, Gemini CLI via `GEMINI.md`, Grok CLI via `GROK.md` — thin pointers
-back into this file. Same pipeline, same rules, whoever is running.
+This one file is the agreement for every coding agent — Claude Code, Codex, Cursor, Gemini
+CLI, Grok CLI, Windsurf, Cline, or a person with a text editor. `CLAUDE.md`, `GEMINI.md` and
+`GROK.md` point here rather than repeating it, because a contract that exists in two files
+becomes two different contracts within a month.
 
-This workspace produces websites that look **made, not generated**. Every site it
-ships must clear the anti-AI-slop bar in `shared/design/`: no default Inter/Roboto,
-no purple-gradient-on-white, no templated hero → 3-features → CTA rhythm.
-World-class human studio quality is the standard.
+---
 
-## The rhythm
+## The one sentence
+
+> **Every AI builds the same website because none of them ask what is in the person's head.**
+
+Two failures, one cause. Handed "build me a website", a model invents the facts (a site about
+businesses *like* this one, with prices and testimonials nobody said) and defaults the design
+(the layout, palette and type it gives everyone). Both happen because it started building
+before it asked. The person had a picture in their head — a sketch, a site they half-remember
+wanting to remake, the blue on their van — and nobody ever saw it.
+
+So the work here is front-loaded, and it is not optional. Most of this repo's value is spent
+before a line of HTML exists.
+
+## The two commands
 
 ```
-01_brief ──► 02_sitemap ──► 03_content ──► 04_design ──► 05_build ──► 06_qa
-◆checkpoint   →auto          →auto          ◆checkpoint   →auto       ◆checkpoint
-purpose       structure      copy           direction     code        ship
+node start.mjs "<project name>"                              # opens a build
+node checks/run.mjs builds/<slug>/site --facts builds/<slug>/facts.md   # decides if it ships
 ```
 
-- **◆ checkpoint — 01 brief, 04 design, 06 QA:** STOP and discuss the work with the
-  human. A checkpoint is a conversation, not a yes/no — surface the choices (for
-  design: direction, palette, fonts, with reasoning and the alternatives you
-  weighed), take their pushback, iterate, then lock the output and move on.
-- **→ auto — 02 sitemap, 03 content, 05 build:** do the stage, sanity-check your own
-  result, post a one-line note, continue. Pause and raise it if something looks
-  wrong (a sitemap that misreads the brief, copy that invents a fact).
+Everything between those two commands is the eight stages below.
 
-Two guarantees that never break: a build always **begins** by agreeing the brief
-(checkpoint 01) and always **ends** with the human approving the built site
-(checkpoint 06). The human can override the rhythm any time: "show me the sitemap"
-gates an auto stage; "run to QA" collapses the middle (checkpoint 06 still holds).
+---
+
+## The six rules that are not negotiable
+
+### 1. Ask before you build — always, without being told to
+
+Any request to build, redesign or remake a website starts at **stage 01 discover**, never at
+code. Stage 01 has two halves and both are mandatory:
+
+- **The vision** — what they see in their head. Ask for artifacts before questions: sketches
+  (a photo of paper is fine), screenshots, reference sites they love or want to remake, the
+  one they hate, brand assets, existing material. Colours, fonts, the feeling. A dropped
+  sketch answers twenty questions; collect it first (`stages/01_discover/questions.md`,
+  part V).
+- **The facts** — what is true. Prices, hours, places, credentials, ownership
+  (`questions.md`, parts A–G).
+
+When the human says "just build it, don't ask me questions", the correct move is neither to
+comply nor to refuse: ask the **smallest set of questions that cannot be answered without
+inventing something about them or defaulting the design**, say that is what you are doing,
+and build exactly what the answers support. The questions are not process. They are the
+difference between their website and a website.
+
+### 2. Never invent a fact about a real business
+
+Not a price, not an opening time, not a testimonial, not a review count, not a year
+established. A missing fact is asked for or left out — there is no third option where it
+stays because it sounds right. `facts.md` holds every claim with its source, and the gate
+fails the build on any claim without a row. This is enforced, not encouraged.
+
+A **personal, portfolio, demo or fictional project** (stage 01 asks which, first) relaxes
+what exists, not what is honest: invented content is declared on the page as fictional, uses
+reserved domains and drama phone ranges, and never wears real-business dress it did not earn.
+`examples/clean-control/NOTES.md` shows the discipline.
+
+### 3. The design comes from their head, not your defaults
+
+References they gave you are dissected into cards before any direction is chosen
+(`shared/references.md`). The direction is picked from a menu, on purpose, against what was
+built before (`shared/directions.md`). Tokens are locked before code. And the design stop
+presents **rendered samples, not adjectives** — the human picks between things they can see.
+If they gave you nothing visual, that is a finding to raise, not a licence to default.
+
+### 4. The gate decides, not your opinion of your work
+
+Exit 0 ships. Exit 1 does not. You do not argue with a blocker and you do not pass `--skip`
+to make one go away. A finding you believe is wrong is a bug in the checker: fix the checker,
+add a fixture that proves it, and say so. Everything the gate cannot see — composition,
+rendered layout, whether it looks *designed* — is in stage 06 as an eyes-on step, honestly
+labelled, and it is not optional either.
+
+### 5. Front end only
+
+Static HTML, CSS and JavaScript. No back end, no database, no accounts, no secrets in the
+client bundle. A contact form points at a hosted form service or a `tel:` link, and stage 01
+asks which. This is a scope boundary, not a limitation to apologise for.
+
+### 6. Write like a person wrote it
+
+The copy gives a generated site away faster than the design does. No em dashes in body copy,
+none of the vocabulary in `checks/rules/copy.mjs`, no "not just X, it's Y", no paragraph that
+could sit unchanged on a competitor's site. Read `shared/writing.md` before stage 03.
+
+---
+
+## The eight stages
+
+Each stage has a `CONTEXT.md` naming its Inputs, Process and Outputs. **Read one at a time.**
+Loading all eight is how an agent starts answering stage 05's question with stage 02's
+information.
+
+| # | Stage | Gate | What it produces |
+|---|-------|------|------------------|
+| 00 | `setup` | once | `config.md` — who you are, defaults, jurisdiction |
+| 01 | `discover` | ◆ **stop** | `brief.md` + `facts.md` — the vision and the sourced facts |
+| 02 | `architect` | → auto | `sitemap.md` — pages, nav, what each page must carry |
+| 03 | `write` | → auto | `content.md` — real copy, every claim tied to a fact |
+| 04 | `design` | ◆ **stop** | `design.md` + rendered direction samples the human picks from |
+| 05 | `build` | → auto | `site/` — the actual files |
+| 06 | `verify` | ◆ **stop** | `verify.md` — the gate output plus what only eyes can judge |
+| 07 | `launch` | ◆ **stop** | `handoff.md` — redirects, DNS, ownership, the test enquiry |
+
+◆ means **stop and talk to the human** — a conversation, not a summary-then-continue.
+→ means do it, sanity-check it yourself, keep going, and pause if something looks wrong.
+
+A build lives in `builds/<slug>/`, one folder per site. `builds/<slug>/STATE.md` is the
+resume point: a new session — same harness or a different one — reads it before anything
+else and continues from its `Next action` line. Update it at every gate.
 
 ## Run modes — pick by capability, not by brand
 
-Different harnesses have different powers. Probe your own **once, at the start of a
-build**, and note the answers in `SESSION.md`. Nothing in this workspace assumes a
-brand — only a capability.
+Probe what your harness can actually do, **once, at build start**, and note the answers in
+`STATE.md`. Never claim a capability you did not exercise; a review that did not run is
+recorded as not run.
 
 | Ask yourself | If yes | If no |
 |---|---|---|
-| **Can I spawn sub-agents?** (a task/agent tool that gives a fresh agent file access) | **Conductor mode** — stay lean, spawn one sub-agent per stage per [`shared/conductor.md`](shared/conductor.md), hold the checkpoints yourself. Preferred when available: each stage's heavy reading stays out of your context, and stages run on cost-matched model tiers ([`_config/model-routing.md`](_config/model-routing.md)). | **Solo mode** — run the stages yourself, one at a time, reading ONLY the current stage's `CONTEXT.md`. Between stages a fresh session is fine and often better: `SESSION.md` carries the state. |
-| **Can I see a rendered page?** (a browser or screenshot tool — Claude-in-Chrome, a Playwright MCP, anything that can screenshot a local site) | Stage 06's visual review runs through it. | The human is the renderer: serve the site and direct their eyes precisely ([`shared/design/visual-review.md`](shared/design/visual-review.md) §1). |
-| **Can I search + fetch the live web?** | Stage 04 runs its live-reference research. | Design from the `design-directions.md` menu alone, and say so in the spec. |
-| **Do I have an image-generation tool?** | Stage 05a may generate assets under [`shared/design/imagery.md`](shared/design/imagery.md). | Real client assets + CSS/SVG only; each manifest asset's named fallback applies. |
+| **Can I spawn sub-agents?** | **Conductor mode** — one sub-agent per stage per [`shared/conductor.md`](shared/conductor.md); you hold the checkpoints. | **Solo mode** — run the stages yourself, one at a time. Not the lesser mode: same pipeline, discipline enforced by you instead of by process boundaries. |
+| **Can I see a rendered page?** (browser / screenshot tool) | Stage 06's eyes-on half and stage 04's rendered samples run through it. | The human is the renderer: serve the site, direct their eyes precisely (`shared/review.md`). |
+| **Can I search and fetch the live web?** | Stage 01/04 dissect reference URLs directly (`shared/references.md`). | Ask the human for screenshots of their references instead. |
+| **Do I have an image-generation tool?** | Stage 05 may generate assets under [`shared/imagery.md`](shared/imagery.md)'s honesty contract. | Real client assets + CSS/SVG/type only. A missing image beats a dishonest one. |
 
-Solo mode is not the lesser mode — it is the same pipeline with the context
-discipline enforced by you instead of by process boundaries. **Never claim a
-capability you did not exercise:** the QA report names which review path actually
-ran, and a visual check that didn't happen is recorded as not done, never assumed.
+## Enforcement
 
-## The one rule that makes this work
+On **Claude Code**, rules 1 and 4 are wired into hooks (`.claude/settings.json`): a build
+mention triggers the stage-01 marching orders, site files cannot be written before the
+build's `brief.md` and `design.md` exist, and a session cannot end while a changed site
+fails the gate. On every other harness the same contract holds by structure instead: the
+entry command creates the build folder, the gate fails closed, and `STATE.md` makes a
+skipped stage visible. If you notice yourself routing around any of this, that is the
+defect this repo exists to fix — stop and run stage 01.
 
-**Read only the files the current stage's `CONTEXT.md` lists, do only that stage's
-job, write only to that stage's `output/`.** Never pre-read the whole repo, other
-stages' references, or `examples/`. This is what keeps context small and output
-sharp — the folder structure is the orchestration; trust it.
+## How to start
 
-Work **one stage per task**. Between stages (especially after a checkpoint), a fresh
-session is fine and often better: `SESSION.md` carries the state, and each stage's
-`CONTEXT.md` is self-contained.
+**Resuming?** If any `builds/*/STATE.md` exists, read it first and continue from its
+`Next action`. Do not re-read earlier stages' contracts; their outputs are on disk.
 
-## Where you are
+**Fresh?**
+
+1. If `config.md` does not exist, run `stages/00_setup/CONTEXT.md` once. It takes a minute.
+2. `node start.mjs "<project name>"` — it creates `builds/<slug>/` and prints the orders.
+3. Read `stages/01_discover/CONTEXT.md` and do only that stage. Stop at the gate. Then read
+   stage 02's contract, and only then.
+
+## What is in here
 
 ```
 website-builder/
-├── AGENTS.md            ← this file: the contract every agent reads
-├── CLAUDE.md · GEMINI.md · GROK.md  ← per-harness pointers into this file
-├── SESSION.md           ← live build state — read FIRST when resuming
-├── _intake/             ← drop the client's brief/assets here (stage 01 reads it)
-├── _clients/            ← queued briefs, one folder per client (git-ignored)
-├── setup/questionnaire.md  ← one-time owner setup
-├── _config/             ← author/stack/deploy config + the model-tier matrix
-├── shared/              ← conductor recipe, ICM conventions, design contract, copy method, legal templates
-│   └── design/          ← anti-slop rules, pre-ship gates, visual review, slop-gate script
-├── sites/               ← finished sites + registry + variety ledger
-├── examples/            ← one fictional sample site (the design bar, not a pipeline log)
-└── stages/01_brief … 06_qa/   ← each: CONTEXT.md (contract) · references/ · output/
+├── AGENTS.md          ← this file: the contract, for any agent
+├── CLAUDE.md · GEMINI.md · GROK.md ← per-harness entries pointing here
+├── start.mjs          ← opens a build: builds/<slug>/ + STATE.md + marching orders
+├── stages/            ← one folder per stage, each with a CONTEXT.md
+├── shared/            ← writing · design · directions · references · review · imagery · conductor · legal
+├── checks/            ← the gate: run.mjs, ten rule families, selftest, zero dependencies
+├── profiles/          ← jurisdiction lives in a file, not a hardcode (uk.mjs today)
+├── templates/         ← legal pages, consent, _headers, robots, structured data, STATE.md
+├── examples/          ← clean-control (passes) · dishonest-control · negative-control · bare-control (fail on purpose)
+├── .claude/           ← the Claude Code hooks (gate.mjs) — see CLAUDE.md
+└── builds/            ← your work, one folder per site, git-ignored
 ```
 
-## Routing — where to go
+## Honesty about what this cannot do
 
-| The human wants to… | Go to |
-|---|---|
-| Resume an in-progress build | `SESSION.md`, then the stage it marks **NEXT** |
-| Start a brand-new website | `stages/01_brief/CONTEXT.md` |
-| Hand over a client brief / assets first | drop in `_intake/` (see `_intake/README.md`), then stage 01 |
-| Configure the workspace (first time) | `setup/questionnaire.md` — needed only while the owner-name row in `_config/website-builder-config.md` still reads `<<OWNER_NAME>>` |
-| Revise structure / copy / look of the current build | re-enter at stage 02 / 03 / 04 |
-| Rebuild from approved inputs | `stages/05_build/CONTEXT.md` |
-| QA and ship | `stages/06_qa/CONTEXT.md` |
-| See how conductor mode spawns stages | `shared/conductor.md` |
-| See which model tier runs each stage | `_config/model-routing.md` |
-| Understand the file/layer conventions (Layers 0–4) | `shared/icm-conventions.md` |
-
-Stages are resumable: you can re-enter at any stage as long as the earlier stages'
-outputs exist. Before stage 01 of a new build, read
-`shared/design/anti-slop-rules.md` once — it binds every stage — and check
-`_config/website-builder-config.md`: an owner-name row still reading
-`<<OWNER_NAME>>` means setup has never run; offer `setup/questionnaire.md`
-(two minutes) before starting.
-
-## Session state — SESSION.md
-
-Update `SESSION.md` (workspace root) at every gate: build starts → create it with
-the site slug, tier, run mode, and capability answers; a stage completes → tick it,
-record the checkpoint decision in one line, mark the next stage **NEXT**; build
-promotes → mark COMPLETE. Overwrite in place, keep it under ~40 lines. A fresh
-session — same harness or a different one — reads it first and resumes exactly
-where the last one stopped. That is what makes the workspace shareable across
-agents mid-build: the state lives in files, never in one agent's memory.
-
-## Hard rules (every stage)
-
-- **Invent nothing.** All facts about the business — names, prices, testimonials,
-  credentials, addresses — come from the brief or the client's materials. A missing
-  fact becomes a labelled `[NEEDS: …]` marker, never a guess.
-- **The design spec is law at build time.** Stage 05 improvises no colour, font, or
-  layout; every value traces to a token stage 04 locked.
-- **Visual QA is honest about what you can see.** Stage 06's visual review runs
-  through a browser/screenshot tool if your harness has one, otherwise through the
-  **human's eyes** (serve the site, tell them what to look at, ask targeted
-  questions). Never claim a visual check you could not perform — the QA report
-  records which path ran.
-- **Promotion is gated.** A site reaches `sites/<name>/` only after stage 06 runs
-  `shared/design/pre-ship-gates.md` — with the slop-gate script when Node is
-  available, or the checklist's manual pass recorded as such without it — and
-  the human approves. Push to a remote only when the owner explicitly asks.
-
-## Models
-
-- **Conductor mode:** spawn each stage on the tier
-  [`_config/model-routing.md`](_config/model-routing.md) names — cheap for the
-  mechanical stages, strongest for design. That file speaks in tiers
-  (cheap / standard / strongest), with your ecosystem's names mapped in.
-- **Solo mode / one model per session:** if your harness lets you choose a model
-  per session, use the strongest reasoning model for stage 04 (design) and stage
-  06 (QA) sessions — the judgement stages; anything current handles 02 (sitemap).
-  One model throughout is also fine — the contract holds regardless.
+- **The gate is static.** It reads files. It cannot see a rendered page, so it cannot judge
+  whether the layout is good or the hero is balanced. Those live in stage 06 as an eyes-on
+  step, labelled as one.
+- **Automated accessibility checking finds roughly a third of real WCAG failures**, and this
+  covers a subset of that third. A clean run means the cheap failures are gone, not that the
+  site is accessible.
+- **`facts.md` cannot be verified by a machine.** The gate proves every claim traces to a
+  row. It cannot prove the row is true. That gap closes with a human reading the file back
+  to the client before launch, which is stage 07.
+- **Hooks exist only where the harness has them.** Elsewhere, an agent determined to skip
+  the pipeline can. The structure makes skipping visible and the gate makes it fail; it
+  cannot make it impossible.
+- **None of this is legal advice.** `profiles/uk.mjs` encodes what a competent developer
+  ships by default so a small business is not obviously exposed. It is UK and EU shaped;
+  other jurisdictions are a profile file nobody has written yet, and stage 00 asks rather
+  than assumes.

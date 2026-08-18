@@ -1,4 +1,4 @@
-// sitewright — design gates: does it look made, or generated?
+// website-builder — design gates: does it look made, or generated?
 //
 // PROVENANCE: the mechanically-checkable subset here descends from the
 // anti-slop gate script in Tom Mackellar's website-builder workspace, which in

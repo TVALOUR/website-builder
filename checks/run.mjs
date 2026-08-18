@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// sitewright — the gate.
+// website-builder — the gate.
 //
 //   node checks/run.mjs <site-dir> [options]
 //

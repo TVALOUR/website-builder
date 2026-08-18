@@ -1,4 +1,4 @@
-name: sitewright
+name: checks
 
 on:
   push:
