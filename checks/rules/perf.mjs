@@ -107,7 +107,7 @@ export async function run(ctx, report) {
       report.add('perf/font-render-blocking', MINOR,
         'Google Fonts stylesheet with no preconnect to fonts.gstatic.com',
         { file: shown },
-        'Better still: self-host the woff2 files. It removes two handshakes, the render-blocking stylesheet, and the GDPR question in one move.');
+        'Better still: self-host the woff2 files. It removes two handshakes, the render-blocking stylesheet, and the data-protection question (whatever your jurisdiction calls it) in one move.');
     }
 
     const imgs = tags(raw, 'img');

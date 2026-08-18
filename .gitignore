@@ -17,3 +17,9 @@ builds/*/
 # Local scratch
 tmp/
 sites/
+
+# Your own stage-00 answers, including your name and email. config.example.md is
+# the shipped template; this is the filled-in copy and it is yours, not the
+# repo's. On a fork where a team genuinely wants one shared set of defaults,
+# delete this line and commit it.
+config.md

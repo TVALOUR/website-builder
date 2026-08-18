@@ -439,17 +439,38 @@ export async function run(ctx, report) {
     // matched fragment ("Registered with t") instead blocked a fixture whose
     // claim was correctly sourced two lines away — the cry-wolf failure this
     // file warns about, produced by the check meant to prevent it.
+    // THE TOKEN THAT BACKS THE CLAIM MUST BE THE CLAIM'S DISCRIMINATOR.
+    //
+    // "Any capitalised word within 90 characters also appears in facts.md" is
+    // far too weak a test for "this specific claim is sourced", because the
+    // business's OWN NAME is within 90 characters of everything and is in
+    // facts.md by definition. Instrumented on a real fixture: "Licensed by the
+    // State of Ohio" downgraded from BLOCKER to MAJOR on the strength of the
+    // token "Colwell" — the trading name — appearing in the ledger. Every
+    // regulated claim written anywhere near the business name was auto-excused,
+    // and the business name is on every page.
+    //
+    // A registration number, a register acronym or the claimed figure is what
+    // distinguishes THIS claim. A place name or a first name is not. Where no
+    // discriminator can be extracted, the claim stays a BLOCKER and says why —
+    // "could not verify" is the honest output, not a downgrade.
     const context = hits[0].context || hits[0].sample;
-    const tokens = (context.match(/\b[A-Z]{2,}\b|\b\d{3,}\b|\b[A-Z][a-z]{3,}\b/g) || [])
-      .filter((t) => !/^(The|This|We|Our|Registered|Number|With|And)$/.test(t));
+    const identityRows = (ledgerText.match(/^\|[^|\n]*(?:trading\s*name|business\s*name|owner|proprietor|town|city|area)[^|\n]*\|([^|\n]*)\|/gim) || [])
+      .join(' ');
+    const identityTokens = new Set((identityRows.match(/\b[A-Z][a-z]{2,}\b|\b[A-Z]{2,}\b/g) || []).map((t) => norm.text(t)));
+    const discriminators = (context.match(/\b[A-Z]{2,}\b|\b\d{3,}\b/g) || [])
+      .filter((t) => !/^(The|This|We|Our|Registered|Number|With|And)$/i.test(t))
+      // The business's own identity cannot vouch for a claim about a register.
+      .filter((t) => !identityTokens.has(norm.text(t)));
     const lt = norm.text(ledgerText || '');
-    const backed = tokens.length > 0 && tokens.some((t) => lt.includes(norm.text(t)));
+    const backed = discriminators.length > 0 && discriminators.some((t) => lt.includes(norm.text(t)));
+    const tokens = discriminators;
     report.add('legal/regulated-claim', backed ? MAJOR : BLOCKER,
       `${what} — "${hits[0].sample.slice(0, 45)}" on ${where}${backed ? ' (a ledger row mentions it)' : ', with no matching row in facts.md'}`,
       { file: hits[0].file, count: total },
       backed
-        ? `${why} A row mentions it; confirm the row's source is real before this ships.`
-        : `${why} Nothing in facts.md backs this. Add a sourced row, or take the claim off the site.`);
+        ? `${why} A ledger row carries this claim's own identifier (${discriminators.find((t) => lt.includes(norm.text(t)))}); confirm the row's source is real before this ships.`
+        : `${why} Nothing in facts.md backs this${discriminators.length ? '' : ', and no registration number, register name or figure could be extracted from it to check against — which is itself worth fixing on the page'}. Add a sourced row, or take the claim off the site.`);
   }
 
   // ------------------------------------------------ copyright year

@@ -113,6 +113,26 @@ it is currently in your name, transfer it or write down the date you will.
   changed shows up.
 - Diary a check for 7 days later: did a real enquiry arrive, and does search still find them.
 
+## The legal handover — say what the pages are, in writing
+
+The gate tells YOU that a profile is researched-not-verified, on every run. The client never sees
+that, and the client is the one who will be asked about it. `handoff.md` carries a section, and
+these are its required lines:
+
+- **Jurisdiction:** the profile id, its `provenance.status`, and its `lawLastVerified` date.
+- **What the legal pages are:** built to a competent default from published sources, and **not
+  reviewed by a lawyer**. Say it in that many words.
+- **The profile's own caveats**, verbatim from `provenance.caveats` — the gate prints them at the
+  end of every run under KNOWN LIMITS OF THIS PROFILE. Paste them.
+- **The open `legal/local-rule` items**, with the ones the profile rates blocker or major named
+  individually. These are the obligations no static file can decide, and this is the read-back the
+  checker's own finding text promises happens here.
+- **One plain sentence:** "These pages are a competent starting point, not legal advice. If you are
+  in a regulated trade, or you are unsure, have somebody local read them before you rely on them."
+
+`facts.md` gets read back the same way, and for the same reason: the gate proves every claim traces
+to a row, and only a human can confirm the row is true.
+
 ## Outputs
 
 - `builds/<slug>/redirects.md` and the host-format redirect file in `site/`

@@ -87,7 +87,7 @@ node checks/run.mjs builds/<slug>/site --facts builds/<slug>/facts.md
   ✗ BLOCKER  legal/privacy-policy    no privacy page found
 ```
 
-Exit `0` ships. Exit `1` does not. **Eleven rule families, 149 gates**, no npm install, no
+Exit `0` ships. Exit `1` does not. **Twelve rule families, 152 gates**, no npm install, no
 lockfile, no `node_modules`:
 
 | Family | What it will not let past |
@@ -260,7 +260,7 @@ start.mjs      opens a build: builds/<slug>/ + asset folders + brief skeleton + 
 assets.mjs     the asset desk: indexes what the client sent, writes and checks the manifest
 stages/        one folder per stage, each a CONTEXT.md
 shared/        writing · design · directions · references · review · imagery · conductor · legal
-checks/        run.mjs + 11 rule families + brief.mjs + selftest    zero dependencies
+checks/        run.mjs + 12 rule families + brief.mjs + case suites + selftest   zero deps
 profiles/      one file per country + _base.mjs + the research protocol in README.md
 templates/     brief skeleton, legal pages, consent banner, _headers, robots, structured data
 examples/      clean-control (passes) · dishonest / negative / bare / assets controls (fail on purpose)

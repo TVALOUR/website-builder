@@ -18,19 +18,18 @@
 // (see uk.mjs's header — three revoked/rewritten UK citations sat undetected
 // because nothing recorded a verification date).
 //
-// SCHEMA NOTE, read before wiring this in: this file follows the split
-// architecture described in profiles/_base.mjs (universal nonEssentialScripts
-// / consentBeforeLoad / claimPatterns live in _base.mjs; a country profile
-// supplies only consentModel, pages, disclosure and claimCitations). As of
-// this writing checks/rules/legal.mjs does NOT merge _base.mjs — it reads a
-// profile's OWN top-level nonEssentialScripts/consentBeforeLoad/regulatedClaims
-// and disclosure.limited, which is the shape uk.mjs still uses. Running this
-// file through the checker as-is will therefore throw (L.regulatedClaims and
-// L.nonEssentialScripts are undefined) until the loader is updated to merge
-// _base.mjs the way its own header describes, or this file is additionally
-// given the old flat shape. Flagged, not silently worked around — a decision
-// for whoever wires the CA profile in, not a call this file should make
-// unilaterally by guessing which shape "wins".
+// SCHEMA NOTE: this file follows the split described in profiles/_base.mjs —
+// the universal nonEssentialScripts, consentBeforeLoad and claimPatterns live
+// there, and a country profile supplies only consentModel, pages, disclosure
+// and claimCitations. checks/lib/profile.mjs merges the two, and CI exercises
+// this profile on every push.
+//
+// (An earlier version of this comment said the loader did not merge, so this
+// file "will therefore throw". That was true when it was written and was fixed
+// the same day, and it sat here afterwards asserting a defect that no longer
+// existed — inside a caveat list the report prints to clients. Nothing re-reads
+// a profile's prose when the code changes. If you edit the loader, grep the
+// profiles for claims about it.)
 
 export default {
   id: 'ca',
@@ -77,7 +76,7 @@ export default {
       'Alberta PIPA and BC PIPA each carry their own website-facing detail (slightly different consent wording, breach-notice thresholds) that this profile does not separately encode. It treats PIPA-governed Canada as PIPEDA-equivalent for this checker\'s purposes, which is a simplification a business operating solely within Alberta or BC should not fully rely on.',
       'The claim that the OPC has shifted toward a "GDPR-aligned" posture on tracking-technology consent (requiring meaningful, closer-to-express consent for advertising/profiling pixels even outside Quebec) rests on secondary commentary, not a primary OPC guidance document independently re-fetched in full during this research pass — the OPC\'s own online-behavioural-advertising guidance page returned a 404 when fetched directly. Treat the stricter reading as the safer default, not as independently confirmed OPC text.',
       'Nothing in this file was reviewed by a lawyer called to the bar in any Canadian province or territory. It is a competent-developer default assembled by an AI agent from primary and secondary sources — not legal advice, and not a substitute for one when the stakes are real (a regulated trade, real e-commerce, a business that already has a Quebec footprint).',
-      'This file was written against the schema described in profiles/_base.mjs (claimCitations, disclosure.corporation/soleTrader/all). As of 2026-08-18, checks/rules/legal.mjs does not merge _base.mjs and still reads a profile\'s own top-level nonEssentialScripts/consentBeforeLoad/regulatedClaims and disclosure.limited — the shape uk.mjs uses. This file will not run cleanly through the checker until that loader gap is closed; see the header comment above and profiles/_research/ca.md.',
+      'A significant share of this profile\'s citations are law-firm bulletins and regulator summaries rather than the consolidated statute. That is how the greenwashing entry came to repeat two things that had been legislated away by the time it was written — see the correction note on claimCitations.environmental. Treat any claim here that is not sourced to laws-lois.justice.gc.ca or legisquebec.gouv.qc.ca as needing a primary check before it is quoted to a client.',
       'CASL\'s implied-consent time windows and record-keeping duty are documented here for completeness but describe an EMAIL-MARKETING operational practice, not a website-content gate — nothing in checks/rules/legal.mjs currently checks CASL compliance at all, and this profile does not invent a check for it.',
     ],
   },
@@ -224,7 +223,26 @@ export default {
       guarantee: 'A guarantee stated on the site is both a contractual term the business is held to AND, if the business does not actually honour it, a false-or-misleading representation under s.74.01. Only ship one the owner has agreed to.',
       insurance: 'Substantiable in the same way as an accreditation claim — s.74.01 catches a false claim of being insured, and a commercial or trade client asking to see the certificate before hiring is routine, not paranoid.',
       years: 'A specific years-in-business or years-of-experience number is checkable against the relevant provincial corporate/business-name registry or the domain\'s registration date, and is a "representation to the public" under s.74.01 if it is wrong. Confirm it before it ships.',
-      environmental: 'Greenwashing — Competition Act s.74.01(b.1) (product-level environmental-benefit claims) and s.74.01(b.2) (business/business-activity-level claims), both added by Bill C-59 and in force since 20 June 2024. BOTH ARE REVERSE-ONUS: the business, not the Bureau, must already hold "adequate and proper testing" (product claims) or "adequate and proper substantiation in accordance with internationally recognized methodology" (business claims) BEFORE the claim is published, not assembled after a complaint. "Internationally recognized methodology" is undefined in the Act itself as of this review (see caveats) — treat any such claim as unsafe to ship unless the business can name the actual methodology used. Private parties gained the right to bring a case directly to the Competition Tribunal, with leave on a public-interest test, on 20 June 2025.',
+      // CORRECTED 2026-08-18 after an independent check against the consolidated
+      // statute. The earlier text was assembled from law-firm bulletins written
+      // in 2024 and repeated two things that had since been legislated away —
+      // in the direction that OVERSTATES the client's obligation and exposure,
+      // which is the worse direction to be wrong in.
+      //
+      //   * The "internationally recognized methodology" wording was STRUCK from
+      //     s.74.01(1)(b.2) by 2026 c.3 s.597 (Budget Implementation Act, royal
+      //     assent 26 March 2026). The test is now "adequate and proper
+      //     substantiation, the proof of which lies on the person making the
+      //     representation".
+      //   * Private access does NOT reach (b.2): s.103.1(6.2), added by
+      //     2026 c.3 s.598, bars leave for an application made on the basis of
+      //     that paragraph.
+      //
+      // Sources: laws-lois.justice.gc.ca/eng/acts/C-34/section-74.01.html and
+      // /section-103.1.html, plus the Competition Bureau's own environmental-
+      // claims page confirming the removal. This is the case for verifying
+      // against the consolidated statute rather than a firm's summary.
+      environmental: 'Greenwashing — Competition Act s.74.01(1)(b.1) (product-level environmental-benefit claims, "adequate and proper testing") and s.74.01(1)(b.2) (business or business-activity-level claims, "adequate and proper substantiation"), both added by Bill C-59 and in force since 20 June 2024. BOTH ARE REVERSE-ONUS: the business, not the Bureau, must already hold the substantiation BEFORE the claim is published, not assemble it after a complaint. The "internationally recognized methodology" requirement that accompanied (b.2) was REPEALED by 2026 c.3 s.597 — do not quote it to a client. Private access under s.103.1 does not reach (b.2) (s.103.1(6.2), 2026 c.3 s.598), so the exposure here is Bureau enforcement, not a private applicant.',
     },
 
     extras: [

@@ -456,13 +456,25 @@ console.log(`  coverage: ${pct}% of ${declaredKeys.length} declared pairs have a
 
 // Written to disk so README numbers are DERIVED rather than typed. They were
 // typed, and they were stale within a day.
+//
+// BELOW the failure check, deliberately: the previous version wrote a healthy
+// artifact — "provenPairs: 140, coveragePercent: 94" — from a run that ended
+// "1 assertion(s) failed". A number published by a red test is worse than no
+// number, because it is quoted as though a green one produced it.
+if (failures) {
+  console.log(`\n${failures} assertion(s) failed. coverage.json NOT updated — the numbers a red run produces are not numbers.\n`);
+  process.exit(1);
+}
+
 writeFileSync(join(root, 'checks', 'coverage.json'), JSON.stringify({
   gates: allGates.length,
   declaredPairs: declaredKeys.length,
   provenPairs: firedKeys.size,
   documentedUnprovable: documented.length,
   coveragePercent: pct,
-  families: 11,
+  // Derived from --list, not typed. The previous literal said 10 while the
+  // repo shipped 11, and the README quoted the file as though it were derived.
+  families: new Set(allGates.map((g) => g.id.split('/')[0])).size,
 }, null, 2) + '\n');
 console.log('  (written to checks/coverage.json — README numbers come from here)\n');
 

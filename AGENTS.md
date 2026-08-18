@@ -241,10 +241,10 @@ website-builder/
 ├── assets.mjs         ← the asset desk: indexes what the client sent, writes the manifest
 ├── stages/            ← one folder per stage, each with a CONTEXT.md
 ├── shared/            ← writing · design · directions · references · review · imagery · conductor · legal
-├── checks/            ← the gate: run.mjs, eleven rule families, brief.mjs, selftest, zero deps
+├── checks/            ← the gate: run.mjs, twelve rule families, brief.mjs, case suites, zero deps
 ├── profiles/          ← one file per country + _base.mjs + the research protocol in README.md
 ├── templates/         ← legal pages, consent, _headers, robots, structured data, STATE.md
-├── examples/          ← clean-control (passes) · dishonest-control · negative-control · bare-control · assets-control (fail on purpose)
+├── examples/          ← clean-control (passes) · dishonest · negative · bare · assets · managed controls (fail on purpose)
 ├── .claude/           ← the Claude Code hooks (gate.mjs) — see CLAUDE.md
 └── builds/            ← your work, one folder per site, git-ignored
 ```

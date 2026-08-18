@@ -45,7 +45,11 @@ export default {
     lawLastVerified: '2026-08-18',
     nextReview: '2027-02-18',
     sources: [
-      { claim: 'PECR reg.6 as rewritten by DUAA 2025 Sch A1, in force 5 Feb 2026', url: 'https://www.legislation.gov.uk/ukpga/2025/18/schedule/A1', accessed: '2026-08-18' },
+      // The DUAA schedule URL 404s: Schedule A1 is inserted INTO PECR (SI 2003/2426),
+      // not carried as a schedule of the DUAA. Caught by a link check, which is now
+      // part of the review step — the substance was right and the citation was not.
+      { claim: 'PECR (SI 2003/2426) as amended, including the Sch A1 consent exceptions', url: 'https://www.legislation.gov.uk/uksi/2003/2426/contents', accessed: '2026-08-18', class: 'primary' },
+      { claim: 'Commencement of the DUAA 2025 PECR amendments, 5 Feb 2026 (SI 2026/82)', url: 'https://www.legislation.gov.uk/uksi/2026/82/contents/made', accessed: '2026-08-18', class: 'primary' },
       { claim: 'DMCC Act 2024 Part 4 Ch.1, in force 6 Apr 2025, replacing CPUT 2008', url: 'https://www.legislation.gov.uk/ukpga/2024/13/part/4', accessed: '2026-08-18' },
       { claim: 'Trading disclosures on a website — SI 2015/17, which revoked the 2008 Regs', url: 'https://www.legislation.gov.uk/uksi/2015/17/made', accessed: '2026-08-18' },
       { claim: 'Companies Act 2006 s.82 (trading disclosures power)', url: 'https://www.legislation.gov.uk/ukpga/2006/46/section/82', accessed: '2026-08-18' },

@@ -82,7 +82,31 @@ function parseRows(text) {
   return rows;
 }
 
-function render(slug, rows, policy) {
+/**
+ * Prose the human wrote, preserved across a rescan.
+ *
+ * `scan` rebuilt the whole file from a template every time and only table CELLS
+ * survived. So the "Deliberately absent" section — whose entire job is to stop a
+ * later session generating what the client does not have — was replaced with its
+ * own placeholder on the next scan. The file header claimed "safe to re-run, it
+ * never overwrites a filled cell": true of cells, false of the one paragraph
+ * that mattered most.
+ */
+const ABSENT_PLACEHOLDER = '<Anything the build decided NOT to have — no team photo because nobody has one, '
+  + 'no premises shot because they work from a van.\nWrite it here so a later session does not "helpfully" generate one.>';
+
+function keepProse(text, heading, fallback) {
+  if (!text) return fallback;
+  const re = new RegExp(`^## ${heading}\\s*\\n([\\s\\S]*?)(?=\\n## |$)`, 'm');
+  const m = re.exec(text);
+  if (!m) return fallback;
+  const body = m[1].trim();
+  // An untouched placeholder is not prose worth keeping.
+  if (!body || /^<[\s\S]*>$/.test(body)) return fallback;
+  return body;
+}
+
+function render(slug, rows, policy, previous) {
   const widths = HEADER.map((h, i) => Math.max(h.length, ...[...rows.values()].map((r) => (r[i] || '').length)));
   const line = (cells) => `| ${cells.map((c, i) => String(c || '').padEnd(widths[i])).join(' | ')} |`;
   const sep = `|${widths.map((w) => '-'.repeat(w + 2)).join('|')}|`;
@@ -127,8 +151,7 @@ ${open.length
 
 ## Deliberately absent
 
-<Anything the build decided NOT to have — no team photo because nobody has one, no premises shot
-because they work from a van. Write it here so a later session does not "helpfully" generate one.>
+${keepProse(previous, 'Deliberately absent', ABSENT_PLACEHOLDER)}
 `;
 }
 
@@ -159,7 +182,8 @@ function scan(slug) {
     added++;
   }
 
-  writeFileSync(manifestPath, render(slug, existing, policy));
+  const previous = existsSync(manifestPath) ? readFileSync(manifestPath, 'utf8') : '';
+  writeFileSync(manifestPath, render(slug, existing, policy, previous));
 
   console.log('');
   console.log(`builds/${slug}/assets/  — ${FOLDERS.length} folders ready`);

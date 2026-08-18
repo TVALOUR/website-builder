@@ -138,7 +138,7 @@ export async function run(ctx, report) {
     report.add('security/form-destination', MAJOR,
       `enquiries are processed by ${name}`,
       {},
-      `${name} is a data processor handling your client's customers' personal data. Under UK GDPR Art.28 that needs a processor agreement, and the privacy policy must say the data goes there and roughly where it is stored. Check they publish a DPA, and name them in the policy. Also: send one real test submission and confirm it lands in the owner's inbox — silent failure is the norm when a key is wrong.`);
+      `${name} is a data processor handling your client's customers' personal data. In most privacy regimes that makes them a processor and needs a written data-processing agreement (UK/EU GDPR Art.28 is the strictest version; check what your jurisdiction calls it), and the privacy policy must say the data goes there and roughly where it is stored. Check they publish a DPA, and name them in the policy. Also: send one real test submission and confirm it lands in the owner's inbox — silent failure is the norm when a key is wrong.`);
     break;
   }
 

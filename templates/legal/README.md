@@ -33,5 +33,5 @@ A gap is `[NEEDS: …]` in `facts.md`, and the gate refuses to ship it.
 
 These are UK/EU shaped. The requirements live in `profiles/uk.mjs`, not in this
 folder, so a new jurisdiction is a profile plus a set of skeletons — not a
-rewrite of the pipeline. Nobody has written another one yet, and the repo says so
+rewrite of the pipeline. Five jurisdictions ship now (uk, us, eu, ca, au) plus intl-baseline, and the templates below are still UK/EU-shaped: they are a starting point for a non-UK build, not a finished one. profiles/README.md has the protocol
 rather than implying these travel.

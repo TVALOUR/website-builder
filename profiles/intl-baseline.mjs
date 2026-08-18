@@ -69,9 +69,12 @@ export default {
         // 'if-collects-personal-data' is true nearly everywhere there is a
         // privacy law at all, and a contact form or a mailto is collection.
         required: 'if-collects-personal-data',
-        why: 'Over 140 jurisdictions now have a comprehensive privacy law, and essentially all of them require '
-          + 'a notice once personal data is collected. A contact form, an email link or an analytics script is '
-          + 'collection. Which law applies here is not encoded — check locally.',
+        why: 'Most jurisdictions with a privacy law require a notice once personal data is collected, and a '
+          + 'contact form, an email link or an analytics script is collection. MOST, not all: this repo ships a '
+          + 'counter-example — Australia\'s small business exemption (Privacy Act s.6D) puts a business under the '
+          + 'turnover threshold outside the Act entirely, and profiles/au.mjs is built around it. So this is the '
+          + 'defensible default for an unknown country, not a statement about yours. Which law applies here is '
+          + 'not encoded; check locally.',
         mustMention: [
           [/\b(what|which)\s+(data|information)|we\s+collect|personal\s+(data|information)/i, 'what data is collected'],
           [/\b(why|purpose|use\s+(it|your)|in\s+order\s+to)\b/i, 'why it is collected'],

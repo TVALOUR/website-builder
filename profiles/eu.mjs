@@ -514,11 +514,19 @@ export default {
 
     // ------------------------------------------------------------------ extras
     //
-    // Jurisdiction-specific rules a human must confirm. HONESTY NOTE: at the
-    // time of writing checks/rules/legal.mjs declares a `legal/local-rule` gate
-    // but nothing in it reads this array, so these are documentation for a human
-    // reviewer today, not enforced gates. That is recorded in
-    // provenance.caveats rather than left for someone to discover.
+    // Jurisdiction-specific rules a human must confirm.
+    //
+    // HONESTY NOTE, corrected: `legal/local-rule` DOES read this array now.
+    // Entries carrying a `pattern` are real probes and fire at their declared
+    // severity; entries without one cannot be decided by a static file, so they
+    // are collected into a single MINOR listing every one of them, with the
+    // severity the profile assigned printed beside each. That means a
+    // blocker-rated entry here does NOT stop a ship on its own — it is on the
+    // list stage 07 reads back to the client, and a blocker-rated one nobody has
+    // checked is the reason a launch waits.
+    //
+    // Fourteen separate minors saying "confirm this by hand" would be a wall
+    // people scroll past, which is why they arrive as one finding.
     extras: [
       {
         id: 'eu/derive-member-state-profile',
