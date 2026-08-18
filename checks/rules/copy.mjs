@@ -315,7 +315,7 @@ export async function run(ctx, report) {
         report.add('copy/title-tag', MINOR, `<title> is ${t.length} chars — truncates in search results`, { file: shown },
           'Aim for 50-60 characters, front-loaded with the thing people search for.');
       }
-      if (/^(home|home\s*page|untitled|document|new\s+page|website|web\s*site|my\s+site|index|landing\s+page|site\s+title|welcome)$/i.test(t.trim())) {
+      if (/^(home|home\s*page|untitled|document|new\s+page|website|web\s*site|my\s+site|index|landing\s+page|site\s+title|welcome)$/i.test(t.trim().replace(/[\s.!|\u2013\u2014-]+$/, ''))) {
         report.add('copy/title-default', MAJOR,
           `<title> is "${t.trim()}" — the tab, the search result and every shared link say nothing`,
           { file: shown },

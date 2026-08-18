@@ -10,9 +10,15 @@ const SKIP_DIRS = new Set([
   'dist', 'build', '.svelte-kit', '__pycache__', '.venv', 'venv',
 ]);
 
+/** Mutable scan stats: run.mjs resets and reports these, so a symlinked
+ *  page is a stated limitation instead of a silent omission. */
+export const walkStats = { symlinks: 0 };
+
 /**
  * Recursively collect files under `dir` whose name ends with one of `exts`.
- * Symlinks are not followed (statSync on a broken link would throw; we skip).
+ * Symlinks are not followed (statSync on a broken link would throw; we skip)
+ * — but they are COUNTED, because a static host dereferences and serves them
+ * while this scanner would otherwise silently see nothing.
  */
 export function walk(dir, exts, out = []) {
   let entries;
@@ -22,7 +28,7 @@ export function walk(dir, exts, out = []) {
     return out;
   }
   for (const entry of entries) {
-    if (entry.isSymbolicLink()) continue;
+    if (entry.isSymbolicLink()) { walkStats.symlinks++; continue; }
     const full = join(dir, entry.name);
     if (entry.isDirectory()) {
       if (SKIP_DIRS.has(entry.name)) continue;

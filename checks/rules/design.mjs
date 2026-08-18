@@ -34,7 +34,7 @@
 
 import { read, displayPath } from '../lib/fs.mjs';
 import { loadStylesheets, collectTokens, resolveVar, parseColor, relLuminance } from '../lib/css.mjs';
-import { tags, attr } from '../lib/html.mjs';
+import { tags, attr, decodeEntities } from '../lib/html.mjs';
 import { BLOCKER, MAJOR, MINOR } from '../lib/report.mjs';
 
 export const gates = [
@@ -332,12 +332,23 @@ export async function run(ctx, report) {
     // design/emoji-icons (class-named icon elements) and from emoji in prose,
     // which is fine. Source: the vibe-coded-website survey's strongest single
     // tell (2026-08-18; review 2027-02-18).
+    // Entities decoded first (&#128640; is the same rocket), stars and check
+    // marks excluded (ordinary typography in ratings and lists), and
+    // anchor-styled buttons covered - all three were demonstrated gaps.
+    const UI_EMOJI = /[\u{1F000}-\u{1FAFF}]|[\u2728\u2764\u2B50\u26A1\u2600-\u2604\u260E\u2615\u2699\u26A0\u2708]\uFE0F?/u;
+    const uiText = (s) => decodeEntities(s.replace(/<[^>]*>/g, ' '));
     const uiEmoji = [];
     for (const m of raw.matchAll(/<(h[1-6]|button)\b[^>]*>([\s\S]*?)<\/\1\s*>/gi)) {
-      if (EMOJI.test(m[2].replace(/<[^>]*>/g, ' '))) uiEmoji.push(m[1].toLowerCase());
+      if (UI_EMOJI.test(uiText(m[2]))) uiEmoji.push(m[1].toLowerCase());
+    }
+    for (const m of raw.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a\s*>/gi)) {
+      const attrs = m[1];
+      if (!/class\s*=\s*["'][^"']*\b(btn|button|cta)[\w-]*/i.test(attrs)
+        && !/role\s*=\s*["']button["']/i.test(attrs)) continue;
+      if (UI_EMOJI.test(uiText(m[2]))) uiEmoji.push('a.btn');
     }
     for (const m of raw.matchAll(/<nav\b[^>]*>([\s\S]*?)<\/nav\s*>/gi)) {
-      if (EMOJI.test(m[1].replace(/<[^>]*>/g, ' '))) uiEmoji.push('nav');
+      if (UI_EMOJI.test(uiText(m[1]))) uiEmoji.push('nav');
     }
     if (uiEmoji.length) {
       report.add('design/emoji-ui', MAJOR,
@@ -390,7 +401,16 @@ export async function run(ctx, report) {
       radii.add(v);
     }
   }
-  if (radii.size >= 5) {
+  const radiusScale = (() => {
+    const px = [...radii].map((v) => /^\d+(\.\d+)?px$/.test(v) ? parseFloat(v) : NaN);
+    if (px.some(Number.isNaN) || px.length < 3) return false;
+    const s = px.sort((a, b) => a - b);
+    const diffs = s.slice(1).map((v, i) => v - s[i]);
+    // A monotonic ramp whose steps stay within ~2x of each other reads as a
+    // designed scale (2/4/8/12/16), not a zoo (3/7/13/19/29/41).
+    return diffs.every((x) => x > 0) && Math.max(...diffs) / Math.min(...diffs) <= 2.05;
+  })();
+  if (radii.size >= 5 && !radiusScale) {
     report.add('design/radius-zoo', MINOR,
       `${radii.size} different border-radius values: ${[...radii].slice(0, 6).join(', ')}`,
       { count: radii.size },
@@ -407,7 +427,8 @@ export async function run(ctx, report) {
       shadows.add(v);
     }
   }
-  if (shadows.size >= 5) {
+  const shadowSigs = new Set([...shadows].map((v) => v.replace(/-?\d+(\.\d+)?/g, '#')));
+  if (shadows.size >= 5 && shadowSigs.size >= 3) {
     report.add('design/shadow-zoo', MINOR,
       `${shadows.size} different box-shadow styles`,
       { count: shadows.size },
@@ -420,7 +441,8 @@ export async function run(ctx, report) {
     const hides = r.declarations.find((d) =>
       (d.prop === 'opacity' && parseFloat(resolveVar(d.value, tokens)) === 0)
       || (d.prop === 'visibility' && /hidden/i.test(d.value))
-      || (d.prop === 'display' && /^none$/i.test(d.value.trim())));
+      || (d.prop === 'display' && /^none$/i.test(d.value.trim()))
+      || (d.prop === 'transform' && /\bscale\(\s*0(\.0+)?\s*[,)]/i.test(d.value)));
     if (hides) {
       report.add('design/hover-hide', MAJOR,
         `${r.selector.split(',')[0].trim()} ${hides.prop === 'opacity' ? 'fades out' : 'disappears'} on hover`,
@@ -430,31 +452,33 @@ export async function run(ctx, report) {
     }
   }
 
-  if (!/:focus-within\b/.test(cssText)) {
-    for (const r of rules) {
-      if (r.isKeyframesOrFont) continue;
-      const sel = r.selector.split(',')[0].trim();
-      const m = sel.match(/^(.+?):hover\s*[ >+~]\s*(\S.*)$/);
-      if (!m) continue;
-      if (/nav|menu|dropdown|submenu/i.test(sel)) continue; // responsive/hover-only owns menus
-      const reveals = r.declarations.find((d) =>
-        (d.prop === 'display' && !/^none$/i.test(d.value.trim()))
-        || (d.prop === 'visibility' && /visible/i.test(d.value)));
-      if (reveals) {
-        report.add('design/hover-only-reveal', MAJOR,
-          `${m[2].trim()} exists only while ${m[1].trim()} is hovered`,
-          at(r),
-          'There is no hover on a phone, so this content is unreachable for most visitors — and a keyboard user never sees it either. Show it, or reveal it on click/focus (:focus-within) as well.');
-        break;
-      }
-    }
+  for (const r of rules) {
+    if (r.isKeyframesOrFont) continue;
+    const sel = r.selector.split(',')[0].trim();
+    const m = sel.match(/^(.+?):hover\s*[ >+~]\s*(\S.*)$/);
+    if (!m) continue;
+    if (/nav|menu|dropdown|submenu/i.test(sel)) continue; // responsive/hover-only owns menus
+    const reveals = r.declarations.find((d) =>
+      (d.prop === 'display' && !/^none$/i.test(d.value.trim()))
+      || (d.prop === 'visibility' && /visible/i.test(d.value)));
+    if (!reveals) continue;
+    // The escape must be THIS trigger's :focus-within - a decoy rule anywhere
+    // in the file was a demonstrated site-wide kill switch for this gate.
+    const trigger = m[1].trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    if (new RegExp(`${trigger}\\s*:focus-within`, 'i').test(cssText)) continue;
+    report.add('design/hover-only-reveal', MAJOR,
+      `${m[2].trim()} exists only while ${m[1].trim()} is hovered`,
+      at(r),
+      'There is no hover on a phone, so this content is unreachable for most visitors — and a keyboard user never sees it either. Show it, or reveal it on click/focus (:focus-within on the same trigger) as well.');
+    break;
   }
 
   for (const r of rules) {
     if (r.isKeyframesOrFont || /print/i.test(r.atRule || '')) continue;
     if (!/hero|masthead|banner|splash|landing/i.test(r.selector)) continue;
     const d = r.declarations.find((d) => /^(min-)?height$/.test(d.prop)
-      && /^100(vh|dvh|svh)$/i.test(resolveVar(d.value, tokens).trim()));
+      && /^100(vh|dvh|svh)$/i.test(
+        resolveVar(d.value, tokens).trim().replace(/^calc\(\s*([^()]+?)\s*\)$/i, '$1')));
     if (d) {
       report.add('design/hero-100vh', MINOR,
         `${r.selector.split(',')[0].trim()} is locked to ${d.value.trim()}`,

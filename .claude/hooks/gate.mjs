@@ -48,7 +48,11 @@ const out = (obj) => { process.stdout.write(JSON.stringify(obj)); process.exit(0
 const say = (text) => { process.stdout.write(text); process.exit(0); };
 const pass = () => process.exit(0);
 
-const norm = (p) => resolve(p).replace(/\//g, sep).toLowerCase();
+// Strip Windows extended-length/device prefixes BEFORE resolving: a path
+// spelled \\?\C:\... never string-matches its plain twin, which silently
+// defeated the containment check (found by the adversarial review).
+const deprefix = (p) => String(p).replace(/^\\\\[?.]\\/, '');
+const norm = (p) => resolve(deprefix(p)).replace(/\//g, sep).toLowerCase();
 const under = (child, parent) => norm(child).startsWith(norm(parent) + sep);
 
 const buildsDir = join(root, 'builds');
@@ -75,6 +79,17 @@ const isClosed = (slug) => {
   const s = stateOf(slug);
   return s !== null && /\b(ABANDONED|ARCHIVED|LAUNCHED)\b/.test(s);
 };
+// Markup parked directly at a build's root: everything except the named
+// stage-04 scaffolding. _intake/ is the client's material and never counted.
+const strayRootMarkup = (slug) => {
+  try {
+    return readdirSync(join(buildsDir, slug), { withFileTypes: true })
+      .filter((e) => e.isFile() && /\.(html?|css)$/i.test(e.name)
+        && !/^design-samples[^/]*\.html?$/i.test(e.name))
+      .map((e) => e.name);
+  } catch { return []; }
+};
+
 const latestMtime = (dir) => {
   let latest = 0;
   const walk = (d) => {
@@ -98,13 +113,19 @@ const docGaps = (slug) => {
   const substantial = (f, min) => {
     try { return statSync(join(dir, f)).size >= min; } catch { return false; }
   };
-  if (!substantial('brief.md', 150)) gaps.push('brief.md (missing or still empty)');
-  if (!substantial('content.md', 150)) gaps.push('content.md (missing or still empty)');
-  if (!substantial('design.md', 150)) gaps.push('design.md (missing or still empty)');
+  const placeholder = (f) => {
+    try { return /lorem\s+ipsum/i.test(readFileSync(join(dir, f), 'utf8')); } catch { return false; }
+  };
+  for (const f of ['brief.md', 'content.md', 'design.md']) {
+    if (!substantial(f, 150)) gaps.push(`${f} (missing or still empty)`);
+    else if (placeholder(f)) gaps.push(`${f} (placeholder filler, not a real document)`);
+  }
   try {
     const facts = readFileSync(join(dir, 'facts.md'), 'utf8');
-    const tableLines = facts.split('\n').filter((l) => l.includes('|')).length;
-    if (tableLines < 3) gaps.push('facts.md (no ledger table rows yet)');
+    // Real rows, not bare pipes: at least a header line and one data line,
+    // each carrying actual cell content between separators.
+    const rows = facts.split('\n').filter((l) => /\|[^|\n]*[a-z0-9][^|\n]*\|/i.test(l)).length;
+    if (rows < 2) gaps.push('facts.md (no real ledger rows yet)');
   } catch { gaps.push('facts.md (missing)'); }
   return gaps;
 };
@@ -154,10 +175,16 @@ try {
         pass();
       }
 
-      // Site-shaped files at the build root (outside site/): the design-samples
-      // page is stage 04's legitimate pre-design artifact, so the bar here is
-      // discovery (brief + facts), not the locked design.
+      // The ONLY site-shaped file allowed at the build root is stage 04's named
+      // scaffolding, design-samples*.html — and even that only after discovery.
+      // An unrestricted carve-out here let an entire site ship one directory
+      // above site/, invisible to every check at once (adversarial review).
       if (/\.(html?|css)$/i.test(inner)) {
+        if (!/^design-samples[^/]*\.html?$/i.test(inner)) {
+          deny(`Site files live in builds/${slug}/site/, not at builds/${slug}/${inner}. ` +
+            `The only markup allowed at the build root is stage 04's design-samples*.html ` +
+            `scaffolding. Move real pages into site/ - after the pipeline has earned them.`);
+        }
         if (!has('STATE.md')) {
           deny(`builds/${slug}/ has no STATE.md, so this build was never opened. ` +
             `Run: node start.mjs "<project name>" first.`);
@@ -194,12 +221,20 @@ try {
     for (const slug of listBuilds()) {
       if (isClosed(slug)) continue;
       const siteDir = join(buildsDir, slug, 'site');
-      if (!existsSync(siteDir)) continue;
       let hasFiles = false;
-      try { hasFiles = readdirSync(siteDir).length > 0; } catch { /* fail open */ }
-      if (!hasFiles) continue;
-      const gaps = docGaps(slug);
-      if (gaps.length) offenders.push(`builds/${slug}/site exists but the build lacks ${gaps.join('; ')}`);
+      if (existsSync(siteDir)) {
+        try { hasFiles = readdirSync(siteDir).length > 0; } catch { /* fail open */ }
+      }
+      if (hasFiles) {
+        const gaps = docGaps(slug);
+        if (gaps.length) offenders.push(`builds/${slug}/site exists but the build lacks ${gaps.join('; ')}`);
+      }
+      // Site-shaped files parked at the build root (the shape that dodged
+      // every check at once in the adversarial review).
+      const stray = strayRootMarkup(slug);
+      if (stray.length) {
+        offenders.push(`builds/${slug}/ holds site files outside site/ (${stray.slice(0, 3).join(', ')}${stray.length > 3 ? ', ...' : ''}) - only design-samples*.html belongs there`);
+      }
     }
     if (offenders.length) {
       out({
@@ -221,6 +256,20 @@ try {
     if (process.env.WEBSITE_BUILDER_UNGATED === '1') pass();
     for (const slug of listBuilds()) {
       if (isClosed(slug)) continue;
+
+      // Placement is itself a violation: real pages at the build root are the
+      // shape that evaded pre, post and stop simultaneously before this check.
+      const stray = strayRootMarkup(slug);
+      if (stray.length) {
+        out({
+          decision: 'block',
+          reason: `builds/${slug}/ holds site files outside site/ (${stray.slice(0, 3).join(', ')}) - ` +
+            `only design-samples*.html belongs at the build root. Move them into ` +
+            `builds/${slug}/site/ and run the gate, or delete them. If this build is dead, ` +
+            `write ABANDONED in its STATE.md.`,
+        });
+      }
+
       const siteDir = join(buildsDir, slug, 'site');
       if (!existsSync(siteDir)) continue;
       const siteM = latestMtime(siteDir);
@@ -232,15 +281,21 @@ try {
       const factsM = existsSync(factsPath) ? statSync(factsPath).mtimeMs : 0;
       const changedM = Math.max(siteM, factsM);
 
-      // verify.md only counts if it carries a named verdict - a touched empty
-      // file is not an attestation (and forging one is a deliberate, visible
-      // contract violation, which is the most a hook can enforce).
+      // verify.md only counts if it carries a named verdict as a VERDICT LINE -
+      // the word at the start of a line or after "verdict:", exactly as stage
+      // 06's contract writes it. A sentence that merely contains the word
+      // ("does not PASS a proofread yet") is prose, not an attestation - the
+      // adversarial review silenced this hook with exactly that decoy.
+      // (Forging a real verdict line remains a deliberate, visible contract
+      // violation, which is the most a hook can enforce.)
       const verifyPath = join(buildsDir, slug, 'verify.md');
       let verifyM = 0;
       if (existsSync(verifyPath)) {
         try {
           const v = readFileSync(verifyPath, 'utf8');
-          if (/\b(PASS|REVISE|FAIL)\b/.test(v)) verifyM = statSync(verifyPath).mtimeMs;
+          if (/^[#>*\s-]*(\*\*)?(verdict\s*[:\-]\s*)?(\*\*)?\s*(PASS|REVISE|FAIL)\b/im.test(v)) {
+            verifyM = statSync(verifyPath).mtimeMs;
+          }
         } catch { /* fail open */ }
       }
       if (changedM <= verifyM) continue;
@@ -251,9 +306,22 @@ try {
         cwd: root, encoding: 'utf8', timeout: 45000,
       });
       if (res.error || !res.stdout) continue; // fail open
-      let counts;
-      try { counts = JSON.parse(res.stdout).counts || {}; } catch { continue; }
-      const blockers = counts.blocker ?? 0;
+      let parsed;
+      try { parsed = JSON.parse(res.stdout); } catch { continue; }
+      // A crashed rule family means the result is UNKNOWN, and unknown never
+      // passes - previously a crash with zero surviving blockers slipped
+      // through because only counts.blocker was read (adversarial review).
+      if (parsed.verdict === 'ERROR' || (parsed.crashes && parsed.crashes.length)) {
+        const fam = (parsed.crashes && parsed.crashes[0] && parsed.crashes[0].family) || 'a rule';
+        out({
+          decision: 'block',
+          reason: `builds/${slug} changed and the checker CRASHED on it (${fam} family) - ` +
+            `its result is unknown, and unknown is not a pass. Run ` +
+            `node checks/run.mjs builds/${slug}/site --facts builds/${slug}/facts.md, read ` +
+            `the ERROR, fix the input (or the checker, with a fixture), and re-verify.`,
+        });
+      }
+      const blockers = (parsed.counts && parsed.counts.blocker) || 0;
       if (blockers > 0) {
         out({
           decision: 'block',

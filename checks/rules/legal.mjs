@@ -92,9 +92,14 @@ export async function run(ctx, report) {
   // demanding a geographic address from a SaaS landing page pressures people
   // toward inventing one, the exact dishonesty this tool exists to stop.
   const entityDecl = /\|\s*Entity\s*type\s*\|([^|]*)\|/i.exec(factsText);
-  const nonTrader = entityDecl
-    && /(personal|portfolio|demo|fiction|product|saas|online[\s-]?only|no\s+premises|not\s+a\s+(local\s+)?(business|trader))/i
-      .test(entityDecl[1]);
+  const declaredForm = entityDecl
+    && /\b(limited|ltd\.?|plc|llp|sole\s*trader|partnership)\b/i.test(entityDecl[1]);
+  const demoish = entityDecl && !declaredForm
+    && /(personal|portfolio|demo|fiction)/i.test(entityDecl[1]);
+  const nonTrader = entityDecl && !declaredForm
+    && (demoish
+      || /(product|saas|online[\s-]?only|no\s+premises|not\s+a\s+(local\s+)?(business|trader))/i
+        .test(entityDecl[1]));
 
   let isLimited = null;
   const entityRow = /\|\s*Entity\s*type\s*\|([^|]*)\|/i.exec(factsText);
@@ -293,12 +298,17 @@ export async function run(ctx, report) {
   const siteText = htmlFiles.map((f) => visibleText(read(f))).join('\n');
   if (nonTrader) {
     report.skip('legal/business-identity',
-      `facts.md declares entity type "${entityDecl[1].trim()}" - trader identity disclosures not applied`);
+      `facts.md declares entity type "${entityDecl[1].trim()}" - trader identity disclosures ${demoish ? 'not applied' : 'reduced to contact details'}`);
   }
-  const disclosureChecks = nonTrader ? [] : [
-    ...(isLimited ? L.disclosure.limited : L.disclosure.soleTrader),
-    ...L.disclosure.all,
-  ];
+  // A declared legal form always owes its statutory list. A real online
+  // product business still owes reachable contact details. Only a declared
+  // personal/demo/fictional project owes neither.
+  const disclosureChecks = nonTrader
+    ? (demoish ? [] : [...L.disclosure.all])
+    : [
+      ...(isLimited ? L.disclosure.limited : L.disclosure.soleTrader),
+      ...L.disclosure.all,
+    ];
   for (const [re, what, why] of disclosureChecks) {
     if (!re.test(siteText)) {
       report.add('legal/business-identity', MAJOR,

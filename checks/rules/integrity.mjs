@@ -103,10 +103,19 @@ export async function run(ctx, report) {
           { file: shown, line: f.line },
           'Every enquiry submitted here is silently discarded. Point action= at a form service (Formspree, Web3Forms, Netlify Forms, a Cloudflare Function), or remove the form and give a phone number. Then SEND ONE TEST and confirm it arrives.');
       } else if (action && /^https?:\/\//i.test(action)) {
-        report.add('integrity/form-dead', MINOR,
-          `form posts to ${new URL(action).hostname} — confirm a real submission arrives`,
-          { file: shown, line: f.line },
-          'A configured endpoint is not a delivering endpoint. Submit the form once for real before launch; a wrong key fails silently on most of these services.');
+        let host = null;
+        try { host = new URL(action).hostname; } catch { /* malformed */ }
+        if (!host) {
+          report.add('integrity/form-dead', BLOCKER,
+            `form action "${action.slice(0, 40)}" is not a valid URL`,
+            { file: shown, line: f.line },
+            'The browser cannot post this anywhere; every enquiry is discarded. Point action= at a real form-service URL and send one test.');
+        } else {
+          report.add('integrity/form-dead', MINOR,
+            `form posts to ${host} — confirm a real submission arrives`,
+            { file: shown, line: f.line },
+            'A configured endpoint is not a delivering endpoint. Submit the form once for real before launch; a wrong key fails silently on most of these services.');
+        }
       }
       anyContactRoute = true;
     }
@@ -290,7 +299,7 @@ export async function run(ctx, report) {
   // the icons were decoration and nobody ever had a profile to link.
   for (const file of htmlFiles) {
     const raw = read(file);
-    const dead = [...raw.matchAll(/<a\b[^>]*href\s*=\s*["']https?:\/\/(?:www\.)?(facebook\.com|instagram\.com|twitter\.com|x\.com|linkedin\.com|tiktok\.com|youtube\.com|threads\.net)\/?["']/gi)];
+    const dead = [...raw.matchAll(/<a\b[^>]*href\s*=\s*["']https?:\/\/(?:www\.)?(facebook\.com|instagram\.com|twitter\.com|x\.com|linkedin\.com|tiktok\.com|youtube\.com|threads\.net)\/?(?:[?#][^"']*)?["']/gi)];
     if (dead.length) {
       report.add('integrity/dead-social', MAJOR,
         `${dead.length} social link${dead.length === 1 ? '' : 's'} to a platform homepage, not a profile (${dead[0][1]})`,

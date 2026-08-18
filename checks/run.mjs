@@ -25,7 +25,7 @@
 import { isAbsolute, join, resolve } from 'node:path';
 import { statSync } from 'node:fs';
 import { Report } from './lib/report.mjs';
-import { walk, allFiles } from './lib/fs.mjs';
+import { walk, allFiles, walkStats } from './lib/fs.mjs';
 
 import copy from './rules/copy.mjs';
 import legal from './rules/legal.mjs';
@@ -101,6 +101,7 @@ const color = !has('--no-color') && process.stdout.isTTY !== false;
 
 // ------------------------------------------------------------------ scan
 
+walkStats.symlinks = 0;
 const htmlFiles = walk(siteDir, ['.html', '.htm']);
 const cssFiles = walk(siteDir, ['.css']);
 const jsFiles = walk(siteDir, ['.js', '.mjs']);
@@ -134,6 +135,22 @@ for (const f of htmlFiles) {
   }
 }
 
+// Inline style="" attributes are CSS too - six clashing radii applied via
+// style attributes were invisible to the design family (adversarial review).
+for (const f of htmlFiles) {
+  const raw = readFile(f);
+  const decls = [...raw.matchAll(/\bstyle\s*=\s*("([^"]*)"|'([^']*)')/gi)]
+    .map((m) => (m[2] ?? m[3] ?? '').trim()).filter(Boolean);
+  if (decls.length) {
+    styleSources.push({
+      file: displayPath(f, siteDir),
+      text: decls.map((v, i) => `[style-attr-${i}]{${v}}`).join('\n'),
+      inline: true,
+      lineOffset: 0,
+    });
+  }
+}
+
 const report = new Report(siteDir);
 report.stats = {
   htmlFiles: htmlFiles.length,
@@ -155,6 +172,10 @@ try {
   profile = (await import(`../profiles/${profileName}.mjs`)).default;
 } catch {
   report.skip('profile', `no profile "${profileName}" — legal gates fall back to their built-in defaults`);
+}
+
+if (walkStats.symlinks > 0) {
+  report.skip('scan', `${walkStats.symlinks} symlink(s) not followed - anything behind them was NOT checked`);
 }
 
 const ctx = { siteDir, htmlFiles, cssFiles, jsFiles, everyFile, profile, factsPath, styleSources };
