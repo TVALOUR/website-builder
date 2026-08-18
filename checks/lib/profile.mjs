@@ -38,6 +38,27 @@ export function listProfiles() {
 }
 
 /**
+ * The jurisdiction the BUILD declares, from `builds/<slug>/brief.md`.
+ *
+ * This is the per-build override that stage 00, `config.md` and
+ * `templates/brief.md` all document — and that the checker did not read. The
+ * result was the exact failure this whole subsystem exists to prevent, produced
+ * by following the repo's own documented command: a build whose brief said `us`,
+ * gated against a root config that said `uk`, told to publish a privacy notice
+ * naming the ICO. A Kansas plumber citing the Companies Act.
+ *
+ * @param {string} siteDir the directory being gated (builds/<slug>/site)
+ */
+export function profileFromBrief(siteDir) {
+  if (!siteDir) return null;
+  const p = join(dirname(siteDir), 'brief.md');
+  if (!existsSync(p)) return null;
+  const flat = readFileSync(p, 'utf8').replace(/\*\*/g, '').replace(/__/g, '');
+  const m = /^\s*(?:[-*]\s*)?Profile\s*:\s*`?([a-z0-9-]+)`?/im.exec(flat);
+  return m ? m[1] : null;
+}
+
+/**
  * The jurisdiction recorded by stage 00 in config.md, or null.
  * Matches the line `- **Profile:** \`uk\`` that config.example.md documents.
  */
@@ -145,10 +166,17 @@ export async function loadProfile(nameArg) {
   // `--profile UK` is a person being reasonable, not an error. Case is folded;
   // anything that is still not an id after that is genuinely not one.
   name = String(name).trim().toLowerCase();
-  if (!/^[a-z0-9][a-z0-9-]*$/.test(name)) {
+  // An ALLOWLIST, not a shape test. A shape test still let `_base` through by
+  // hand - a profile whose every page requirement is 'recommended', so nothing
+  // could block - and `../checks/rules/legal` resolved to a real module whose
+  // exports merged onto the base and reported a jurisdiction. The set of valid
+  // ids is knowable, so it is checked rather than approximated.
+  if (!listProfiles().includes(name)) {
     problems.push(
-      `"${name}" is not a profile id. Ids are lowercase letters, digits and hyphens — they name a file in `
-      + `profiles/, not a path. Available: ${listProfiles().join(', ') || '(none)'}.`);
+      `no profile "${name}" in profiles/. An id names a jurisdiction file in that folder — it is not a path, `
+      + `and the framework files (_base, _schema) are not jurisdictions. `
+      + `Available: ${listProfiles().join(', ') || '(none)'}. `
+      + `Writing a new one takes one research pass: see profiles/README.md.`);
     return { profile: null, problems, notices, name };
   }
 
@@ -194,10 +222,31 @@ export async function loadProfile(nameArg) {
   // finding it produces must arrive wearing that label.
   const p = profile.provenance || {};
   if (p.status === 'researched') {
+    // "Assembled from primary sources" is a CLAIM. Two things now test it: the
+    // working notes have to exist, and the sources have to say what class they
+    // are. Two shipped profiles were roughly 60% law-firm marketing and vendor
+    // blogs under the same label as one that was 90% legislation, and nothing
+    // told the reader which they were holding.
+    const notes = join(profilesDir, '_research', `${name}.md`);
+    const sources = Array.isArray(p.sources) ? p.sources : [];
+    const classified = sources.filter((s) => s && s.class);
+    const primary = sources.filter((s) => s && /^(primary|regulator|court)$/i.test(s.class || ''));
+    const mix = sources.length
+      ? (classified.length === sources.length
+        ? ` ${primary.length} of ${sources.length} citations are primary or regulator sources.`
+        : ` ${sources.length} citations, ${sources.length - classified.length} of them unclassified — see profiles/_schema.md on source class.`)
+      : ' It cites no sources at all, which for a researched profile is itself the finding.';
     notices.push(
-      `profile "${name}" is RESEARCHED, not verified: assembled from primary sources by an agent, `
-      + `reviewed by nobody qualified. Treat every legal finding below as a prompt to check, not as advice. `
-      + `Sources: profiles/_research/${name}.md.`);
+      `profile "${name}" is RESEARCHED, not verified: assembled from published sources by an agent, `
+      + `reviewed by nobody qualified. Treat every legal finding below as a prompt to check, not as advice.${mix}`
+      + (existsSync(notes) ? ` Working notes: profiles/_research/${name}.md.` : ''));
+    if (!existsSync(notes)) {
+      problems.push(
+        `profile "${name}" declares status 'researched' and there are no working notes at `
+        + `profiles/_research/${name}.md. The status is a claim about how the file was made; without the notes — `
+        + `angles run, sources with access dates, what could NOT be established — nobody can check it. `
+        + `Write them, or set the status to what is true.`);
+    }
   } else if (p.status === 'baseline') {
     notices.push(
       `profile "${name}" is the jurisdiction-NEUTRAL baseline. It encodes the honesty floor and the `

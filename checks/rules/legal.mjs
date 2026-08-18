@@ -261,11 +261,51 @@ export async function run(ctx, report) {
     const bannerish = /cookie[-\s]?(banner|consent|notice)|consent[-\s]?(banner|manager)|__consent|cookieConsent|data-consent-banner/i
       .test(nonLegalSource);
 
+    // THE CONSENT MODEL DECIDES WHAT IS OWED. This branch is the whole reason
+    // `consentModel` exists, and until it was written the field changed nothing:
+    // every jurisdiction was gated as prior-opt-in, so a US or Australian site
+    // was BLOCKED from shipping until it deployed the EU banner its own profile
+    // spends thirty lines explaining is not required there.
+    //
+    // A finding whose own explanation says the requirement does not exist, that
+    // then refuses to let the site ship, teaches the reader to distrust the gate
+    // — and if they comply, they ship a dark pattern that satisfies no
+    // obligation the site has. Both outcomes are worse than silence.
+    const priorConsent = L.consentModel === 'prior-opt-in';
+    const optOut = L.consentModel === 'notice-and-opt-out';
+
     if (!bannerish) {
-      report.add('legal/consent-banner', BLOCKER,
-        `${nonEssential.join(', ')} loaded with no consent mechanism anywhere on the site`,
-        { count: nonEssential.length },
-        `${consentLaw} Copy templates/consent.js in, or remove the tracking. Removing the tracker is the better answer in every jurisdiction: it deletes the obligation instead of managing it, and it is faster.`);
+      if (priorConsent) {
+        report.add('legal/consent-banner', BLOCKER,
+          `${nonEssential.join(', ')} loaded with no consent mechanism anywhere on the site`,
+          { count: nonEssential.length },
+          `${consentLaw} Copy templates/consent.js in, or remove the tracking. Removing the tracker is the better answer in every jurisdiction: it deletes the obligation instead of managing it, and it is faster.`);
+      } else if (optOut) {
+        // Not a banner. What is owed here is disclosure plus a working opt-out,
+        // and the checkable half is whether the tracker is named on a page the
+        // visitor can find.
+        const legalText = htmlFiles
+          .filter((f) => /privacy|cookie/i.test(displayPath(f, siteDir)))
+          .map((f) => visibleText(read(f))).join('\n');
+        const undisclosed = nonEssential.filter((label) => {
+          const word = label.split(/[\s/]+/)[0];
+          return word && !new RegExp(word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i').test(legalText);
+        });
+        if (undisclosed.length) {
+          report.add('legal/consent-banner', MAJOR,
+            `${undisclosed.join(', ')} loaded and never named on the privacy or cookie page`,
+            { count: undisclosed.length },
+            `${consentLaw} No banner is required here — what is owed is that a visitor can find out what is set and turn it off. `
+            + `Name each tracker on the cookie page and give a working opt-out. `
+            + `Loading nothing that needs consent removes the question in every country, and is still the better answer.`);
+        }
+      } else {
+        report.add('legal/consent-banner', MINOR,
+          `${nonEssential.join(', ')} loaded, and this profile does not state whether prior consent is required here`,
+          { count: nonEssential.length },
+          `${consentLaw} The gate is reporting what the files do and declining to rule on what the law wants, which is the `
+          + `honest output for an unresearched jurisdiction. Get a local answer before launch, or drop the tracker.`);
+      }
     }
 
     // Each tracker must be individually gated. Presence of the consent library
@@ -297,10 +337,21 @@ export async function run(ctx, report) {
         if (jsFiles.some((jf) => re.test(read(jf)))) live = true;
       }
       if (live && !gated) {
-        report.add('legal/consent-required', BLOCKER,
-          `${label} runs before any consent decision`,
-          {},
-          'Ship it inert: <script type="text/plain" data-consent="analytics" data-src="…"></script>. A banner that appears while the tag has already fired is decoration, and this is the most common way it is got wrong.');
+        // Firing before a decision is only a violation where a decision is owed
+        // BEFORE it fires. Under notice-and-opt-out the tag may run; what is
+        // owed is that the visitor can find it and switch it off.
+        if (priorConsent) {
+          report.add('legal/consent-required', BLOCKER,
+            `${label} runs before any consent decision`,
+            {},
+            'Ship it inert: <script type="text/plain" data-consent="analytics" data-src="…"></script>. A banner that appears while the tag has already fired is decoration, and this is the most common way it is got wrong.');
+        } else if (optOut) {
+          report.add('legal/consent-required', MINOR,
+            `${label} fires on load — permitted here, but only with disclosure and a working opt-out`,
+            {},
+            `${consentLaw} Nothing needs to be blocked before it runs in this jurisdiction. Check the visitor can find out it is `
+            + 'there and turn it off, and remember that a visitor from a prior-consent country reaches the same page.');
+        }
       }
     }
 

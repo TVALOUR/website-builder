@@ -191,13 +191,16 @@ export function ldNodes(blocks, typeName) {
 export function references(html) {
   const src = html.replace(COMMENTS, (m) => m.replace(/[^\n]/g, ' '));
   const out = [];
-  const re = /<(a|link|script|img|source|iframe|video|audio|form|use)\b([^>]*)>/gi;
+  const re = /<(a|link|script|img|source|iframe|video|audio|form|use|image|embed|object)\b([^>]*)>/gi;
   let m;
   while ((m = re.exec(src)) !== null) {
     const el = m[1].toLowerCase();
     const raw = m[0];
     const line = lineAt(src, m.index);
-    for (const a of ['href', 'src', 'action', 'srcset', 'data-src']) {
+    // `poster` is how a video declares its still, and it was invisible to every
+    // consumer of this function - including the asset-provenance gate, whose
+    // entire job is that no image reaches a page unaccounted for.
+    for (const a of ['href', 'src', 'action', 'srcset', 'data-src', 'poster']) {
       const v = attr(raw, a);
       if (v !== null && v !== '') out.push({ el, attrName: a, value: v, raw, line });
     }

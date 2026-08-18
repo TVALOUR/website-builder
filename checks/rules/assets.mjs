@@ -33,14 +33,34 @@ export const gates = [
   { id: 'assets/generated-undeclared', severity: 'major', what: 'an asset the site describes as a photograph is not declared as generated' },
   { id: 'assets/file-missing', severity: 'major', what: 'the manifest does not list files that are not there' },
   { id: 'assets/alt-unrecorded', severity: 'major', what: 'every published image has alt text decided in the manifest, not improvised in the markup' },
+  { id: 'assets/alt-mismatch', severity: 'major', what: 'the page and the manifest agree about what a picture shows' },
   { id: 'assets/intake-unused', severity: 'minor', what: 'material the client handed over is either used or explicitly set aside' },
 ];
 
 const IMAGE_EXT = /\.(png|jpe?g|gif|webp|avif|svg|bmp|tiff?)$/i;
 const MEDIA_EXT = /\.(mp4|webm|mov|m4v|ogg|mp3|wav|pdf)$/i;
 
-/** Files a build ships that are ours by construction, not the client's material. */
-const OURS = /(favicon|apple-touch-icon|og\.(png|jpg|jpeg|webp)|icon-|sprite|logo-placeholder)/i;
+/**
+ * Files a build ships that are ours by construction, not the client's material.
+ *
+ * ANCHORED, exact names only. The previous version matched a SUBSTRING of a name
+ * the builder controls — `icon-`, `sprite` — so publishing two arbitrary
+ * photographs as `icon-hero.png` and `sprite.png` exempted them from the entire
+ * assets family with no manifest rows at all. An allowlist matched on part of a
+ * name the other side chooses is not an allowlist.
+ */
+const OURS = /^(favicon\.(ico|svg|png)|apple-touch-icon(-precomposed)?\.png|og\.(png|jpg|jpeg|webp)|android-chrome-\d+x\d+\.png|mstile-\d+x\d+\.png|safari-pinned-tab\.svg|site\.webmanifest|browserconfig\.xml|logo-placeholder\.(svg|png))$/i;
+
+/**
+ * A responsive rendition belongs to its parent photograph, not to a row of its
+ * own. `yard-800.jpg`, `yard-1600w.jpg` and `yard@2x.jpg` are one asset with one
+ * source and one set of rights; demanding three manifest rows for one photo is
+ * friction with no honesty benefit.
+ */
+function renditionParent(name) {
+  const m = /^(.+?)(?:[-_@](?:\d{2,5}w?|[234]x))+(\.[a-z0-9]+)$/i.exec(name);
+  return m ? `${m[1]}${m[2]}`.toLowerCase() : null;
+}
 
 function findManifest(siteDir, flagPath) {
   if (flagPath && exists(flagPath)) return flagPath;
@@ -77,16 +97,49 @@ export async function run(ctx, report) {
   report.stats.motionPolicy = policy.motion;
 
   // ------------------------------------------------ what the site publishes
-  const published = new Map();   // basename -> {refs:[{file,line,el,value}]}
+  //
+  // KEYED ON THE PUBLISHED PATH, not the basename.
+  //
+  // Keying on the basename collapsed two different files into one entry before
+  // the manifest was ever consulted, so a page carrying both `img/about/team.jpg`
+  // (the client's photo, cleared) and `img/stock/team.jpg` (a stock image nobody
+  // cleared) reported ONE published asset and no findings — the stock image
+  // inheriting the client photo's source, rights and alt text. Laundering, by
+  // rename, through the gate whose entire job is provenance.
+  //
+  // The basename is still how a published path is matched to a manifest ROW,
+  // because the manifest records where a file came from and the site records
+  // where it went. But that match is now one-to-one or it is a finding.
+  const published = new Map();   // published path -> {value, refs:[…]}
   const noteRef = (value, where) => {
     if (!value || /^(data:|#|mailto:|tel:|javascript:)/i.test(value)) return;
     if (/^https?:\/\//i.test(value)) return;      // remote assets are the legal family's problem
-    if (!IMAGE_EXT.test(value) && !MEDIA_EXT.test(value)) return;
-    const key = basenameKey(value);
+    // Strip the query string and fragment FIRST. Testing the extension against
+    // the raw value meant a cache-busted `hero.jpg?v=3`, an SVG sprite target
+    // `icons.svg#phone` and every fingerprinted asset failed the extension test
+    // and left the gate entirely — while basenameKey() below already contained
+    // the code to handle exactly that, and never got the chance to run.
+    const clean = String(value).split(/[?#]/)[0];
+    if (!IMAGE_EXT.test(clean) && !MEDIA_EXT.test(clean)) return;
+    const key = basenameKey(clean);
     if (!key || OURS.test(key)) return;
-    if (!published.has(key)) published.set(key, { value, refs: [] });
-    published.get(key).refs.push(where);
+    const path = clean.replace(/^\.?\//, '').toLowerCase();
+    if (!published.has(path)) published.set(path, { value: clean, refs: [] });
+    published.get(path).refs.push(where);
   };
+
+  // Anything a <link rel="icon|apple-touch-icon|mask-icon"> points at is site
+  // furniture by declaration rather than by filename, which is the honest test.
+  const declaredIcons = new Set();
+  for (const f of htmlFiles) {
+    for (const t of tags(read(f), 'link')) {
+      const rel = (attr(t.raw, 'rel') || '').toLowerCase();
+      const href = attr(t.raw, 'href');
+      if (href && /\b(icon|apple-touch-icon|mask-icon|manifest)\b/.test(rel)) {
+        declaredIcons.add(basenameKey(String(href).split(/[?#]/)[0]));
+      }
+    }
+  }
 
   for (const f of htmlFiles) {
     const raw = read(f);
@@ -100,8 +153,11 @@ export async function run(ctx, report) {
     }
     // <img> alt handling, kept alongside the reference so the two agree.
     for (const t of tags(raw, 'img')) {
-      const src = attr(t, 'src');
-      if (src) noteRef(src, { file: shown, line: 0, el: 'img', alt: attr(t, 'alt') });
+      // tags() yields {raw, index, line} objects, not strings. Passing the
+      // object straight to attr() returned null every time, so the page's alt
+      // text was never captured and assets/alt-mismatch could not fire.
+      const src = attr(t.raw, 'src');
+      if (src) noteRef(src, { file: shown, line: t.line, el: 'img', alt: attr(t.raw, 'alt') });
     }
   }
   for (const s of styleSources || []) {
@@ -138,8 +194,40 @@ export async function run(ctx, report) {
     return;
   }
 
+  // Basename -> the rows claiming it. More than one row on a basename is the
+  // manifest's own ambiguity and gets said out loud rather than resolved by
+  // insertion order, which is what Map.set() was quietly doing.
   const byKey = new Map();
-  for (const row of manifest.rows) byKey.set(basenameKey(row.file), row);
+  for (const row of manifest.rows) {
+    const k = basenameKey(row.file);
+    if (!byKey.has(k)) byKey.set(k, []);
+    byKey.get(k).push(row);
+  }
+
+  // A required column the header never declared is not a question that stopped
+  // needing an answer.
+  if (!manifest.columns.rights) {
+    report.add('assets/rights-unrecorded', BLOCKER,
+      'the manifest has no Rights column, so nothing records whether any of these files is the client\'s to publish',
+      { file: shownManifest },
+      'Add it. Deleting the column used to delete the check with it — a two-second edit to a file this repo '
+      + 'invites you to hand-edit. Re-run `node assets.mjs <slug> scan` to restore the full header.');
+  }
+  if (!manifest.columns.alt) {
+    report.add('assets/alt-unrecorded', MAJOR,
+      'the manifest has no Alt column, so alt text is being improvised at build time rather than decided here',
+      { file: shownManifest },
+      'Add it. "image1" comes from deciding alt text while writing markup instead of while looking at the picture.');
+  }
+
+  // Which published paths claim each basename — the other half of the
+  // ambiguity check.
+  const pathsByBase = new Map();
+  for (const path of published.keys()) {
+    const k = basenameKey(path);
+    if (!pathsByBase.has(k)) pathsByBase.set(k, []);
+    pathsByBase.get(k).push(path);
+  }
 
   // THE MANIFEST CANNOT GRANT PERMISSION. Its `Imagery policy:` line is a
   // display of what was agreed, written there by `assets.mjs scan` so somebody
@@ -162,9 +250,43 @@ export async function run(ctx, report) {
   }
 
   // ------------------------------------------------ every published asset
-  for (const [key, entry] of published) {
-    const row = byKey.get(key);
+  const seenRows = new Set();
+  for (const [path, entry] of published) {
+    const key = basenameKey(path);
     const at = entry.refs[0] || {};
+
+    // Site furniture declared as such by a <link rel="icon">, and responsive
+    // renditions of a photograph that IS manifested. Neither is client material
+    // needing its own provenance row.
+    if (declaredIcons.has(key)) continue;
+    const parent = renditionParent(key);
+    if (parent && byKey.has(parent)) continue;
+
+    const claims = byKey.get(key) || [];
+    const siblings = pathsByBase.get(key) || [];
+
+    // Ambiguity is the finding, not something to resolve by picking one.
+    if (claims.length && siblings.length > 1) {
+      report.add('assets/unmanifested', BLOCKER,
+        `${siblings.length} different files are published as "${key}" (${siblings.join(', ')}) and the manifest has `
+        + `${claims.length === 1 ? 'one row' : `${claims.length} rows`} for that name — which file the row describes is unknowable`,
+        { file: at.file, line: at.line || undefined },
+        'Rename them apart, or give each one its own row keyed on its published path. A manifest that binds a NAME '
+        + 'rather than a file is laundering: drop any image in beside a cleared one, give it the same name, and it '
+        + 'inherits somebody else\'s source, rights and alt text.');
+      continue;
+    }
+    if (claims.length > 1) {
+      report.add('assets/unmanifested', BLOCKER,
+        `the manifest has ${claims.length} rows for "${key}" (lines ${claims.map((r) => r.line).join(', ')}) and they cannot both describe the published file`,
+        { file: shownManifest, line: claims[0].line },
+        'Merge them, or key the rows on their full path. Two rows for one name means the checks below are reading '
+        + 'whichever one happened to be last.');
+      continue;
+    }
+
+    const row = claims[0];
+    if (row) seenRows.add(row);
 
     if (!row) {
       report.add('assets/unmanifested', BLOCKER,
@@ -176,7 +298,7 @@ export async function run(ctx, report) {
       continue;
     }
 
-    if (row.hasRightsColumn && isBlank(row.rights)) {
+    if (manifest.columns.rights && isBlank(row.rights)) {
       report.add('assets/rights-unrecorded', BLOCKER,
         `"${row.file}" ships with no answer in the Rights column`,
         { file: shownManifest, line: row.line },
@@ -219,7 +341,39 @@ export async function run(ctx, report) {
         + 'that hides its origin in a free-text cell has hidden it.');
     }
 
-    if (row.hasAltColumn && isBlank(row.alt) && IMAGE_EXT.test(row.file)
+    // THE PAGE AND THE MANIFEST HAVE TO AGREE ABOUT WHAT THE PICTURE IS.
+    //
+    // This is what closes the last laundering route. Drop any image in beside a
+    // cleared one, give it the cleared one's name, and every other check passes:
+    // the row exists, it has a source, it has rights. What it does not have is
+    // agreement — the page calls the file "our new premises" while the row that
+    // vouches for it describes two owners in a workshop. One of those two
+    // statements is false about the file that shipped, and the gate cannot tell
+    // which, which is exactly the finding.
+    //
+    // It also enforces the design intent the Alt column exists for: alt text is
+    // decided by somebody looking at the picture, not improvised while writing
+    // markup, which is where "image1" comes from.
+    const norm = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+    const pageAlts = [...new Set(entry.refs.map((r) => r.alt).filter((a) => a != null))];
+    const declaredAlt = norm(row.alt);
+    const decorative = /^(decorative|none|empty|n\/a)$/.test(declaredAlt);
+    for (const pageAlt of pageAlts) {
+      const seen = norm(pageAlt);
+      if (!declaredAlt || (decorative && !seen)) continue;
+      if (seen === declaredAlt) continue;
+      // Substring either way is a rewording, not a different subject.
+      if (seen && declaredAlt && (seen.includes(declaredAlt) || declaredAlt.includes(seen))) continue;
+      report.add('assets/alt-mismatch', MAJOR,
+        `"${row.file}" — the page says "${String(pageAlt).slice(0, 48)}" and the manifest says "${String(row.alt).slice(0, 48)}"`,
+        { file: at.file, line: at.line || undefined },
+        'These describe different pictures. Either the alt text drifted from the decision, or the file at this path is '
+        + 'not the file the row vouches for — and if it is the second, an uncleared image is wearing a cleared one\'s '
+        + 'provenance. Check which, then make them agree.');
+      break;
+    }
+
+    if (manifest.columns.alt && isBlank(row.alt) && IMAGE_EXT.test(row.file)
         && !/decorative|aria-hidden|alt=""/i.test(`${row.used} ${row.kind} ${row.alt}`)) {
       report.add('assets/alt-unrecorded', MAJOR,
         `"${row.file}" has no alt text recorded`,

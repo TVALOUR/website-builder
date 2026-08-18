@@ -27,6 +27,21 @@
 //
 // NOT LEGAL ADVICE, here or in any profile that extends it.
 
+// A business SAYING IT DOES NOT DO SOMETHING is the opposite of a claim, and
+// reporting the disclaimer as the promise is the most embarrassing false
+// positive a claim checker can produce. Measured on twenty lines of ordinary
+// honest small-business copy, the un-negated patterns fired on four of them,
+// every one a sentence declining to make the claim.
+//
+// The window is 60 characters because the negation is usually several words
+// upstream: "nobody here is going to tell you we are the best joiner in Devon".
+// First letters are spelled as classes rather than carried by an /i flag: the
+// superiority pattern is deliberately case-SENSITIVE (its trailing [A-Z] place
+// name is the discriminator), so an /i here would break the rule it guards.
+// Without the classes, a sentence OPENING with the negation — "Nobody here is
+// going to tell you we are the best joiner in Devon" — slipped straight past.
+const NOT = String.raw`(?<!\b(?:[Nn]ot|[Nn]ever|[Nn]obody|[Nn]o one|[Nn]o-one|[Cc]annot|[Cc]an't|[Cc]an not|[Dd]o not|[Dd]on't|[Dd]oes not|[Dd]oesn't|[Ww]on't|[Uu]nable to)\b[^.!?]{0,60})`;
+
 export default {
   id: '_base',
   name: 'jurisdiction-neutral floor',
@@ -162,7 +177,9 @@ export default {
       // — found by testing the patterns against innocent prose rather than
       // against the claims they were written for.
       count: [/\b(?:(?:over|more\s+than|upwards\s+of)\s+)?\d[\d,]*\+?\s*(?:happy\s+|satisfied\s+)?(?:customers|clients|patients|reviews|projects|jobs)\b/i, 'a customer-count claim'],
-      superiority: [/\b(no\.?\s?1|number\s+one)\s+\w+|\b(the\s+)?(best|leading|top|premier|foremost)\s+\w+\s+in\s+(the\s+)?[A-Z][\w]+|\baward[-\s]winning\b|\bmarket[-\s]leading\b/, 'a superiority or award claim'],
+      // Case stays SENSITIVE: the trailing [A-Z] place name is what separates
+      // "the best joiner in Devon" from "the best way to reach us".
+      superiority: [new RegExp(`${NOT}(?:\\b(?:no\\.?\\s?1|number\\s+one)\\s+\\w+|\\b(?:the\\s+)?(?:best|leading|top|premier|foremost)\\s+\\w+\\s+in\\s+(?:the\\s+)?[A-Z][\\w]+|\\baward[-\\s]winning\\b|\\bmarket[-\\s]leading\\b)`), 'a superiority or award claim'],
       // Requires an actual register or qualifier after the word, so "registered
       // office" and "registered address" do not match.
       //
@@ -177,7 +194,10 @@ export default {
       // the part is in stock" is a disclaimer, and flagging it as a promise the
       // business must honour is exactly backwards. Variable-length lookbehind is
       // supported in V8, which is the only engine this runs on.
-      guarantee: [/(?<!\b(?:cannot|can't|can\s+not|do\s+not|don't|does\s+not|doesn't|never|no|unable\s+to)\s{1,3})\b(?:we\s+)?guarantee(?:d)?\s+\w+|\bmoney[-\s]back\s+guarantee\b|\b100%\s+(?:satisfaction|guaranteed?)\b|\blifetime\s+(?:guarantee|warranty)\b/i, 'a guarantee'],
+      // The negation guard applies to EVERY alternative. It used to sit on the
+      // first branch only, so "we do NOT offer a money back guarantee on
+      // bespoke work" was reported as a guarantee the business must honour.
+      guarantee: [new RegExp(`${NOT}(?:\\b(?:we\\s+)?guarantee(?:d)?\\s+\\w+|\\bmoney[-\\s]back\\s+guarantee\\b|\\b100%\\s+(?:satisfaction|guaranteed?)\\b|\\blifetime\\s+(?:guarantee|warranty)\\b)`, 'i'), 'a guarantee'],
       insurance: [/\b(fully|comprehensively)\s+insured\b|\b(public|professional)\s+(liability|indemnity)\s+insurance\b/i, 'an insurance claim'],
       years: [/\b(\d+)\+?\s*years?\s+(of\s+)?(experience|trading|in\s+business|serving)\b/i, 'a years-in-business claim'],
       // Green claims are separately legislated in the EU, UK, Canada and

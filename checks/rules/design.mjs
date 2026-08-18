@@ -523,15 +523,46 @@ export async function run(ctx, report) {
   }
 
   if (policy.motion === 'none' || policy.motion === 'subtle') {
-    const CALM_PROPS = /^(color|background-color|border-color|outline-color|opacity|box-shadow|fill|stroke|text-decoration-color|backdrop-filter)$/i;
-    const jsText = (ctx.jsFiles || []).map(read).join('\n')
-      + htmlFiles.map((f) => (read(f).match(/<script\b[^>]*>[\s\S]*?<\/script>/gi) || []).join('\n')).join('\n');
+    // CALM is a property that repaints without moving anything. The rule the
+    // comment above states — "the line is drawn at anything that MOVES" — was
+    // narrower in code than in prose: a hover brightness lift and a focus-ring
+    // offset both blocked, and neither moves a pixel of layout or composite
+    // position. Enumerated from that principle, not from memory.
+    const CALM_PROPS = /^(color|background|background-color|border-color|border|outline|outline-color|outline-offset|outline-width|opacity|box-shadow|text-shadow|fill|stroke|stroke-width|text-decoration-color|text-decoration|filter|backdrop-filter|accent-color|caret-color|visibility|-webkit-text-fill-color)$/i;
+
+    // Comments are not code, and neither is JSON-LD.
+    //
+    // The previous version concatenated every .js file and every <script> block
+    // of every type, comments included, and substring-matched. So it blocked on:
+    // a JS comment saying the client did NOT want scroll reveals; a JSON-LD
+    // block that happened to contain the word requestAnimationFrame; and CSS
+    // whose @keyframes were commented out because the client asked for no
+    // movement. Being wrong about code somebody has already deleted is the most
+    // credibility-destroying thing a checker can do.
+    const stripJsComments = (src) => String(src)
+      .replace(/\/\*[\s\S]*?\*\//g, ' ')
+      .replace(/(^|[^:\\])\/\/[^\n]*/g, '$1 ');
+    const jsText = stripJsComments(
+      (ctx.jsFiles || []).map(read).join('\n')
+      + htmlFiles.map((f) => (read(f).match(/<script\b[^>]*>[\s\S]*?<\/script>/gi) || [])
+        // Only real JavaScript. type="application/ld+json", importmap and
+        // text/template are data.
+        .filter((s) => {
+          const type = (/type\s*=\s*["']([^"']+)["']/i.exec(s) || [, ''])[1].toLowerCase();
+          return !type || /javascript|module/.test(type);
+        }).join('\n')).join('\n'));
+    const cssNoComments = String(cssText).replace(/\/\*[\s\S]*?\*\//g, ' ');
 
     if (policy.motion === 'none') {
-      const keyframes = rules.filter((r) => r.isKeyframesOrFont && /keyframes/i.test(r.atRule || ''));
-      const named = [...new Set((cssText.match(/@(?:-\w+-)?keyframes\s+([\w-]+)/gi) || [])
+      // Comments stripped, and an UNREFERENCED @keyframes moves nothing — a
+      // vendored reset carrying a spinner nobody applies is not this site
+      // animating. Only keyframes an `animation` declaration actually names.
+      const declaredNames = [...new Set((cssNoComments.match(/@(?:-\w+-)?keyframes\s+([\w-]+)/gi) || [])
         .map((s) => s.split(/\s+/).pop()))];
-      if (named.length || keyframes.length) {
+      const animationValues = (cssNoComments.match(/animation(?:-name)?\s*:[^;{}]+/gi) || []).join(' ');
+      const named = declaredNames.filter((n) => new RegExp(`\\b${n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(animationValues));
+      const keyframes = named.length ? rules.filter((r) => r.isKeyframesOrFont && /keyframes/i.test(r.atRule || '')) : [];
+      if (named.length) {
         report.add('design/motion-policy', motionSeverity,
           `the site defines ${named.length || keyframes.length} keyframe animation${(named.length || keyframes.length) === 1 ? '' : 's'} `
           + `(${named.slice(0, 4).join(', ')}${named.length > 4 ? ', …' : ''}) and this build's motion policy is "none"${motionNote}`,
@@ -556,24 +587,48 @@ export async function run(ctx, report) {
           + '"no animations" means. Change the client\'s mind on the record, or take the movement out.');
       }
 
+      // PRESENCE OF AN API IS NOT MOTION. IntersectionObserver is how you do
+      // lazy-loading, scrollspy, sticky-header measurement and view analytics;
+      // requestAnimationFrame is how you debounce a resize handler without
+      // thrashing layout. Blocking a ship on either, on a site that moves
+      // nothing, is the false blocker that gets `--skip design` typed once and
+      // then left in the shell history, taking the ten real design gates with
+      // it.
+      //
+      // So each pattern now needs a SECOND signal in the same file: something
+      // that actually moves. An animation library is the exception — importing
+      // GSAP and not animating is not a thing anybody does.
+      // Deliberately NOT a bare `style.` or a bare `opacity`: setting a CSS
+      // custom property from a rAF-debounced resize handler is the textbook
+      // non-motion use of the API, and a loose corroborator blocked exactly
+      // that. The corroborator has to name something that moves.
+      const MOVES = /\b(transform|translate[XYZ3]?|scale[XYZ3]?|rotate[XYZ]?|classList|keyframes|scrollTo|scrollIntoView)\b|style\.(transform|top|left|right|bottom|opacity|translate|scale|rotate|height|width)/i;
       const revealPatterns = [
-        [/IntersectionObserver/i, 'a scroll-reveal observer'],
-        [/scrollBehavior\s*[:=]\s*['"]smooth|behavior\s*:\s*['"]smooth/i, 'smooth-scrolling'],
-        [/\.animate\s*\(/i, 'the Web Animations API'],
-        [/requestAnimationFrame/i, 'a requestAnimationFrame loop'],
-        [/\b(gsap|ScrollTrigger|AOS\.init|framer-motion|lottie)\b/i, 'an animation library'],
+        [/IntersectionObserver/i, 'a scroll-reveal observer', true],
+        [/scrollBehavior\s*[:=]\s*['"]smooth|scrollTo\s*\([^)]*behavior\s*:\s*['"]smooth|scrollIntoView\s*\([^)]*behavior\s*:\s*['"]smooth/i, 'smooth-scrolling', false],
+        [/(?:document|querySelector[All]*\([^)]*\)|getElementById\([^)]*\)|\bel\b|\bnode\b|\$\([^)]*\))[^;\n]{0,40}\.animate\s*\(/i, 'the Web Animations API', false],
+        [/requestAnimationFrame/i, 'a requestAnimationFrame loop', true],
+        [/\b(gsap|ScrollTrigger|AOS\.init|framer-motion|lottie)\b/i, 'an animation library', false],
       ];
-      for (const [re, what] of revealPatterns) {
-        if (re.test(jsText)) {
-          report.add('design/motion-policy', motionSeverity,
-            `the site's JavaScript uses ${what}, and this build's motion policy is "none"${motionNote}`,
+      for (const [re, what, needsCorroboration] of revealPatterns) {
+        if (!re.test(jsText)) continue;
+        if (needsCorroboration && !MOVES.test(jsText)) {
+          report.add('design/motion-policy', MINOR,
+            `the site's JavaScript uses ${what}, and nothing near it appears to move anything`,
             {},
-            'Scroll-triggered reveals are the single most recognisable generated-site tell, and this client did not '
-            + 'ask for them. Remove it, or get a yes and record `- **Motion:** subtle` in brief.md.');
+            'Reported, not blocked. This API has ordinary non-motion uses — lazy-loading, scrollspy, a debounced resize '
+            + 'handler — and nothing in the file writes a transform, a position or a class. Worth one look to confirm '
+            + 'that is what it is doing.');
+          continue;
         }
+        report.add('design/motion-policy', motionSeverity,
+          `the site's JavaScript uses ${what}, and this build's motion policy is "none"${motionNote}`,
+          {},
+          'Scroll-triggered reveals are the single most recognisable generated-site tell, and this client did not '
+          + 'ask for them. Remove it, or get a yes and record `- **Motion:** subtle` in brief.md.');
       }
 
-      if (/scroll-behavior\s*:\s*smooth/i.test(cssText)) {
+      if (/scroll-behavior\s*:\s*smooth/i.test(cssNoComments)) {
         report.add('design/motion-policy', MAJOR,
           'scroll-behavior: smooth is set and this build\'s motion policy is "none"',
           {},

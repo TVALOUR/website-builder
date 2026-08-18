@@ -220,6 +220,7 @@ can trace is exactly as dishonest as an unsourced price.
 | `assets/generated-forbidden-subject` | For each generated row, read its "what it shows" against `shared/imagery.md` §3: never people, premises, products, logos, badges, awards, or charts asserting real data. Banned in every regime, including fiction. **Blocker.** |
 | `assets/generated-undeclared` | Does any Source name a generator (Midjourney, DALL-E, Stable Diffusion, Firefly, Flux) while the Generated column says no? The declaration is what makes the subject rules checkable at all. |
 | `assets/file-missing` | Does every row point at a file that exists in `assets/`, `_intake/` or `site/`? A manifest describing files nobody has is not a record. |
+| `assets/alt-mismatch` | For each image, read the page's `alt` against the manifest's Alt cell. If they describe different pictures, either the alt drifted from the decision or **the file at that path is not the file the row vouches for** — which is what a photo renamed onto somebody else's cleared row looks like from the outside. Check which. |
 | `assets/alt-unrecorded` | Every image row needs alt text decided in the manifest by somebody looking at the picture — not improvised in the markup, which is where "image1" comes from. `decorative` is a real answer. |
 | `assets/intake-unused` | List what the client handed over. Anything not on the site and not marked "not used — <why>" is a decision nobody took. The client noticed that their logo is missing; they did not conclude it was deliberate. |
 

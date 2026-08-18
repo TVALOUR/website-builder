@@ -27,7 +27,7 @@ import { isAbsolute, join, resolve } from 'node:path';
 import { statSync } from 'node:fs';
 import { Report } from './lib/report.mjs';
 import { walk, allFiles, walkStats } from './lib/fs.mjs';
-import { loadProfile, profileFromConfig } from './lib/profile.mjs';
+import { loadProfile, profileFromConfig, profileFromBrief } from './lib/profile.mjs';
 
 import copy from './rules/copy.mjs';
 import legal from './rules/legal.mjs';
@@ -98,12 +98,21 @@ if (unknown.length) {
   console.error(`Valid families: ${known.join(', ')}`);
   process.exit(2);
 }
-// Jurisdiction resolution order: the flag, then what stage 00 recorded in
-// config.md, then nothing. There is deliberately no fallback country. Defaulting
-// to `uk` was convenient and wrong: it meant a US build got Companies Act
-// disclosure rules and a PECR consent model, reported with the same confidence
-// as a correct run.
-const profileName = flag('--profile') || profileFromConfig() || null;
+// Jurisdiction resolution: the flag, then THE BUILD'S OWN brief.md, then what
+// stage 00 recorded in config.md, then nothing.
+//
+// brief.md comes before config.md for the reason the whole subsystem exists: a
+// developer in Devon builds for a client in Ohio, and the client's country is a
+// fact about the client, not about the developer's default. Leaving brief.md out
+// of this chain meant the per-build override that stage 00, config.md and
+// templates/brief.md all document silently did nothing, and the Ohio site was
+// gated against UK law — the Kansas-plumber failure this repo opens by
+// describing, reproduced by following the repo's own documented command.
+//
+// There is still no fallback COUNTRY. Running out of sources means running out.
+const briefProfile = profileFromBrief(siteDir);
+const configProfile = profileFromConfig();
+const profileName = flag('--profile') || briefProfile || configProfile || null;
 const factsPath = flag('--facts');
 const assetsPath = flag('--assets');
 const asJson = has('--json');
@@ -179,6 +188,16 @@ report.suppressed = only.length ? known.filter((k) => !only.includes(k)) : skip;
 
 const loaded = await loadProfile(profileName);
 const profile = loaded.profile || {};
+
+// A build that says one country while the run judges it as another is the
+// failure mode wearing a disguise: the report looks authoritative and cites the
+// wrong statute book. Silence here is how it stayed hidden.
+if (briefProfile && profileName && briefProfile !== profileName) {
+  loaded.problems.push(
+    `the build's brief.md says the client trades under "${briefProfile}" and this run judged it as `
+    + `"${profileName}"${flag('--profile') ? ' (from --profile)' : ' (from config.md)'}. Every legal finding below `
+    + `is about the wrong country. Drop the flag, or fix the brief — but do not read this report until they agree.`);
+}
 // A missing or broken jurisdiction is a BLOCKER, not a skip. The old code
 // skipped, legal.mjs early-returned on the empty profile, and the run printed
 // PASS on a site with no privacy policy at all.
@@ -186,7 +205,28 @@ const profile = loaded.profile || {};
 // The findings are RAISED BY legal.mjs, not here: a gate belongs to the family
 // that declares it, and a gate declared in one file and emitted from another is
 // invisible to the phantom-gate check that exists to catch exactly that.
-for (const note of loaded.notices) report.skip('profile', note);
+// The provenance banner is structured data on the report, not a skip line.
+// Skip lines are dim, print below the findings they qualify, and share a word
+// with "this gate did not run" - which is how the most important sentence in the
+// system ended up dressed as a non-event.
+if (loaded.profile) {
+  const pv = loaded.profile.provenance || {};
+  report.provenance = {
+    id: loaded.profile.id,
+    status: pv.status || null,
+    verifiedBy: pv.verifiedBy || null,
+    lawLastVerified: pv.lawLastVerified || null,
+    nextReview: pv.nextReview || null,
+    sources: Array.isArray(pv.sources) ? pv.sources.length : 0,
+    caveats: Array.isArray(pv.caveats) ? pv.caveats : [],
+  };
+}
+// Everything else the loader wants said - a review date passed, no consent model
+// - stays a skip line, which is what those are.
+for (const note of loaded.notices) {
+  if (/is RESEARCHED, not verified|jurisdiction-NEUTRAL baseline/.test(note)) continue;
+  report.skip('profile', note);
+}
 
 if (walkStats.symlinks > 0) {
   report.skip('scan', `${walkStats.symlinks} symlink(s) not followed - anything behind them was NOT checked`);

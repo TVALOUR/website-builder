@@ -47,6 +47,10 @@ export class Report {
                         // skip on purpose: a skip is a stated limitation, a crash is
                         // an unknown result, and an unknown result must never exit 0.
     this.stats = {};
+    // Set by run.mjs from the loaded profile. It is rendered ABOVE the findings
+    // rather than carried as a skip line, because a label nobody reads protects
+    // nobody.
+    this.provenance = null;
   }
 
   /**
@@ -89,6 +93,7 @@ export class Report {
   toJSON() {
     return {
       site: this.siteDir,
+      provenance: this.provenance || null,
       verdict: this.crashes.length ? 'ERROR'
         : (this.blockers.length ? 'FAIL' : (this.scoped ? 'PARTIAL' : 'PASS')),
       crashes: this.crashes,
@@ -117,6 +122,29 @@ export class Report {
     out.push(`${c.bold}website-builder${c.off} ${c.dim}— ${this.siteDir}${c.off}`);
     out.push('');
 
+    // THE PROVENANCE BANNER GOES ABOVE THE FINDINGS, UNDIMMED.
+    //
+    // It used to be a `report.skip()` line: dim, printed below the findings it
+    // referred to, under the same word the report uses for gates that did not
+    // run. So the most important sentence in the system was dressed as a
+    // non-event, directly beneath a finding quoting a penalty figure at full
+    // brightness. Which half of that gets pasted into an email to a client?
+    //
+    // The docs promise this in three places — "the gate repeats that label on
+    // every run", "not decoration and not removable". Now it does.
+    const p = this.provenance;
+    if (p && p.status && p.status !== 'verified') {
+      const head = p.status === 'researched'
+        ? `UNVERIFIED — profile ${p.id} was researched, not reviewed by anyone qualified`
+        : `NO JURISDICTION CLAIMED — profile ${p.id} states no country's law`;
+      out.push(`  ${c.yellow}${c.bold}${head}${c.off}`);
+      out.push(`  ${c.yellow}law last checked ${p.lawLastVerified || 'never'}`
+        + `${p.nextReview ? ` · review due ${p.nextReview}` : ''}`
+        + `${p.sources ? ` · ${p.sources} citation${p.sources === 1 ? '' : 's'}` : ''}`
+        + ` · every legal finding below is a prompt to check, not advice${c.off}`);
+      out.push('');
+    }
+
     const list = this.sorted();
     if (!list.length) {
       out.push(`  ${c.green}Nothing found.${c.off}`);
@@ -133,7 +161,26 @@ export class Report {
     for (const s of this.skipped) {
       out.push(`  ${c.dim}  skipped ${s.gate}: ${s.why}${c.off}`);
     }
-    out.push('');
+    // The profile's own statement of what it cannot know. Written by whoever
+    // researched it, printed where a human reads it, because the caveats are
+    // the half a client actually needs and they reached nobody.
+    if (this.provenance?.caveats?.length) {
+      out.push(`  ${c.bold}KNOWN LIMITS OF THIS PROFILE${c.off} ${c.dim}(profiles/${this.provenance.id}.mjs)${c.off}`);
+      for (const cav of this.provenance.caveats) out.push(`  ${c.dim}  · ${cav}${c.off}`);
+      out.push('');
+    }
+
+    // What the build was actually judged under. "The default silently applied"
+    // is the failure the policy layer exists to prevent, and it was invisible in
+    // the output humans read — it reached the JSON only.
+    if (this.stats?.motionPolicy || this.stats?.imageryPolicy) {
+      out.push(`  ${c.dim}policy: motion ${this.stats.motionPolicy || 'none'}`
+        + `${this.stats.motionPolicySource ? ` (${this.stats.motionPolicySource})` : ''}`
+        + ` · imagery ${this.stats.imageryPolicy || 'client-assets-only'}`
+        + `${this.stats.jurisdiction ? ` · jurisdiction ${this.stats.jurisdiction}` : ''}${c.off}`);
+      out.push('');
+    }
+
     if (this.scoped) {
       out.push(`  ${c.yellow}SUPPRESSED${c.off}: ${this.suppressed.join(', ')} — this run did NOT check them.`);
       out.push('');

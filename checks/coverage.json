@@ -1,8 +1,8 @@
 {
-  "gates": 149,
-  "declaredPairs": 149,
+  "gates": 150,
+  "declaredPairs": 150,
   "provenPairs": 140,
   "documentedUnprovable": 27,
-  "coveragePercent": 94,
+  "coveragePercent": 93,
   "families": 11
 }

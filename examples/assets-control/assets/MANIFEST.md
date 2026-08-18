@@ -14,7 +14,8 @@ Faults, row by row:
 - `logo/logo.svg` — no answer in Rights (**rights-unrecorded**), no alt (**alt-unrecorded**).
 - `photos/hero-texture.png` — Source names a generator, Generated says no (**generated-undeclared**).
 - `photos/gone.jpg` — a row for a file that does not exist (**file-missing**).
-- `photos/yard.png` — no Source (**source-unrecorded**).
+- `photos/yard.png` — no Source (**source-unrecorded**), and the page's alt disagrees with the
+  manifest's (**alt-mismatch**).
 - `img/shopfront.jpg` is on the page and has no row here at all (**unmanifested**).
 - `_intake/leaflet-scan.png` was handed over and is used nowhere (**intake-unused**).
 

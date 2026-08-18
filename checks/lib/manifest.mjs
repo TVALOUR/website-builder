@@ -81,11 +81,18 @@ export function parseManifest(path) {
       alt: cell('alt'),
       hasRightsColumn: idx.rights >= 0,
       hasAltColumn: idx.alt >= 0,
-      hasUsedColumn: idx.used >= 0,
     });
   }
 
-  return { rows, hasTable, imageryPolicy, text };
+  // Which required columns the header actually declared. Guarding each per-row
+  // check on "does this column exist" meant DELETING the Rights column silently
+  // deleted its blocker - a two-second edit to a file the docs invite you to
+  // hand-edit. The absence of a column is now a fact about the manifest, not a
+  // reason to stop asking.
+  const columns = rows.length
+    ? { rights: rows[0].hasRightsColumn, alt: rows[0].hasAltColumn }
+    : { rights: true, alt: true };
+  return { rows, hasTable, imageryPolicy, text, columns };
 }
 
 /**
@@ -111,17 +118,22 @@ export function basenameKey(p) {
  * can be checked against it. Generating one of these is the same offence as
  * inventing a price.
  */
+// PLURALS MATTER HERE more than anywhere else in the repo. This is the honesty
+// floor, and the shipped case it exists to stop is a generated picture of "our
+// founders" or "the owners" - both of which a singular \b pattern missed
+// entirely while catching "our founder". Every alternation takes an optional
+// plural.
 export const FORBIDDEN_GENERATED_SUBJECTS = [
-  [/\b(team|staff|owner|founder|employee|colleague|customer|client|patient|portrait|headshot|face|person|people|worker)\b/i,
+  [/\b(teams?|staff|owners?|founders?|employees?|colleagues?|customers?|clients?|patients?|portraits?|headshots?|faces?|persons?|people|workers?|crews?)\b/i,
     'people presented as real'],
-  [/\b(shop|store|premises|building|office|workshop|yard|clinic|salon|restaurant|frontage|shopfront|storefront|facility|location)\b/i,
+  [/\b(shops?|stores?|premises|buildings?|offices?|workshops?|yards?|clinics?|salons?|restaurants?|frontages?|shopfronts?|storefronts?|facilities|facility|locations?|units?)\b/i,
     'premises or locations that do not exist as shown'],
-  [/\b(product|item|goods|packaging|bottle|dish|meal|garment)\b/i,
+  [/\b(products?|items?|goods|packaging|bottles?|dishes|dish|meals?|garments?|packs?)\b/i,
     'a product shown as a genuine photograph'],
-  [/\b(logo|wordmark|badge|seal|emblem|as\s+seen\s+in|partner\s+mark|crest)\b/i,
+  [/\b(logos?|wordmarks?|badges?|seals?|emblems?|as\s+seen\s+in|partner\s+marks?|crests?)\b/i,
     'logos, wordmarks, badges or partner marks'],
-  [/\b(award|certificat|accredit|credential|trophy|qualification)\b/i,
+  [/\b(awards?|certificat|accredit|credentials?|trophies|trophy|qualifications?)\b/i,
     'awards, certifications or credentials'],
-  [/\b(map|chart|graph|infographic|statistic|data)\b/i,
+  [/\b(maps?|charts?|graphs?|infographics?|statistics?|data)\b/i,
     'maps, charts or infographics asserting real data'],
 ];

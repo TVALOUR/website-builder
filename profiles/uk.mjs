@@ -227,30 +227,31 @@ export default {
     // that cries wolf is a gate people learn to skip, which is worse than no
     // gate. If a pattern is ambiguous it belongs in the judgment checklist,
     // not here.
-    regulatedClaims: [
-      [/\b\d(\.\d)?\s*(★+|stars?\b|out\s+of\s+5|\/\s*5)\b/i, 'a star rating',
-        'DMCC Act 2024 (in force 2025) — a review or rating that is not genuine is a banned practice, with penalties up to 10% of global turnover. It must trace to a real, attributable review.'],
-      [/\b(over|more\s+than|\d[\d,]*\+)\s*\d*[\d,]*\s*(happy\s+|satisfied\s+)?(customers|clients|patients|reviews|projects|jobs)\b/i,
-        'a customer-count claim',
-        'DMCC Act 2024 Part 4 Ch.1 (in force 6 Apr 2025, replacing CPUT 2008) — a specific number is a factual claim and must be substantiable on request.'],
-      [/\b(no\.?\s?1|number\s+one)\s+\w+|\b(the\s+)?(best|leading|top|premier|foremost)\s+\w+\s+in\s+(the\s+)?[A-Z][\w]+|\baward[-\s]winning\b|\bmarket[-\s]leading\b/,
-        'a superiority or award claim',
-        'CAP Code 3.1/3.7 — objective superiority claims must be backed by documentary evidence held BEFORE publication.'],
-      // Requires an actual register/qualifier after the word, so "registered
-      // office" and "registered address" no longer match.
-      [/\b(certified|accredited|registered|approved|qualified|licensed|member)\s+(by|with|member\s+of)\s+[A-Z]|\b(gas\s+safe|niceic|napit|hcpc|gdc|gmc|nmc|sra|cqc|riba|rics|checkatrade|trustmark|which\?\s*trusted|fmb|city\s*&\s*guilds|iosh|nebosh)\b/i,
-        'an accreditation or register claim',
-        'If the register is real (Gas Safe, NICEIC, HCPC, GDC, SRA, CQC…) the membership number must be real and checkable. Claiming an unheld trade registration is a criminal matter in several trades, not a marketing slip.'],
-      [/\b(we\s+)?guarantee(d)?\s+\w+|\bmoney[-\s]back\s+guarantee\b|\b100%\s+(satisfaction|guaranteed?)\b|\blifetime\s+(guarantee|warranty)\b/i,
-        'a guarantee',
-        'DMCC Act 2024 Part 4 (replacing CPUT 2008, revoked 6 Apr 2025) — a guarantee stated on the site is a contractual term the business is held to. Only ship one the owner has agreed to honour.'],
-      [/\b(fully|comprehensively)\s+insured\b|\bpublic\s+liability\s+insurance\b/i,
-        'an insurance claim',
-        'Substantiable, and clients do ask to see the certificate.'],
-      [/\b(\d+)\+?\s*years?\s+(of\s+)?(experience|trading|in\s+business|serving)\b/i,
-        'a years-in-business claim',
-        'A specific number is checkable against Companies House or the domain age. Confirm it before it ships.'],
-    ],
+    // The loader assembles regulatedClaims from _base.mjs claimPatterns plus
+    // these citations. This file used to hand-roll the whole array, which
+    // bypassed the shared patterns entirely: the environmental claim class did
+    // not exist here at all, so an unsubstantiated green claim shipped clean,
+    // and the accreditation pattern carried an /i flag that the base file
+    // explicitly warns turns a precise gate into a cry-wolf one.
+    // localRegisters above supplies the UK trade registers by name.
+    claimCitations: {
+      rating:
+        'DMCC Act 2024 (in force 2025) — a review or rating that is not genuine is a banned practice, with penalties up to 10% of global turnover. It must trace to a real, attributable review.',
+      count:
+        'DMCC Act 2024 Part 4 Ch.1 (in force 6 Apr 2025, replacing CPUT 2008) — a specific number is a factual claim and must be substantiable on request.',
+      superiority:
+        'CAP Code 3.1/3.7 — objective superiority claims must be backed by documentary evidence held BEFORE publication.',
+      accreditation:
+        'If the register is real (Gas Safe, NICEIC, HCPC, GDC, SRA, CQC…) the membership number must be real and checkable. Claiming an unheld trade registration is a criminal matter in several trades, not a marketing slip.',
+      guarantee:
+        'DMCC Act 2024 Part 4 (replacing CPUT 2008, revoked 6 Apr 2025) — a guarantee stated on the site is a contractual term the business is held to. Only ship one the owner has agreed to honour.',
+      insurance:
+        'Substantiable, and clients do ask to see the certificate.',
+      years:
+        'A specific number is checkable against Companies House or the domain age. Confirm it before it ships.',
+      environmental:
+        'DMCC Act 2024 Part 4 Ch.1 (in force 6 Apr 2025) covers misleading environmental claims as a general unfair-practice matter, and the CMA Green Claims Code sets the substantiation bar the regulator applies. "Carbon neutral" and "eco-friendly" are objective claims and need evidence held BEFORE publication. UNCONFIRMED whether a dedicated UK green-claims instrument has commenced since 2026-08-18 - check at review.',
+    },
   },
 
   seo: {

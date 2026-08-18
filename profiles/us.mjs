@@ -563,49 +563,31 @@ export default {
     // English, and the failures are recorded next to each so nobody loosens them
     // back: "We do more than clients expect", "we cannot guarantee that",
     // "Suite #1 Main Street", "licensed by the State of California".
-    regulatedClaims: [
-      [/\b\d(\.\d)?\s*(★+|stars?\b|out\s+of\s+5|\/\s*5)\b/i,
-        'a star rating',
-        'FTC Rule on the Use of Consumer Reviews and Testimonials, 16 CFR 465.2, effective 21 October 2024 -- a rating that misrepresents real consumer experience violates a trade regulation rule, carrying civil penalties up to USD 53,088 per violation. The rule is live and being enforced (warning letters Dec 2025; TruHeight settlement Apr 2026). It must trace to real, attributable reviews.'],
-
-      // Tightened from the UK pattern, which allows zero digits after "more
-      // than" and therefore matches "We do more than clients expect". Both
-      // branches now require at least one digit.
-      [/\b(over|more\s+than|upwards\s+of)\s+[\d,]{1,9}\+?\s*(happy\s+|satisfied\s+|local\s+)?(customers|clients|patients|reviews|projects|jobs|homes|families|installations)\b|\b\d[\d,]*\+\s*(happy\s+|satisfied\s+|local\s+)?(customers|clients|patients|reviews|projects|jobs|homes|families|installations)\b/i,
-        'a customer-count claim',
-        'FTC Act s.5, 15 U.S.C. 45, plus the advertising substantiation doctrine -- a specific number is an objective factual claim requiring a reasonable basis held BEFORE publication. If nobody counted, there is no number.'],
-
-      // Case-SENSITIVE on purpose: the superiority branch requires a capitalised
-      // place name after "in", which is what stops it firing on "the best way to
-      // reach us" and "top rated in the industry". The "#1" branch requires the
-      // same "in <Place>" shape, so "Suite #1 Main Street" does not match.
-      [/\b(no\.?\s?1|number\s+one)\s+\w+|\#\s?1\s+\w+\s+in\s+(the\s+)?[A-Z]|\b(the\s+)?(best|leading|top|premier|foremost)\s+\w+\s+in\s+(the\s+)?[A-Z][\w]+|\baward[-\s]winning\b|\bmarket[-\s]leading\b|\bvoted\s+(the\s+)?best\b/,
-        'a superiority or award claim',
-        'FTC Act s.5, 15 U.S.C. 45 -- an objective superiority claim is judged by the deception test: a representation likely to mislead a reasonable consumer, material to the decision. Substantiation must be held before publication. An award claim needs a real award, from a named body, in a stated year. There is no US equivalent of the CAP Code, so the exposure is FTC enforcement and competitor Lanham Act suits instead.'],
-
-      // "the\s+" is optional-but-allowed after by/with so that "licensed by the
-      // State of California" matches, while "registered office" and "approved by
-      // the customer" still do not: the pattern requires by or with AND a
-      // capitalised word.
-      [/\b(certified|accredited|approved|licensed|registered|bonded)\s+(by|with)\s+(the\s+)?[A-Z]|\b(bbb\s+accredited|better\s+business\s+bureau|epa\s+lead[-\s]safe|nate[-\s]certified|ase[-\s]certified|nari\s+member|home\s?advisor\s+screened|angi\s+certified)\b|\blicensed\s+(and|,)\s*(bonded\s+(and\s+)?)?insured\b/i,
-        'an accreditation, licence or register claim',
-        'FTC Act s.5 for the misrepresentation, and state licensing law for the underlying conduct -- the second is the sharper edge. Advertising a trade licence not held is a matter for the state licensing board: in California it draws a fine under Cal. Bus. & Prof. Code 7027.1, and a licensed contractor must show the number in all advertising under 7030.5 (Nevada NRS 624.720 expressly includes the Internet; Florida Stat. 489.119(5)(b) says "regardless of medium"; Washington RCW 18.27.100 carries penalties to USD 10,000). Note that "licensed, bonded and insured" is THREE separate factual claims and each must be true.'],
-
-      // Tightened from the UK pattern's `guarantee\s+\w+`, which matches the
-      // disclaimer "we cannot guarantee that". Requires "we guarantee" adjacent,
-      // or one of the named guarantee forms.
-      [/\bwe\s+guarantee\b|\bguaranteed\s+(for|to)\b|\bmoney[-\s]back\s+guarantee\b|\b100%\s+(satisfaction|guaranteed?)\b|\blifetime\s+(guarantee|warranty)\b|\b\d+[-\s]year\s+(guarantee|warranty)\b/i,
-        'a guarantee',
-        'FTC Act s.5 -- a guarantee published on the site is a representation the business is held to, and state contract and warranty law makes it an enforceable term. Only ship one the owner has agreed to honour. The guarantee itself is lawful; misstating its scope, or declining to honour it, is the exposure.'],
-
-      [/\b(fully|comprehensively)\s+insured\b|\b(public|general)\s+liability\s+insurance\b|\bcarry\s+\$?[\d,]+\s*(million|m)\b/i,
-        'an insurance claim',
-        'FTC Act s.5 -- a false statement of insurance cover is material, because it is exactly the fact a customer relies on when letting a stranger into their home. Substantiable, and clients do ask for the certificate.'],
-
-      [/\b(\d+)\+?\s*years?\s+(of\s+)?(experience|trading|in\s+business|serving|in\s+the\s+trade)\b/i,
-        'a years-in-business claim',
-        'FTC Act s.5 -- a specific number is checkable against the secretary of state filing, the licence issue date, or the domain registration. Confirm it before it ships.'],
-    ],
+    // The loader assembles regulatedClaims from _base.mjs claimPatterns plus
+    // these citations. This file used to hand-roll the whole array, which
+    // bypassed the shared patterns entirely: the environmental claim class did
+    // not exist here at all, so an unsubstantiated green claim shipped clean,
+    // and the accreditation pattern carried an /i flag that the base file
+    // explicitly warns turns a precise gate into a cry-wolf one.
+    // localRegisters, if this profile grows any, supplies named registers.
+    claimCitations: {
+      rating:
+        'FTC Rule on the Use of Consumer Reviews and Testimonials, 16 CFR 465.2, effective 21 October 2024 -- a rating that misrepresents real consumer experience violates a trade regulation rule, carrying civil penalties up to USD 53,088 per violation. The rule is live and being enforced (warning letters Dec 2025; TruHeight settlement Apr 2026). It must trace to real, attributable reviews.',
+      count:
+        'FTC Act s.5, 15 U.S.C. 45, plus the advertising substantiation doctrine -- a specific number is an objective factual claim requiring a reasonable basis held BEFORE publication. If nobody counted, there is no number.',
+      superiority:
+        'FTC Act s.5, 15 U.S.C. 45 -- an objective superiority claim is judged by the deception test: a representation likely to mislead a reasonable consumer, material to the decision. Substantiation must be held before publication. An award claim needs a real award, from a named body, in a stated year. There is no US equivalent of the CAP Code, so the exposure is FTC enforcement and competitor Lanham Act suits instead.',
+      accreditation:
+        'FTC Act s.5 for the misrepresentation, and state licensing law for the underlying conduct -- the second is the sharper edge. Advertising a trade licence not held is a matter for the state licensing board: in California it draws a fine under Cal. Bus. & Prof. Code 7027.1, and a licensed contractor must show the number in all advertising under 7030.5 (Nevada NRS 624.720 expressly includes the Internet; Florida Stat. 489.119(5)(b) says "regardless of medium"; Washington RCW 18.27.100 carries penalties to USD 10,000). Note that "licensed, bonded and insured" is THREE separate factual claims and each must be true.',
+      guarantee:
+        'FTC Act s.5 -- a guarantee published on the site is a representation the business is held to, and state contract and warranty law makes it an enforceable term. Only ship one the owner has agreed to honour. The guarantee itself is lawful; misstating its scope, or declining to honour it, is the exposure.',
+      insurance:
+        'FTC Act s.5 -- a false statement of insurance cover is material, because it is exactly the fact a customer relies on when letting a stranger into their home. Substantiable, and clients do ask for the certificate.',
+      years:
+        'FTC Act s.5 -- a specific number is checkable against the secretary of state filing, the licence issue date, or the domain registration. Confirm it before it ships.',
+      environmental:
+        'FTC Act s.5 plus the FTC Green Guides (16 CFR Part 260) - an unqualified environmental benefit claim must be substantiated and, where the benefit is limited, qualified clearly and prominently. State mini-FTC acts add private rights of action in most states. UNCONFIRMED whether the Green Guides revision proposed in 2022 has been finalised - check at review.',
+    },
   },
 
   seo: {

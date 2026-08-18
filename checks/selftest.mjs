@@ -213,8 +213,13 @@ const intl = run(['examples/clean-control', '--profile', 'intl-baseline', '--jso
 say(intl.code === 0, `exit code 0 (got ${intl.code})`);
 const intlGates = new Set((intl.json?.findings || []).map((f) => f.gate));
 say(intlGates.has('legal/local-rule'), 'legal/local-rule fired — the profile surfaced its own caveat');
-say((intl.json?.gatesSkipped || []).some((sk) => /jurisdiction-NEUTRAL/i.test(sk.why || '')),
-  'the report states the profile makes no claim about local law');
+// The provenance label is structured data on the report and is rendered ABOVE
+// the findings, so this asserts the field rather than a skip line — the whole
+// point of moving it was that a dim line below the findings was not being read.
+say(intl.json?.provenance?.status === 'baseline',
+  `the report carries the profile's provenance status (got ${intl.json?.provenance?.status})`);
+say(!/UNVERIFIED|researched/i.test(intl.stdout || ''),
+  'and does not call a deliberately-neutral baseline "researched"');
 
 // ---------------------------------------------------------------- brief gate
 //
@@ -240,111 +245,27 @@ say(briefMissing.status === 2, `a folder with no brief.md exits 2, not 0 (got ${
 
 // ------------------------------------------------------- claim patterns
 //
-// PRECISION, tested directly. The claim patterns in profiles/_base.mjs are
-// shared by every jurisdiction, so a loose one is a false blocker in every
-// country at once — and a gate that cries wolf is a gate people learn to skip,
-// which is worse than no gate.
+// PRECISION, tested directly, plus COVERAGE across every profile.
 //
-// Every "quiet" case below is real prose that a shipped version of these
-// patterns flagged: "we do more than clients expect" was reported as a
-// customer-count claim, and the disclaimer "we cannot guarantee the part is in
-// stock" was reported as a guarantee the business must honour — exactly
-// backwards. The "fires" cases exist so nobody fixes those by disabling the
-// rule.
-console.log('\nclaim patterns — must fire on claims and stay quiet on prose');
-const base = (await import('../profiles/_base.mjs')).default.legal.claimPatterns;
-for (const [text, key, shouldFire] of [
-  ['We do more than clients expect', 'count', false],
-  ['Serving more than the usual suspects', 'count', false],
-  ['Over 500 happy customers', 'count', true],
-  ['1,200+ projects completed', 'count', true],
-  ['We cannot guarantee that the part is in stock', 'guarantee', false],
-  ['We can not guarantee delivery by Friday', 'guarantee', false],
-  ['We guarantee same-day callout', 'guarantee', true],
-  ['Money-back guarantee', 'guarantee', true],
-  ['the best way to reach us is by phone', 'superiority', false],
-  ['our registered office in Exeter', 'accreditation', false],
-  ['registered address on the invoice', 'accreditation', false],
-  ['a member of the team will call you back', 'accreditation', false],
-  ['Registered with Gas Safe', 'accreditation', true],
-  ['Certified by BSI', 'accreditation', true],
-  ['25 years of experience', 'years', true],
-  ['4.8 out of 5', 'rating', true],
-]) {
-  const fired = base[key][0].test(text);
-  say(fired === shouldFire,
-    `${key} ${shouldFire ? 'fires on' : 'stays quiet on'} "${text}"${fired === shouldFire ? '' : ` (got ${fired})`}`);
-}
-
-// --------------------------------------------------------- policy reading
+// The patterns are shared by every jurisdiction, so a loose one is a false
+// blocker in every country at once. Every "quiet" case in checks/claim-cases.mjs
+// is real prose a shipped version flagged - including two sentences in which a
+// business was DECLINING to make the claim it was reported as making.
 //
-// The regression this locks down was invisible for exactly the reason it was
-// dangerous: the policy reader matched `**Motion**: subtle` and the house format
-// everywhere in this repo is `- **Motion:** subtle`, colon INSIDE the bold. So
-// it read nothing, applied the safe default, and looked like it was working.
-// Every build silently ignored its own declared policy.
-//
-// A reader that silently finds nothing and falls back is indistinguishable from
-// a reader that works — which is why this is a probe and not a comment.
-console.log('\npolicy reading — the declared format must actually be read');
+// The coverage half exists because two profiles hand-rolled their own claim
+// arrays, bypassing the shared patterns, and silently lost the environmental
+// class entirely. Nothing noticed for as long as nothing checked.
+console.log('\nclaim patterns — precision, and coverage across every profile');
 {
-  const { mkdtempSync, writeFileSync: wf, mkdirSync } = await import('node:fs');
-  const { tmpdir } = await import('node:os');
-  const { loadPolicy } = await import('../checks/lib/policy.mjs');
-  const cases = [
-    ['- **Motion:** subtle\n- **Imagery:** generated-allowed\n', 'subtle', 'generated-allowed', 'colon inside the bold (the house format)'],
-    ['- **Motion**: expressive\n- **Imagery**: generated-allowed\n', 'expressive', 'generated-allowed', 'colon outside the bold'],
-    ['Motion: subtle\nImagery: generated-allowed\n', 'subtle', 'generated-allowed', 'no emphasis at all'],
-    ['nothing relevant here\n', 'none', 'client-assets-only', 'absent — the safe defaults apply'],
-  ];
-  for (const [body, wantMotion, wantImagery, label] of cases) {
-    const dir = mkdtempSync(join(tmpdir(), 'wb-policy-'));
-    mkdirSync(join(dir, 'site'));
-    wf(join(dir, 'brief.md'), `# Brief\n\n## Motion and imagery\n\n${body}`);
-    const p = loadPolicy(join(dir, 'site'));
-    say(p.motion === wantMotion && p.imagery === wantImagery,
-      `${label} -> motion=${p.motion}, imagery=${p.imagery}`
-      + (p.motion === wantMotion && p.imagery === wantImagery ? '' : ` (wanted ${wantMotion}/${wantImagery})`));
+  const { checkPrecision, checkCoverage } = await import('./claim-cases.mjs');
+  for (const r of await checkPrecision()) {
+    say(r.ok, `${r.key} ${r.shouldFire ? 'fires on' : 'stays quiet on'} "${r.text.slice(0, 58)}"`);
+  }
+  const { keys, rows } = await checkCoverage();
+  for (const r of rows) {
+    say(r.ok, `profile ${r.id} covers all ${keys.length} claim classes${r.ok ? '' : ` - MISSING ${r.missing.join(', ')}`}`);
   }
 }
-
-// ------------------------------------------------------------ gate drift
-//
-// A PASS is a claim about a site AND about the ruleset that judged it. Add
-// thirteen gates and yesterday's PASS is a statement nobody has re-checked —
-// the site has not changed, the bar has, and the artifact still says "verified".
-//
-// This was not hypothetical: the repo's own reference build carried
-// "136 gates ran ... PASS — no blockers" in its verify.md while the same command
-// against the same unchanged files returned 149 gates and two blockers. Nothing
-// noticed, because nothing re-ran.
-//
-// So: every build whose verify.md claims a PASS gets re-judged by the CURRENT
-// ruleset, every time the checker's own test runs. builds/ is gitignored, so in
-// CI this is a no-op — it is a local guard for exactly the person changing the
-// rules.
-console.log('\ngate drift — a PASS on disk must still be a PASS under today\'s rules');
-const buildsDir = join(root, 'builds');
-let claimedPasses = 0;
-try {
-  for (const d of readdirSync(buildsDir, { withFileTypes: true })) {
-    if (!d.isDirectory()) continue;
-    let verify = '';
-    try { verify = readFileSync(join(buildsDir, d.name, 'verify.md'), 'utf8'); } catch { continue; }
-    if (!/\bPASS\b/.test(verify)) continue;
-    claimedPasses++;
-    const args = [`builds/${d.name}/site`, '--json', '--no-color'];
-    try { readFileSync(join(buildsDir, d.name, 'facts.md')); args.push('--facts', `builds/${d.name}/facts.md`); } catch { /* none */ }
-    const again = run(args);
-    const blockers = again.json?.counts?.blocker ?? -1;
-    say(again.code === 0,
-      blockers === 0
-        ? `builds/${d.name}/ still passes under the current ruleset`
-        : `builds/${d.name}/ claims PASS in verify.md but now has ${blockers} blocker(s) — `
-          + `re-run the gate and update verify.md, or fix the site. A stale PASS is a false claim, not a stale file.`);
-  }
-} catch { /* no builds/ — the CI case */ }
-if (!claimedPasses) console.log('  --    no build claims a PASS on disk (this is the CI case)');
 
 // ---------------------------------------------------------------- coverage
 //
