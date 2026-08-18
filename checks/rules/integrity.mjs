@@ -37,6 +37,7 @@ export const gates = [
   { id: 'integrity/contact-route', severity: 'blocker', what: 'no way at all for a visitor to make contact' },
   { id: 'integrity/unclosed-tag', severity: 'major', what: 'obviously unbalanced block markup' },
   { id: 'integrity/tel-link', severity: 'blocker', what: 'a phone number printed as plain text, so tapping it on a phone does nothing' },
+  { id: 'integrity/dead-social', severity: 'major', what: 'a social link that goes to the platform homepage, not a profile' },
 ];
 
 // UK phone shapes as they are actually written on small-business sites. Loose
@@ -280,6 +281,21 @@ export async function run(ctx, report) {
         `third-party script with no integrity hash: ${src.slice(0, 70)}`,
         {}, 'Add an SRI hash, or self-host it. The polyfill.io incident (June 2024) turned a trusted CDN into malware delivery for ~100k sites overnight.');
       break;
+    }
+  }
+
+  // ------------------------------------------ dead social links
+  // A footer Instagram icon pointing at instagram.com itself. One of the
+  // field-survey tells (r/VibeCodeDevs, 2026-08-18; review 2027-02-18):
+  // the icons were decoration and nobody ever had a profile to link.
+  for (const file of htmlFiles) {
+    const raw = read(file);
+    const dead = [...raw.matchAll(/<a\b[^>]*href\s*=\s*["']https?:\/\/(?:www\.)?(facebook\.com|instagram\.com|twitter\.com|x\.com|linkedin\.com|tiktok\.com|youtube\.com|threads\.net)\/?["']/gi)];
+    if (dead.length) {
+      report.add('integrity/dead-social', MAJOR,
+        `${dead.length} social link${dead.length === 1 ? '' : 's'} to a platform homepage, not a profile (${dead[0][1]})`,
+        { file: displayPath(file, siteDir), line: lineAt(raw, dead[0].index) },
+        'A social icon that opens the platform\'s own homepage tells the visitor "we do not actually have one". Link the real profile, or remove the icon — an absent icon is honest, a dead one is noticed.');
     }
   }
 

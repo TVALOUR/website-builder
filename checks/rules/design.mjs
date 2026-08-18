@@ -53,9 +53,19 @@ export const gates = [
   { id: 'design/uniform-rhythm', severity: 'minor', what: 'every section sharing one padding value' },
   { id: 'design/emoji-icons', severity: 'minor', what: 'emoji used as feature/step icons' },
   { id: 'design/fake-chrome', severity: 'minor', what: 'hand-drawn browser bars, phone frames and fake dashboards' },
+  { id: 'design/emoji-ui', severity: 'major', what: 'emoji inside headings, buttons or navigation' },
+  { id: 'design/radius-zoo', severity: 'minor', what: 'five or more unrelated border-radius values' },
+  { id: 'design/shadow-zoo', severity: 'minor', what: 'five or more unrelated box-shadow styles' },
+  { id: 'design/hover-hide', severity: 'major', what: 'a hover state that fades or hides the element being hovered' },
+  { id: 'design/hover-only-reveal', severity: 'major', what: 'content that exists only behind a hover, unreachable on touch' },
+  { id: 'design/hero-100vh', severity: 'minor', what: 'a hero locked to exactly one viewport with nothing peeking below the fold' },
 ];
 
-const DEFAULT_FACES = /\b(inter|roboto|open\s?sans|poppins|lato|montserrat|nunito|raleway|source\s?sans|work\s?sans)\b/i;
+// The second alternation is the 2024-26 generation of the same defect: the
+// faces a generator now reaches for when nothing was chosen (source: the
+// vibe-coded-website field survey + YC design review, 2026-08-18; review
+// 2027-02-18 — this list decays faster than any other line in the file).
+const DEFAULT_FACES = /\b(inter|roboto|open\s?sans|poppins|lato|montserrat|nunito|raleway|source\s?sans|work\s?sans|space\s?grotesk|manrope|sora|dm\s?sans|plus\s?jakarta\s?sans|outfit)\b/i;
 
 // Generic families, system-stack members, and the classic WEB-SAFE FALLBACKS.
 // Georgia and Times New Roman appearing here is the point: they are almost
@@ -317,6 +327,24 @@ export async function run(ctx, report) {
         { file: shown },
         'Use a real screenshot in a <figure>, or omit it. Drawn chrome is a stand-in for a product that has nothing to show.');
     }
+
+    // Emoji inside UI chrome — headings, buttons, nav. Distinct from
+    // design/emoji-icons (class-named icon elements) and from emoji in prose,
+    // which is fine. Source: the vibe-coded-website survey's strongest single
+    // tell (2026-08-18; review 2027-02-18).
+    const uiEmoji = [];
+    for (const m of raw.matchAll(/<(h[1-6]|button)\b[^>]*>([\s\S]*?)<\/\1\s*>/gi)) {
+      if (EMOJI.test(m[2].replace(/<[^>]*>/g, ' '))) uiEmoji.push(m[1].toLowerCase());
+    }
+    for (const m of raw.matchAll(/<nav\b[^>]*>([\s\S]*?)<\/nav\s*>/gi)) {
+      if (EMOJI.test(m[1].replace(/<[^>]*>/g, ' '))) uiEmoji.push('nav');
+    }
+    if (uiEmoji.length) {
+      report.add('design/emoji-ui', MAJOR,
+        `emoji inside <${uiEmoji[0]}>${uiEmoji.length > 1 ? ` and ${uiEmoji.length - 1} more element${uiEmoji.length > 2 ? 's' : ''}` : ''}`,
+        { file: shown, count: uiEmoji.length },
+        'Emoji in a heading, button or nav renders differently on every platform, is read out verbatim by screen readers ("sparkles"), and is the single most recognisable mark of a generated page. Set type instead.');
+    }
   }
 
   // ------------------------------------------------------------- rhythm
@@ -338,6 +366,101 @@ export async function run(ctx, report) {
         `every section uses the same padding (${value}) across ${sels.length} rules`,
         { count: sels.length },
         'A page needs at least two genuinely distinct section shapes — a full-bleed statement band against an asymmetric split, say. One padding value on every band reads as a stack, not a composition.');
+    }
+  }
+
+  // ------------------------------------------- consistency + interaction tells
+  // Added 2026-08-18 from three sources read together: the Aftermark 500-site
+  // vibe-coded-website survey, its r/VibeCodeDevs thread, and YC's design
+  // review of AI-built startup sites. review: 2027-02-18. The consistency
+  // pair encodes the survey's core finding — the tell is never one radius or
+  // one shadow, it is the ZOO, because inconsistency is what "nobody decided"
+  // looks like. The interaction pair encodes the YC review's two hard
+  // anti-patterns: hover that hides, and content that exists only behind
+  // hover (touch has no hover).
+
+  const radii = new Set();
+  for (const r of rules) {
+    if (r.isKeyframesOrFont) continue;
+    for (const d of r.declarations) {
+      if (!/^border(-\w+)*-radius$/.test(d.prop)) continue;
+      const v = resolveVar(d.value, tokens).trim().toLowerCase().replace(/\s+/g, ' ');
+      if (!v || v.includes('var(')) continue;
+      if (/^(0|0px|50%|100%|999px|9999px|99rem|100vmax|inherit|initial|unset)$/.test(v)) continue;
+      radii.add(v);
+    }
+  }
+  if (radii.size >= 5) {
+    report.add('design/radius-zoo', MINOR,
+      `${radii.size} different border-radius values: ${[...radii].slice(0, 6).join(', ')}`,
+      { count: radii.size },
+      'Pick one radius (plus 50% for circles and a pill value if needed) and hold it. Mismatched corner rounding across components is one of the survey-measured tells that a page was assembled, not designed.');
+  }
+
+  const shadows = new Set();
+  for (const r of rules) {
+    if (r.isKeyframesOrFont) continue;
+    for (const d of r.declarations) {
+      if (d.prop !== 'box-shadow') continue;
+      const v = resolveVar(d.value, tokens).trim().toLowerCase().replace(/\s+/g, ' ');
+      if (!v || v === 'none' || v.includes('var(')) continue;
+      shadows.add(v);
+    }
+  }
+  if (shadows.size >= 5) {
+    report.add('design/shadow-zoo', MINOR,
+      `${shadows.size} different box-shadow styles`,
+      { count: shadows.size },
+      'Create one elevation style (two at most: rest and raised) and reuse it. Five different shadows is five different opinions about where the light is.');
+  }
+
+  for (const r of rules) {
+    if (r.isKeyframesOrFont) continue;
+    if (!/:hover\s*$/.test(r.selector.split(',')[0].trim())) continue;
+    const hides = r.declarations.find((d) =>
+      (d.prop === 'opacity' && parseFloat(resolveVar(d.value, tokens)) === 0)
+      || (d.prop === 'visibility' && /hidden/i.test(d.value))
+      || (d.prop === 'display' && /^none$/i.test(d.value.trim())));
+    if (hides) {
+      report.add('design/hover-hide', MAJOR,
+        `${r.selector.split(',')[0].trim()} ${hides.prop === 'opacity' ? 'fades out' : 'disappears'} on hover`,
+        at(r),
+        'Hover is an affordance: it says "you can act on this". An element that fades or vanishes under the cursor says the opposite, and it is one of the two interaction tells the YC design review called out on every AI-built site it examined.');
+      break;
+    }
+  }
+
+  if (!/:focus-within\b/.test(cssText)) {
+    for (const r of rules) {
+      if (r.isKeyframesOrFont) continue;
+      const sel = r.selector.split(',')[0].trim();
+      const m = sel.match(/^(.+?):hover\s*[ >+~]\s*(\S.*)$/);
+      if (!m) continue;
+      if (/nav|menu|dropdown|submenu/i.test(sel)) continue; // responsive/hover-only owns menus
+      const reveals = r.declarations.find((d) =>
+        (d.prop === 'display' && !/^none$/i.test(d.value.trim()))
+        || (d.prop === 'visibility' && /visible/i.test(d.value)));
+      if (reveals) {
+        report.add('design/hover-only-reveal', MAJOR,
+          `${m[2].trim()} exists only while ${m[1].trim()} is hovered`,
+          at(r),
+          'There is no hover on a phone, so this content is unreachable for most visitors — and a keyboard user never sees it either. Show it, or reveal it on click/focus (:focus-within) as well.');
+        break;
+      }
+    }
+  }
+
+  for (const r of rules) {
+    if (r.isKeyframesOrFont || /print/i.test(r.atRule || '')) continue;
+    if (!/hero|masthead|banner|splash|landing/i.test(r.selector)) continue;
+    const d = r.declarations.find((d) => /^(min-)?height$/.test(d.prop)
+      && /^100(vh|dvh|svh)$/i.test(resolveVar(d.value, tokens).trim()));
+    if (d) {
+      report.add('design/hero-100vh', MINOR,
+        `${r.selector.split(',')[0].trim()} is locked to ${d.value.trim()}`,
+        at(r),
+        'Let a few pixels of the next section peek above the fold. A hero that fills the viewport exactly reads as a dead end — visitors scroll when they can see there is somewhere to scroll to.');
+      break;
     }
   }
 

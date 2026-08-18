@@ -23,6 +23,7 @@ written down. Minors are judgement.
 | `copy/straight-quotes` | Search for `'` and `"` inside sentences. Should be `’` `“ ”`. |
 | `copy/ellipsis` | Search for `...`. Should be `…`, or rewritten. |
 | `copy/title-tag` | List every page's `<title>`. All present? All unique? All under 65 characters? |
+| `copy/title-default` | A `<title>` of "Home", "Untitled" or "Website" says nothing in the tab, the search result or a shared link. Write the real one. |
 | `copy/meta-description` | Same for `<meta name="description">`. Present, unique, 50–165 characters. |
 | `copy/link-text` | Search for `>click here<`, `>read more<`, `>learn more<`. |
 | `copy/sentence-rhythm` | Read a page aloud. If every sentence is the same length, break some. |
@@ -105,6 +106,7 @@ the site. There is no third option where it stays because it sounds right.
 | `integrity/case-sensitive-path` | Compare every referenced path against the filename on disk, character for character. Works on your laptop, 404s on a Linux host. |
 | `integrity/unclosed-tag` | Count opening and closing tags for div, section, main, header, footer, nav, ul, article. Browsers guess differently at unbalanced markup. |
 | `integrity/tel-link` | Every phone number printed on a non-legal page is wrapped in a `tel:` link. Then tap it on a real phone. This is the most demonstrable defect in the whole tool. |
+| `integrity/dead-social` | Click every social icon. One that opens the platform's homepage instead of a profile says "we do not actually have one" — link the real profile or remove it. |
 
 ## a11y
 
@@ -208,6 +210,12 @@ the site. There is no third option where it stays because it sounds right.
 | `design/motif-stamped` | Count the eyebrow/kicker elements against the section count. A majority fails. |
 | `design/emoji-icons` | Emoji used as feature or step icons. |
 | `design/fake-chrome` | Hand-drawn browser bars, phone frames, fake dashboards. |
+| `design/emoji-ui` | Look at every heading, button and nav item. Any emoji in them is the tell — set type or use one icon set instead. |
+| `design/radius-zoo` | List every `border-radius` value (ignore 0, 50% and pill values). More than four different values means nobody picked one. |
+| `design/shadow-zoo` | List every `box-shadow`. One elevation style, two at most. Five different shadows is five opinions about where the light is. |
+| `design/hover-hide` | Hover everything. Nothing should fade out or vanish under your cursor. |
+| `design/hover-only-reveal` | Anything that only appears on hover is invisible on every phone. Search the CSS for `:hover` rules that set `display` or `visibility`; each needs a click/focus route too. |
+| `design/hero-100vh` | Load the homepage at laptop size. If the first screen is exactly the hero with no hint of a next section, visitors read it as a dead end. |
 | `design/italic-heading` | Any `font-style: italic` on an h1-h6 or hero title. |
 | `design/uniform-hover` | Is the same `scale()` applied on four or more unrelated hover states? One reflex everywhere is not an interaction design. |
 | `design/spacing-scale` | List every px padding, margin and gap. Anything not a multiple of 4 is off-scale. |

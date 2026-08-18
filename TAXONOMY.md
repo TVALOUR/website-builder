@@ -121,6 +121,45 @@ Gates that did not exist before the research and do now:
 - **`seo/structured-data`** upgraded from presence to **completeness**: a `LocalBusiness` node
   missing name, address, telephone, url or hours is machine-readable nothing.
 
+### Added 2026-08-18 (evening) — the vibe-coded-site source wave
+
+Three sources read together and reconciled against this taxonomy's removals: the Aftermark
+"Vibe Coded Website Report" (a 500-site field survey), its r/VibeCodeDevs thread, and Y
+Combinator's design review of AI-built startup sites ("Common Mistakes With Vibe Coded
+Websites"). Gates added, each with the source in its rule file and a 2027-02-18 review date:
+
+- **`design/emoji-ui`** — emoji inside headings, buttons or navigation; the survey's
+  strongest single visual tell, distinct from the existing emoji-as-icons gate.
+- **`design/radius-zoo`** / **`design/shadow-zoo`** — five or more unrelated border-radius
+  or box-shadow values. The survey's core finding restated as arithmetic: the tell is never
+  one value, it is the zoo, because inconsistency is what "nobody decided" looks like.
+- **`design/hover-hide`** / **`design/hover-only-reveal`** — the YC review's two hard
+  interaction anti-patterns: a hover that fades the hovered element, and content reachable
+  only through hover (which does not exist on touch). Menus stay owned by
+  `responsive/hover-only`.
+- **`design/hero-100vh`** — a hero locked to exactly one viewport with nothing peeking
+  below the fold.
+- **`integrity/dead-social`** — a social icon linking the platform's homepage, not a profile.
+- **`copy/title-default`** — a `<title>` of "Home"/"Untitled"/"Website".
+- `DEFAULT_FACES` extended with the 2024-26 generation of chosen-when-nothing-was-chosen
+  faces (Space Grotesk, Manrope, Sora, DM Sans, Plus Jakarta Sans, Outfit), and the copy
+  lexicon with the tagline layer ("build your dreams", "launch faster", "where ideas become
+  reality", "made with love by").
+
+**Rejected from the same sources**, continuing the rule that a taxonomy which only adds is
+a failed taxonomy:
+
+| Rejected | Why not |
+|---|---|
+| Loading-state / skeleton-screen checks | Needs a running app with async state; this repo ships static sites, and every check that cannot fail displaces one that can. |
+| Banning semi-transparent / blurred headers | A legitimate, currently mainstream choice when made deliberately. The file targets defaults, not conventions. |
+| A "Sarah Chen"-style fake-testimonial name list | Real people hold those names; false positives against real clients are worse than the miss. The facts family already blocks any testimonial without a sourced row, which is the structural version of the same rule. |
+| Banning purple accents outright | A brand can be purple. The default violet-to-blue gradient is the tell and is already blocked; the hue itself is not a defect. |
+| Copyright-typo strings ("All right reversed") | Too rare to earn a gate; caught by reading the footer, which stage 06 requires anyway. |
+| Static detection of scroll-triggered fade-ins | Whether reveal-on-scroll is abusive is a rendered-page judgment; statically it is indistinguishable from a legitimate guarded enhancement. Stage 06's "scroll honestly" check owns it, labelled as eyes-on. |
+| Floating/moving CTA detection | `position: fixed` on a button is sometimes right (a mobile call bar); the abusive version is a rendered behaviour. Stage 06 owns it. |
+| README-full-of-emojis | A repo tell, not a site defect; out of scope for a site checker. |
+
 ---
 
 ## What could NOT be established

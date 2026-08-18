@@ -38,6 +38,7 @@ export const gates = [
   { id: 'copy/meta-description', severity: 'major', what: 'meta description missing, duplicated, or the wrong length' },
   { id: 'copy/dev-note-shipped', severity: 'minor', what: 'TODO/FIXME notes left in HTML comments' },
   { id: 'copy/link-text', severity: 'major', what: '"click here" / "read more" / "learn more" as the whole link' },
+  { id: 'copy/title-default', severity: 'major', what: 'a page <title> left at "Home" or another said-nothing default' },
 ];
 
 // ---------------------------------------------------------------- patterns
@@ -81,6 +82,14 @@ const VOCABULARY = [
   [/\bdive\s+(in|into)\b/gi, 'dive into'],
   [/\bin\s+the\s+realm\s+of\b/gi, 'in the realm of'],
   [/\bplays?\s+a\s+(pivotal|crucial|vital)\s+role\b/gi, 'plays a pivotal role'],
+  // The tagline layer of the same lexicon — hero lines that sound inspiring
+  // and identify nothing (field survey + YC review, 2026-08-18).
+  [/\bbuild\s+your\s+dreams?\b/gi, 'build your dreams'],
+  [/\bwhere\s+ideas?\s+(become|meet|come\s+to)\s+(reality|life)\b/gi, 'where ideas become reality'],
+  [/\bcreate\s+without\s+limits\b/gi, 'create without limits'],
+  [/\blaunch\s+faster\b/gi, 'launch faster'],
+  [/\bsupercharge\s+your\b/gi, 'supercharge your'],
+  [/\bmade\s+with\s+(\u2764\ufe0f?|\u2665|love|passion)\s+(by|in|for)\b/giu, 'made with love by'],
 ];
 
 const SYNTAX = [
@@ -305,6 +314,12 @@ export async function run(ctx, report) {
       if (t.length > 65) {
         report.add('copy/title-tag', MINOR, `<title> is ${t.length} chars — truncates in search results`, { file: shown },
           'Aim for 50-60 characters, front-loaded with the thing people search for.');
+      }
+      if (/^(home|home\s*page|untitled|document|new\s+page|website|web\s*site|my\s+site|index|landing\s+page|site\s+title|welcome)$/i.test(t.trim())) {
+        report.add('copy/title-default', MAJOR,
+          `<title> is "${t.trim()}" — the tab, the search result and every shared link say nothing`,
+          { file: shown },
+          'Title the page like the search result it will become: what it is plus who or where, 50-60 characters, unique per page. "Home" is the title a page has when nobody wrote one.');
       }
     }
 
