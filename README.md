@@ -102,6 +102,28 @@ lockfile, no `node_modules`:
 | `perf` | render-blocking fonts, no image dimensions, a lazy-loaded hero |
 | `security` | API keys in client code, `.env` in the deploy folder, no headers file |
 | `responsive` | `100vh` on iOS, fixed widths, hover-only menus, no breakpoints |
+| `assets` | an image with no recorded source, no rights answer, or alt text that does not match the file |
+| `discovery` | a site whose brief was never written, or was written as filler |
+
+**3b. And a second gate, on the law itself.** The legal profiles in `profiles/` are the one
+part of this repo that can be confidently, invisibly wrong: a Canadian citation here once
+quoted a phrase Parliament had struck, and the URL was live the whole time it was false.
+
+```bash
+node checks/citations.mjs            # offline: how every citation is sourced
+node checks/citations.mjs --online   # re-reads each source and fails if its words changed
+```
+
+It cannot tell you whether the law is right — nobody qualified has read any of it, and the
+report says so on every run. What it does is make being wrong **detectable**:
+
+- every citation's class is **derived from its publisher**, not declared by whoever wrote it,
+  so labelling a law-firm bulletin `primary` fails the check rather than inflating a number;
+- load-bearing claims carry the source's **own words**, and `--online` re-reads the page and
+  fails when the quote is gone — the check that would have caught the repealed wording;
+- each profile answers a fixed list of seven questions with a non-secondary source, so
+  **silence fails**. That check is why the Canadian profile no longer tells a small business
+  accessibility is "best practice, not law" while omitting the only statute that reaches one.
 
 **4. On Claude Code, the process is enforced, not suggested.** This repo ships hooks
 (`.claude/settings.json`): mentioning a build injects the stage-01 marching orders; site

@@ -28,5 +28,7 @@ The floor, not a summary:
 7. The gate decides: `node checks/run.mjs builds/<slug>/site --facts
    builds/<slug>/facts.md`. Exit 0 ships; exit 1 does not; never --skip.
 8. Stop and talk to the human at stages 01, 04, 06 and 07.
+   Editing a legal profile? `node checks/citations.mjs` too - it checks how the law was
+   sourced, and it fails on an unclassified citation or an unanswered coverage question.
 
 Resuming? Read builds/*/STATE.md first and continue from its Next action line.

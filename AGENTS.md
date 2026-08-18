@@ -29,6 +29,7 @@ node start.mjs "<project name>"                              # opens a build
 node assets.mjs <slug> scan                                  # indexes what the client handed over
 node checks/brief.mjs builds/<slug>                          # decides if discovery actually happened
 node checks/run.mjs builds/<slug>/site --facts builds/<slug>/facts.md   # decides if it ships
+node checks/citations.mjs [--online]                         # checks how the LAW was sourced
 ```
 
 Everything between the first and the last is the eight stages below.

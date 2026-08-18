@@ -51,7 +51,10 @@ The floor, and it is not a summary — it is the actual contract:
 6. **Front end only.** Static HTML, CSS and JS. No back end, no database, no accounts.
 7. **The gate decides**, not your opinion of your work:
    `node checks/run.mjs builds/<slug>/site --facts builds/<slug>/facts.md`. Exit 0 ships,
-   exit 1 does not, and you never pass `--skip` to make a finding go away.
+   exit 1 does not, and you never pass `--skip` to make a finding go away. If you touched a
+   file in `profiles/`, `node checks/citations.mjs` too: it fails on a citation whose class
+   does not match its publisher, and on a profile that leaves one of the seven coverage
+   questions unanswered.
 8. **Stop and talk to the human** at stages 01, 04, 06 and 07.
 
 Resuming? Read `builds/*/STATE.md` first and continue from its `Next action` line.

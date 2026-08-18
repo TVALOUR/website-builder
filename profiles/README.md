@@ -84,6 +84,20 @@ adviser reads the four legal pages. That is a better product than a confident in
 > Never write that anything "makes the site compliant". Set `provenance.status: 'researched'` and
 > `verifiedBy: null`. Test every regex mentally against innocent prose: a gate that cries wolf is a
 > gate people learn to skip, which is worse than no gate.
+>
+> **Then run `node checks/citations.mjs --profile <id>` and fix what it says.** It is not a
+> formality and it is not stylistic. It requires:
+>
+> - a `class` on every citation, **derived from the publisher** — if the host is not in
+>   `checks/lib/source-class.mjs`, add it in the same commit rather than letting it default;
+> - a `quote` on every load-bearing row: the source's own words, which `--online` re-reads and
+>   fails on when they change. **Never write a quote you have not read.** A fabricated quote
+>   wearing a verification badge is worse than no quote, and a row with no quote is honest;
+> - a `coverage` map answering all seven questions, each pointing at a non-secondary source in
+>   `provenance.sources`. Answer every one **including where the answer is "nothing here
+>   requires it"** — that is a finding too, and it needs a source. This is the check that
+>   catches the failure a percentage cannot: a question nobody asked reads to a client exactly
+>   like a question that was asked and came back empty.
 
 ### What the protocol is allowed to leave out
 
