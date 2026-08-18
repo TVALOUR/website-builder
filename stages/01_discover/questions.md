@@ -15,11 +15,15 @@ batches with the reason attached, not as an interrogation (`CONTEXT.md` §3).
 
 ## 0. Before anything — what kind of project is this?
 
-**BLOCKING — Is this a real business or organisation, or a personal / portfolio / demo /
-fictional project?**
+**BLOCKING — Which of these is it: (a) a real business or organisation with premises or a
+service area, (b) a real product, company or project that lives online — a SaaS, an app, a
+brand with no shopfront — or (c) a personal / portfolio / demo / fictional project?**
 
-*Cost of skipping:* the regimes are different and guessing picks the wrong one. A real
-business binds every part of this bank: every fact sourced, every legal page real. A
+*Cost of skipping:* the regimes are different and guessing picks the wrong one. A local or
+service business binds every part of this bank: every fact sourced, every legal page real,
+the trader disclosures on the page. An online product or company keeps the honesty regime
+in full (its prices, claims and identity are still real facts) but owes no shopfront
+disclosures — record `Entity type` accordingly in `facts.md` and the gate adjusts. A
 personal or fictional project relaxes what must *exist*, not what must be *honest* — parts
 A–C shrink to what is real about the person or the idea, and anything invented is declared
 on the page as fictional, uses reserved domains (`.example`) and drama phone ranges, and
@@ -52,7 +56,7 @@ alike: nobody asked what the person could already see. Two rules govern this who
    *Cost:* without this ask, the person's actual vision never enters the pipeline and the
    model substitutes its own defaults — which is the single failure this repo exists to
    fix. "Nothing to hand over" is an acceptable answer; not asking is not.
-2. **V2 — Is there a website you are basically trying to remake?**
+2. **V2 — BLOCKING — Is there a website you are basically trying to remake?**
    *Cost:* people often carry a complete reference in their head and never say so because
    nobody asked. If yes, get the URL or screenshots; it gets dissected into a card per
    `shared/references.md` (DNA extracted, never copied) and becomes the strongest design
@@ -61,20 +65,20 @@ alike: nobody asked what the person could already see. Two rules govern this who
    The type, the colour, the layout, the motion, the way it talks, or the whole thing? One
    axis per reference is enough. (This deepens question 25's three-likes-one-hate.)
    *Cost:* a reference without a named axis gets averaged into mush, or worse, copied.
-4. **V4 — What must this site NOT look or feel like?**
+4. **V4 — BLOCKING — What must this site NOT look or feel like?**
    *Cost:* "my last site was purple" and "nothing corporate" are load-bearing constraints,
    and they only surface when asked. The anti-vision kills more bad directions than the
    vision picks good ones.
-5. **V5 — Someone lands on the site for five seconds. What must they know, and what must
-   they feel?**
+5. **V5 — BLOCKING — Someone lands on the site for five seconds. What must they know, and
+   what must they feel?**
    *Cost:* this is the hero brief in one answer — what the H1 says, what sits above the
    fold, what the first impression argues. Unasked, the hero defaults to a slogan.
-6. **V6 — Three words for how it should feel.** Push past "clean and modern", which is what
+6. **V6 — BLOCKING — Three words for how it should feel.** Push past "clean and modern", which is what
    a site says when nobody decided: cheap or premium? warm or precise? loud or quiet?
    traditional or new?
    *Cost:* the stage-04 direction choice needs a temperament to aim at, not a shrug.
-7. **V7 — Colours: do you have exact values, or a thing I can take them from, or no
-   opinion?**
+7. **V7 — BLOCKING — Colours: do you have exact values, or a thing I can take them from,
+   or no opinion?**
    Hex values if they exist; "the blue on the van" is a legitimate source (eyedropper the
    photo and say so in `facts.md`); no opinion routes to rendered options at stage 04.
    (Deepens question 23.)

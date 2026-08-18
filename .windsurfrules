@@ -1,0 +1,19 @@
+Read AGENTS.md before anything else — it is the full operating contract for this
+repository. This folder builds websites through an 8-stage pipeline with a
+zero-dependency checker; the harness you are running in has no hook enforcement,
+so the contract binds you by discipline.
+
+The floor, not a summary:
+1. Any request to build/redesign/remake a website starts at stage 01 discover
+   (run `node start.mjs "<name>"`, then stages/01_discover/CONTEXT.md) — ask for
+   what is in the person's head (sketches, screenshots, references, brand
+   colours and fonts) and for the facts, before any design or code exists.
+2. Never invent a fact about a real business: every claim traces to a sourced
+   row in builds/<slug>/facts.md.
+3. Site files go only in builds/<slug>/site/, and only after brief.md, facts.md
+   and design.md exist.
+4. The gate decides: `node checks/run.mjs builds/<slug>/site --facts
+   builds/<slug>/facts.md`. Exit 0 ships; exit 1 does not; never --skip.
+5. Stop and talk to the human at stages 01, 04, 06 and 07.
+
+Resuming? Read builds/*/STATE.md first and continue from its Next action line.

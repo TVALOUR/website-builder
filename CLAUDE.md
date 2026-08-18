@@ -11,15 +11,18 @@ one place.
 ## What the hooks do (this harness only)
 
 This repo ships working enforcement in `.claude/settings.json` + `.claude/hooks/gate.mjs`.
-You will feel it in four places, and none of them is a malfunction:
+You will feel it in five places, and none of them is a malfunction:
 
 - **A build mention injects the marching orders.** Say "build me a website" and the
   stage-01 instructions arrive with the prompt. Follow them; do not re-derive the flow.
-- **Site files are blocked until the build has a brief and a design.** A `Write`/`Edit`
-  into `builds/<slug>/site/` is denied while `brief.md` or `design.md` is missing, and
-  site-shaped files outside `builds/` are redirected there. The denial message names the
-  exact next action. This is rule 1 made mechanical, because the polite version was
-  measurably skipped.
+- **Site files are blocked until the build has a real brief, ledger, copy and design.** A
+  `Write`/`Edit` into `builds/<slug>/site/` is denied while `brief.md`, `facts.md`,
+  `content.md` or `design.md` is missing or still empty, and site-shaped files outside
+  `builds/` are redirected there. The denial message names the exact next action. This is
+  rule 1 made mechanical, because the polite version was measurably skipped.
+- **Shell writes are watched too.** Creating site files via Bash dodges the editor-tool
+  denial, so a post-command check calls the bypass out on the next turn. Loud, not
+  blocking — the command has already run.
 - **You cannot finish on a failing gate.** The Stop hook re-runs `checks/run.mjs` on any
   build whose `site/` changed after its last `verify.md`, and blocks the stop while
   blockers remain.

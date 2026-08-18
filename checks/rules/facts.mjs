@@ -48,7 +48,7 @@ export const gates = [
   { id: 'facts/unsourced-phone', severity: 'blocker', what: 'a phone number nobody confirmed' },
   { id: 'facts/unsourced-email', severity: 'blocker', what: 'an email address nobody confirmed' },
   { id: 'facts/unsourced-address', severity: 'blocker', what: 'a postcode nobody confirmed' },
-  { id: 'facts/unsourced-hours', severity: 'major', what: 'opening hours with no source' },
+  { id: 'facts/unsourced-hours', severity: 'blocker', what: 'opening hours with no source' },
   { id: 'facts/unsourced-number', severity: 'major', what: 'a quantity claim with no source' },
   { id: 'facts/testimonial-unsourced', severity: 'blocker', what: 'a quoted testimonial with no attributed row' },
   { id: 'facts/needs-unresolved', severity: 'blocker', what: 'facts.md still has unanswered rows' },
@@ -85,7 +85,13 @@ const EXTRACTORS = [
     why: 'A plausible-but-wrong postcode sends customers to somebody else\'s house.',
   },
   {
-    gate: 'facts/unsourced-hours', severity: MAJOR, label: 'opening-hours line', labelPlural: 'opening-hours lines', key: 'hours',
+    // BLOCKER, not major: wrong hours send a customer to a closed door, which
+    // stage 01's own question bank names as a cost that loses them for good.
+    // COVERAGE NOTE, stated honestly: this pattern reads day-RANGE lines
+    // ("Mon-Fri ... 9-5"). Single-day lines ("Saturday 9am-1pm") and prose
+    // ("open daily", "24/7") are not extracted — they are caught by the human
+    // read-back at stage 07, and checks/MANUAL.md says to check them by hand.
+    gate: 'facts/unsourced-hours', severity: BLOCKER, label: 'opening-hours line', labelPlural: 'opening-hours lines', key: 'hours',
     // Must capture the CLOSING time as well. An earlier version stopped after
     // the opening time, so "Monday to Friday, 7am to 5pm" normalised to a
     // different tuple than the byte-identical ledger row and produced a false

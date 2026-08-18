@@ -152,7 +152,7 @@ export async function run(ctx, report) {
     // Presence is not the gate. A LocalBusiness node missing the fields a
     // customer actually wants — where, when, what number — is machine-readable
     // nothing, and 'has JSON-LD' would have called it done.
-    for (const node of ldNodes(good, 'LocalBusiness').concat(ldNodes(good, 'Organization'))) {
+    for (const node of ldNodes(good, 'LocalBusiness')) {
       anyStructuredData = true;
       const missing = ['name', 'address', 'telephone', 'url']
         .filter((k) => !node[k])
@@ -162,6 +162,20 @@ export async function run(ctx, report) {
           `LocalBusiness graph is missing ${missing.join(', ')}`,
           { file: shown },
           'These are the fields that feed Maps, the knowledge panel and AI answers. A graph without them is markup that says nothing.');
+      }
+    }
+    // An Organization that is not a LocalBusiness owes only identity fields.
+    // Demanding openingHours from a software company's schema was a measured
+    // false positive, and false positives are how a gate gets ignored.
+    for (const node of ldNodes(good, 'Organization')) {
+      if (String(node['@type']).toLowerCase().includes('localbusiness')) continue;
+      anyStructuredData = true;
+      const missing = ['name', 'url'].filter((k) => !node[k]);
+      if (missing.length) {
+        report.add('seo/structured-data', MAJOR,
+          `Organization graph is missing ${missing.join(', ')}`,
+          { file: shown },
+          'name and url are the minimum that makes an Organization node say anything. Add logo and sameAs where they exist.');
       }
     }
 

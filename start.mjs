@@ -20,7 +20,7 @@ const buildsDir = join(root, 'builds');
 
 const slugify = (s) => s.toLowerCase().trim()
   .replace(/['’]/g, '')
-  .replace(/[^a-z0-9]+/g, '-')
+  .replace(/[^\p{L}\p{N}]+/gu, '-')
   .replace(/^-+|-+$/g, '')
   .slice(0, 60);
 

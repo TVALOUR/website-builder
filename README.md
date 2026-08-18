@@ -68,7 +68,7 @@ lockfile, no `node_modules`:
 
 | Family | What it will not let past |
 |---|---|
-| `facts` | **any price, phone, email, postcode, opening time or claim with no sourced row** — read from the page text, the `tel:`/`mailto:` hrefs, the meta tags, the JSON-LD and the JavaScript |
+| `facts` | **any price, phone number, email, postcode, opening-hours line, quantity claim or quoted testimonial with no sourced row** — read from the page text, the `tel:`/`mailto:` hrefs, the meta tags, the JSON-LD and the JavaScript |
 | `copy` | em-dash density above the measured human range, the AI lexicon ("seamless", "elevate", "build your dreams"), "not just X — it's Y", lorem, TODO |
 | `design` | Inter-as-display and its successors, four typefaces, the purple gradient, emoji in headings and buttons, a zoo of border-radii and shadows, hover states that hide things, `transition: all` |
 | `legal` | missing privacy policy, tracking that fires before consent, unevidenced claims |
@@ -81,10 +81,12 @@ lockfile, no `node_modules`:
 
 **4. On Claude Code, the process is enforced, not suggested.** This repo ships hooks
 (`.claude/settings.json`): mentioning a build injects the stage-01 marching orders; site
-files cannot be written until the build's `brief.md` and `design.md` exist; and the
-session cannot end while a changed site fails the gate. Other harnesses run the same
-contract structurally — the entry command creates the build folder, the gate fails
-closed, and `STATE.md` makes a skipped stage visible.
+files cannot be written until the build's `brief.md`, `facts.md`, `content.md` and
+`design.md` exist and hold substance; shell-side writes that dodge the editor tools are
+called out on the next turn; and the session cannot end while a changed site fails the
+gate. Other harnesses run the same contract structurally — rules files for Cursor,
+Windsurf and Cline point at the contract, the entry command creates the build folder,
+the gate fails closed, and `STATE.md` makes a skipped stage visible.
 
 ## Why rules alone do not fix it
 
@@ -153,12 +155,14 @@ four real conversations — never a one-prompt black box, never babysat step by 
    |---|---|---|
    | Claude Code | `claude` | `CLAUDE.md` → `AGENTS.md`, plus the hooks |
    | Codex CLI | `codex` | `AGENTS.md` directly |
-   | Cursor / Windsurf / Cline | open the folder | `AGENTS.md` (say "read AGENTS.md first" if it doesn't) |
+   | Cursor / Windsurf / Cline | open the folder | its rules file (`.cursorrules` / `.windsurfrules` / `.clinerules`) → `AGENTS.md` |
    | Gemini CLI | `gemini` | `GEMINI.md` → `AGENTS.md` |
    | Grok CLI | `grok` | `GROK.md` → `AGENTS.md` |
 
    You can switch agents mid-build: state lives in `builds/<slug>/STATE.md` and the
-   stage outputs, not in any one agent's memory.
+   stage outputs, not in any one agent's memory. Hook enforcement exists on Claude Code;
+   on every other harness these files are the contract an agent follows by discipline,
+   with the gate as the backstop.
 
 2. **Say what you want, in plain language.** "Build me a website for my dad's farriery
    business" is enough — the interview does the rest. Have your materials ready to drop:
@@ -180,6 +184,9 @@ node checks/run.mjs /path/to/any/site            # full report
 node checks/run.mjs /path/to/site --json         # machine-readable
 node checks/run.mjs --list                       # every gate it knows about
 ```
+
+A `--only`/`--skip` run prints **PARTIAL**, never PASS, and its exit code covers only the
+families that ran — useful while fixing one family, never something to wire into CI.
 
 Useful as an audit before quoting for a redesign — or on the site your last vibe-coding
 session produced.

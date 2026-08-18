@@ -43,6 +43,9 @@ export class Report {
     this.findings = [];
     this.ran = [];      // gate ids that executed, so coverage is stated not assumed
     this.skipped = [];  // {gate, why} — a gate that could not run says so out loud
+    this.crashes = [];  // {family, why} — a rule family that THREW. Distinct from a
+                        // skip on purpose: a skip is a stated limitation, a crash is
+                        // an unknown result, and an unknown result must never exit 0.
     this.stats = {};
   }
 
@@ -66,12 +69,16 @@ export class Report {
 
   ranGate(id) { if (!this.ran.includes(id)) this.ran.push(id); }
   skip(gate, why) { this.skipped.push({ gate, why }); }
+  crash(family, why) { this.crashes.push({ family, why }); }
 
   get blockers() { return this.findings.filter((f) => f.severity === BLOCKER); }
   get majors() { return this.findings.filter((f) => f.severity === MAJOR); }
   get minors() { return this.findings.filter((f) => f.severity === MINOR); }
-  get passed() { return this.blockers.length === 0; }
-  get exitCode() { return this.passed ? 0 : 1; }
+  get passed() { return this.blockers.length === 0 && this.crashes.length === 0; }
+  get exitCode() {
+    if (this.crashes.length) return 2; // could not run in full — not a verdict
+    return this.blockers.length === 0 ? 0 : 1;
+  }
 
   sorted() {
     return [...this.findings].sort(
@@ -82,7 +89,9 @@ export class Report {
   toJSON() {
     return {
       site: this.siteDir,
-      verdict: !this.passed ? 'FAIL' : (this.scoped ? 'PARTIAL' : 'PASS'),
+      verdict: this.crashes.length ? 'ERROR'
+        : (this.blockers.length ? 'FAIL' : (this.scoped ? 'PARTIAL' : 'PASS')),
+      crashes: this.crashes,
       scoped: this.scoped,
       suppressedFamilies: this.suppressed,
       counts: {
@@ -128,6 +137,14 @@ export class Report {
     if (this.scoped) {
       out.push(`  ${c.yellow}SUPPRESSED${c.off}: ${this.suppressed.join(', ')} — this run did NOT check them.`);
       out.push('');
+    }
+    if (this.crashes.length) {
+      for (const cr of this.crashes) {
+        out.push(`  ${c.red}${c.bold}ERROR${c.off} — the ${cr.family} family crashed (${cr.why}). Its result is UNKNOWN.`);
+      }
+      out.push(`  ${c.red}This is not a verdict. Fix the checker (or the input) and re-run.${c.off}`);
+      out.push('');
+      return out.join('\n');
     }
     if (this.passed) {
       const tail = this.majors.length

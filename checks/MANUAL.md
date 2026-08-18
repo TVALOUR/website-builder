@@ -82,7 +82,7 @@ the site. There is no third option where it stays because it sounds right.
 | `legal/consent-reject-parity` | Does the banner have a reject control as prominent as accept? |
 | `legal/footer-links` | Open every page. Is privacy linked in the footer of each one? |
 | `legal/third-party-preconsent` | Search for `fonts.googleapis.com`, `youtube.com/embed` (not `-nocookie`), `google.com/maps/embed`. |
-| `legal/business-identity` | Limited company: is the company number and registered office on the site? Sole trader: is there a geographic address? Both: an email or phone? |
+| `legal/business-identity` | Limited company: is the company number and registered office on the site? Sole trader: is there a geographic address? Both: an email or phone? Not applied when facts.md's Entity type row declares a personal, demo, fictional or online-product project - those owe honesty, not shopfront disclosures. |
 | `legal/regulated-claim` | Search for star ratings, "award-winning", "leading", "guarantee", "fully insured", "N years", "certified by". Each needs a sourced row. |
 | `legal/stale-date` | Does each legal page carry a last-updated date? |
 | `legal/copyright-year` | Is the footer year hardcoded? It goes stale every January. |

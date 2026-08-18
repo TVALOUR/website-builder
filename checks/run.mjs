@@ -12,7 +12,11 @@
 //   --no-color          plain output
 //   --list              print every gate this build of the checker knows about, and exit
 //
-// Exit: 0 clean · 1 blockers found · 2 could not run.
+// Exit: 0 clean · 1 blockers found · 2 could not run (bad path, or a rule
+//       family crashed — an unknown result is never a pass).
+//
+// --only/--skip runs print PARTIAL, never PASS, and their exit code covers only
+// the families that ran. Never wire a scoped run into CI or a verify.md.
 //
 // There is NO default site directory. A checker that silently scans the wrong
 // tree and prints a confident PASS is worse than no checker at all — that
@@ -161,8 +165,9 @@ for (const [name, family] of Object.entries(FAMILIES)) {
   try {
     await family.run(ctx, report);
   } catch (err) {
-    // A crashing rule must never be mistaken for a clean rule.
-    report.skip(name, `rule crashed: ${err && err.message}`);
+    // A crashing rule must never be mistaken for a clean rule: verdict ERROR,
+    // exit 2 (report.mjs owns that contract).
+    report.crash(name, (err && err.message) || 'unknown error');
   }
 }
 

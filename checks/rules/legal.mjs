@@ -22,7 +22,7 @@ import { read, displayPath, exists } from '../lib/fs.mjs';
 import { visibleText, tags, attr, references, body } from '../lib/html.mjs';
 import { BLOCKER, MAJOR, MINOR } from '../lib/report.mjs';
 import { norm } from '../lib/ledger.mjs';
-import { basename } from 'node:path';
+import { basename, join } from 'node:path';
 
 export const gates = [
   { id: 'legal/privacy-policy', severity: 'blocker', what: 'a privacy policy exists, is linked, and covers the required ground' },
@@ -71,9 +71,30 @@ export async function run(ctx, report) {
   // "sole trader (not a limited company)" — the checker then demanded a company
   // number from a business that does not have one, which is worse than silence
   // because it sends someone looking for a fact that cannot exist.
-  let factsText = '';
-  if (factsPath && exists(factsPath)) factsText = read(factsPath);
+  // Same ledger discovery as the facts family: an explicit --facts path wins,
+  // else a colocated facts.md. Without this the README's documented plain run
+  // (`node checks/run.mjs <site>`) judged the same site differently from the
+  // full command, which is the kind of inconsistency that teaches people to
+  // distrust the tool.
+  let factsFile = factsPath && exists(factsPath) ? factsPath : null;
+  if (!factsFile) {
+    for (const name of ['facts.md', 'FACTS.md', '../facts.md', '../01_discover/facts.md']) {
+      const p = join(siteDir, name);
+      if (exists(p)) { factsFile = p; break; }
+    }
+  }
+  const factsText = factsFile ? read(factsFile) : '';
   const ledgerText = factsText;
+
+  // Question 0, threaded through: an Entity type row declaring a personal,
+  // demo, fictional or online-product project switches OFF the local-trader
+  // disclosure gates - they are the law for UK traders with a shopfront, and
+  // demanding a geographic address from a SaaS landing page pressures people
+  // toward inventing one, the exact dishonesty this tool exists to stop.
+  const entityDecl = /\|\s*Entity\s*type\s*\|([^|]*)\|/i.exec(factsText);
+  const nonTrader = entityDecl
+    && /(personal|portfolio|demo|fiction|product|saas|online[\s-]?only|no\s+premises|not\s+a\s+(local\s+)?(business|trader))/i
+      .test(entityDecl[1]);
 
   let isLimited = null;
   const entityRow = /\|\s*Entity\s*type\s*\|([^|]*)\|/i.exec(factsText);
@@ -270,7 +291,11 @@ export async function run(ctx, report) {
 
   // ------------------------------------------------ business identity
   const siteText = htmlFiles.map((f) => visibleText(read(f))).join('\n');
-  const disclosureChecks = [
+  if (nonTrader) {
+    report.skip('legal/business-identity',
+      `facts.md declares entity type "${entityDecl[1].trim()}" - trader identity disclosures not applied`);
+  }
+  const disclosureChecks = nonTrader ? [] : [
     ...(isLimited ? L.disclosure.limited : L.disclosure.soleTrader),
     ...L.disclosure.all,
   ];

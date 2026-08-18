@@ -33,6 +33,7 @@ is the same as no direction.
 | **Manifest** | the facts, in order | one face, numerals prominent | white, black, one rule colour | tabular, aligned, no decoration at all | logistics, freight, storage, hire |
 | **Studio plate** | the work speaks | one face, small and quiet | near-white, near-black | full-bleed images, minimal chrome | photographers, makers — **needs real photography** |
 | **Almanac** | seasonal, cyclical, dependable | serif with oldstyle numerals | warm, aged, low chroma | month bands, recurring sections | gardening, farming, seasonal trades |
+| **Product sheet** | here is the thing, exactly | one grotesque, tabular figures for the specs | neutral paper, one product accent | led by a real screenshot or render, spec tables, feature-as-fact rows | software, apps, devices, physical products — the honest default for a product or SaaS site |
 
 ---
 

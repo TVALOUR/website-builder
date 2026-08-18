@@ -14,6 +14,11 @@ None of that is visible in the code. All of it is preventable with a list.
 
 ---
 
+**A brand-new domain with no existing site** collapses most of this stage: no redirect
+map, no DNS records to preserve beyond what the registrar created. The pre-flight list,
+the ownership table and the two tests that matter (the form, the phone) still apply in
+full — they fail on new sites exactly as often.
+
 ## Inputs
 
 - `builds/<slug>/site/` — the verified build.

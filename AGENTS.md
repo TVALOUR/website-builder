@@ -58,8 +58,12 @@ difference between their website and a website.
 
 Not a price, not an opening time, not a testimonial, not a review count, not a year
 established. A missing fact is asked for or left out — there is no third option where it
-stays because it sounds right. `facts.md` holds every claim with its source, and the gate
-fails the build on any claim without a row. This is enforced, not encouraged.
+stays because it sounds right. This is enforced, not encouraged: `facts.md` holds every
+claim with its source; the gate reads the built site — page text, `tel:`/`mailto:` hrefs,
+meta tags, JSON-LD and the JavaScript — extracts every price, phone number, email,
+postcode, opening-hours line, quantity claim and quoted testimonial, and fails the build
+on any that has no sourced row. The claim classes are enumerated, not magic: anything
+subtler is what stage 07's read-back of `facts.md` to the client exists to catch.
 
 A **personal, portfolio, demo or fictional project** (stage 01 asks which, first) relaxes
 what exists, not what is honest: invented content is declared on the page as fictional, uses
@@ -136,12 +140,16 @@ recorded as not run.
 ## Enforcement
 
 On **Claude Code**, rules 1 and 4 are wired into hooks (`.claude/settings.json`): a build
-mention triggers the stage-01 marching orders, site files cannot be written before the
-build's `brief.md` and `design.md` exist, and a session cannot end while a changed site
-fails the gate. On every other harness the same contract holds by structure instead: the
-entry command creates the build folder, the gate fails closed, and `STATE.md` makes a
-skipped stage visible. If you notice yourself routing around any of this, that is the
-defect this repo exists to fix — stop and run stage 01.
+mention triggers the stage-01 marching orders; site files cannot be written until the
+build's `brief.md`, `facts.md` and `design.md` exist and hold substance; a shell-side
+write that dodges the editor tools is called out on the next turn; and a session cannot
+end while a changed site fails the gate. The hooks convert accidental skipping into
+denials and deliberate skipping into visible evidence — determined fraud is out of any
+hook's scope. On every other harness the same contract holds by structure instead: the
+rules files (`.cursorrules`, `.windsurfrules`, `.clinerules`) point here, the entry
+command creates the build folder, the gate fails closed, and `STATE.md` makes a skipped
+stage visible. If you notice yourself routing around any of this, that is the defect this
+repo exists to fix — stop and run stage 01.
 
 ## How to start
 

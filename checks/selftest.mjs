@@ -35,7 +35,7 @@ const UNPROVABLE = {
   'facts/unsourced-phone|blocker': 'same',
   'facts/unsourced-email|blocker': 'same',
   'facts/unsourced-address|blocker': 'same',
-  'facts/unsourced-hours|major': 'same',
+  'facts/unsourced-hours|blocker': 'same',
   'facts/unsourced-number|major': 'same',
   'facts/testimonial-unsourced|blocker': 'same',
   'facts/needs-unresolved|blocker': 'same',
