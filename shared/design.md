@@ -36,7 +36,7 @@ not four typefaces, not `transition: all`, not the hero-then-three-cards rhythm.
 A page can break none of them and still read as generated, because avoiding a
 default is not the same as making a decision, and there is no gate for average.
 
-[`patterns/`](../patterns/README.md) is the positive half. Twenty-two section
+[`patterns/`](../patterns/README.md) is the positive half. Twenty-three section
 archetypes, each with the question it answers, the case it is wrong for, and
 **what holds its negative space** — which is the design question rule 11 says the
 mechanical gates cannot reach.

@@ -308,13 +308,29 @@ for (const target of files) {
     }
     for (const j of claimed) {
       const map = (cov || {})[j] || {};
+      const used = new Map();
       for (const [topic, question] of Object.entries(SECTOR_COVERAGE_TOPICS)) {
         const cited = map[topic];
+
+        // "NOTHING HERE REQUIRES IT" is a real answer, and it needs writing down
+        // rather than citing. `topic: null` with a sibling `topicWhy` records a
+        // question that was ASKED and answered in the negative — which is a
+        // different state from unanswered, and the difference is the whole point
+        // of this map. It is still reported, at minor, because an unregulated
+        // trade is a finding a client should see.
+        if (cited === null && typeof map[`${topic}Why`] === 'string' && map[`${topic}Why`].length >= 40) {
+          add('citations/coverage-nothing-required', 'minor', name,
+            `coverage.${j}.${topic}: no instrument found — ${map[`${topic}Why`]}`,
+            'Recorded as an answer rather than a gap. If that is wrong, the fix is a citation.');
+          continue;
+        }
+
         if (!cited) {
           add('citations/coverage-missing', 'blocker', name,
             `coverage.${j}.${topic} is unanswered — ${question}`,
             'Silence on a question reads to a client exactly like "no obligation here". Cite the source '
-            + 'that carries this file\'s answer, even when the answer is "nothing here requires it".');
+            + 'that carries this file\'s answer — or set it to null with a `' + topic + 'Why` explaining '
+            + 'what was looked for and not found.');
           continue;
         }
         if (!urls.has(cited)) {
@@ -329,6 +345,30 @@ for (const target of files) {
             'These questions drive BLOCKER-severity findings. Find the instrument, or record in the '
             + 'working notes why no primary source exists for this one.');
         }
+        used.set(cited, [...(used.get(cited) || []), topic]);
+      }
+
+      // ONE SOURCE CANNOT ANSWER MOST OF THE QUESTIONS.
+      //
+      // This check exists because the first nine sector files failed it. Eight of
+      // them pointed three, four or five different questions at the same URL —
+      // a statute that restricts who may practise does not also say what the
+      // trade may not advertise, and a rule about website prices says nothing
+      // about the complaints route. Each of those was a claim→source link that
+      // did not hold, in the mechanism built to catch exactly that on the
+      // jurisdiction side, reproduced on the new axis by the person building it.
+      //
+      // Repetition is not banned. One instrument genuinely can carry two of
+      // these. Three is where it stops being plausible and starts being a map
+      // filled in to satisfy the check.
+      for (const [url, topics] of used) {
+        if (topics.length < 3) continue;
+        add('citations/coverage-repeated', 'major', name,
+          `coverage.${j}: ${new URL(url).hostname}${new URL(url).pathname} is cited for ${topics.length} `
+          + `different questions (${topics.join(', ')})`,
+          'A source that answers most of the list is usually a source that answers one of them and was '
+          + 'copied into the rest. Read it again against each question: where it genuinely says nothing, '
+          + 'the honest entry is null plus a `<topic>Why`, not the same URL again.');
       }
     }
     summary.push({ profile: `${name} (sector)`, status: p.status, sources: sources.length, loadBearing, rate,

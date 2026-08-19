@@ -146,18 +146,20 @@ export default {
 
   coverage: {
     uk: {
-      whoRegulates: 'https://www.legislation.gov.uk/uksi/2014/1855/regulation/5/made',
-      entryRestriction: 'https://www.legislation.gov.uk/uksi/2014/1855/regulation/5/made',
+      whoRegulates: 'https://www.legislation.gov.uk/eur/2004/852/article/6',
+      entryRestriction: 'https://www.legislation.gov.uk/eur/2004/852/article/6',
       websiteDuties: 'https://www.legislation.gov.uk/eur/2011/1169/article/14',
-      advertisingLimits: 'https://www.legislation.gov.uk/ukpga/2024/13/part/4',
-      complaintsRoute: 'https://www.legislation.gov.uk/uksi/2014/1855/regulation/5/made',
+      advertisingLimits: 'https://www.legislation.gov.uk/eur/2011/1169/article/7',
+      complaintsRoute: null,
+      complaintsRouteWhy: 'There is no sector complaints route for a food business. Enforcement is the local authority; a consumer dispute runs on general consumer law. Neither is a route this file can cite as sector-specific.',
     },
     eu: {
-      whoRegulates: 'https://www.legislation.gov.uk/eur/2011/1169/article/14',
-      entryRestriction: 'https://www.legislation.gov.uk/eur/2011/1169/article/14',
+      whoRegulates: 'https://www.legislation.gov.uk/eur/2004/852/article/6',
+      entryRestriction: 'https://www.legislation.gov.uk/eur/2004/852/article/6',
       websiteDuties: 'https://www.legislation.gov.uk/eur/2011/1169/article/14',
-      advertisingLimits: 'https://www.legislation.gov.uk/eur/2011/1169/article/14',
-      complaintsRoute: 'https://www.legislation.gov.uk/eur/2011/1169/article/14',
+      advertisingLimits: 'https://www.legislation.gov.uk/eur/2011/1169/article/7',
+      complaintsRoute: null,
+      complaintsRouteWhy: 'National competent authorities enforce; there is no EU-wide sector complaints route for a food business, and member-state consumer procedures were not read in this pass.',
     },
   },
 
@@ -185,6 +187,20 @@ export default {
         // that the online check could not find the words at all. It failed as a
         // BLOCKER, which is the check working.
         quote: 'offered for sale to a final consumer or to a mass caterer otherwise than by means of distance communication',
+      },
+      {
+        claim: 'Regulation (EC) No 852/2004 Art.6 — official controls, registration and approval. Every food business operator must notify the competent authority of each establishment under its control, which is both the answer to "who regulates" and the only thing resembling an entry requirement for this trade.',
+        url: 'https://www.legislation.gov.uk/eur/2004/852/article/6',
+        accessed: '2026-08-19',
+        class: 'primary',
+        quote: 'every food business operator shall notify the appropriate competent authority',
+      },
+      {
+        claim: 'Regulation (EU) No 1169/2011 Art.7 — fair information practices. Food information must not be misleading, and Art.7(4) extends the principle to advertising and presentation, which is what makes it the advertising answer for this trade rather than the general consumer regime.',
+        url: 'https://www.legislation.gov.uk/eur/2011/1169/article/7',
+        accessed: '2026-08-19',
+        class: 'primary',
+        quote: 'Food information shall not be misleading',
       },
       {
         claim: 'DMCC Act 2024 Part 4 Chapter 1 — the unfair commercial practices regime reaching a misleading claim about a product\'s main characteristics, which is the route an unqualified "allergen-free" claim is enforced by outside food law.',

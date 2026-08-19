@@ -1,4 +1,4 @@
-# patterns/ — twenty-two section shapes, and when not to use each one
+# patterns/ — twenty-three section shapes, and when not to use each one
 
 Open [`preview/index.html`](preview/index.html) in a browser. That is the fastest way to
 understand this folder, and it is the only one that shows you the thing rather than describing it.
@@ -8,7 +8,7 @@ understand this folder, and it is the only one that shows you the thing rather t
 ## Why a library exists at all in a repo that bans templates
 
 The rest of this repo tells an agent what **not** to do: not Inter, not the purple gradient, not
-four typefaces, not `transition: all`, not the hero → three cards → CTA rhythm. Twenty-two design
+four typefaces, not `transition: all`, not the hero → three cards → CTA rhythm. Twenty-three design
 gates, all of them negative.
 
 A model reading that produces a page that breaks none of them and still looks generated, because
@@ -16,7 +16,7 @@ avoiding defaults is not the same as making a decision. Told "don't use the card
 for the next-most-average shape it knows, and there is no gate for average.
 
 So this folder is the positive half. **It is a vocabulary, not a template.** There is no
-`index.html` you fill in and no build step. There are twenty-two section shapes, each with the
+`index.html` you fill in and no build step. There are twenty-three section shapes, each with the
 question it answers, the case it is wrong for, and — the part that actually matters — **what holds
 the negative space**.
 
@@ -90,7 +90,7 @@ is the design decision the composite avoids making.
 - **Two typeface families, ever.** Where a third is tempting — a wordmark, a stat, a pull quote —
   use a weight, a case and a letter-spacing treatment of one you already have. Tabular figures are
   one CSS property, and they are what a monospace face usually gets smuggled in for.
-- **The eyebrow is punctuation, not a section template.** It appears on two of twenty-two shapes
+- **The eyebrow is punctuation, not a section template.** It appears on two of twenty-three shapes
   here. Once it prefixes most of a page's headings it has become the pattern it was meant to
   escape, in costume, and `design/motif-stamped` will say so.
 - **Four vertical rhythms, not one.** `band-tall` · `band` · `band-short` · `band-tight`. A page

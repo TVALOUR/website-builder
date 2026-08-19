@@ -155,18 +155,26 @@ export default {
 
   coverage: {
     uk: {
-      whoRegulates: 'https://www.legislation.gov.uk/ukpga/2024/13/part/4',
-      entryRestriction: 'https://www.legislation.gov.uk/ukpga/2024/13/part/4',
-      websiteDuties: 'https://www.legislation.gov.uk/ukpga/2024/13/part/4',
+      // Three nulls in a row, and they are the file's whole argument. UK building
+      // trades have no regulator, no register, no protected title and no website
+      // duty, and pointing the general consumer statute at all three questions
+      // would have dressed an absence up as a citation.
+      whoRegulates: null,
+      whoRegulatesWhy: 'Nobody. UK building trades have no regulator and no register; every scheme a builder displays is voluntary membership. Enforcement of a false claim about one runs through general consumer law, cited under advertisingLimits.',
+      entryRestriction: null,
+      entryRestrictionWhy: 'None. No licence, qualification or registration is required to trade as a builder, roofer, plasterer or landscaper in the UK. Gas and electrical work are separate trades with separate instruments and separate files.',
+      websiteDuties: null,
+      websiteDutiesWhy: 'None. No instrument requires anything to appear on a UK building trade website beyond the entity disclosures every business owes, which the jurisdiction profile covers.',
       advertisingLimits: 'https://www.legislation.gov.uk/ukpga/2024/13/part/4',
       complaintsRoute: 'https://www.legislation.gov.uk/ukpga/2015/15/part/1',
     },
     us: {
-      whoRegulates: 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=BPC&sectionNum=7030.5',
+      whoRegulates: 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=BPC&sectionNum=7028',
       entryRestriction: 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=BPC&sectionNum=7028',
       websiteDuties: 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=BPC&sectionNum=7030.5',
       advertisingLimits: 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=BPC&sectionNum=7030.5',
-      complaintsRoute: 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=BPC&sectionNum=7028',
+      complaintsRoute: null,
+      complaintsRouteWhy: 'The Contractors State License Board takes complaints against licensees in California, and its governing provisions were not read in this pass. Only s.7028 and s.7030.5 were.',
     },
   },
 

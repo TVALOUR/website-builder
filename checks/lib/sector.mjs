@@ -1,9 +1,17 @@
-// website-builder — which TRADE this is, resolved once for every rule.
+// website-builder — which TRADE this is.
 //
 // The sibling of lib/profile.mjs and lib/regime.mjs. Those two answer "which
 // country" and "what kind of project"; this one answers "what does the law
 // require of this trade", which is the question the jurisdiction profiles
 // explicitly say they cannot answer.
+//
+// NOT "resolved once for every rule", which is what this header said until a
+// cross-model pass called it: regime.mjs genuinely resolves onto `ctx` and every
+// family reads it, and the sector does not. It is resolved once PER RUN, inside
+// checks/rules/sector.mjs, and no other family sees it. The distinction matters
+// because the moment a second family wants the trade, this file has to move the
+// resolution onto ctx rather than the caller re-deriving it — and a header
+// claiming the work was already done is how that gets missed.
 //
 // THE DESIGN DECISION THAT MATTERS MOST HERE is that detection and enforcement
 // are separated. It would be easy — and wrong — to sniff "physiotherapy" out of
@@ -70,10 +78,17 @@ export function sectorFromBuild(siteDir) {
     const p = join(buildDir, f);
     if (!existsSync(p)) continue;
     const flat = readFileSync(p, 'utf8').replace(/\*\*/g, '').replace(/__/g, '');
-    // Table row (| Sector | health-clinic | …) or list line (- Sector: health-clinic)
+    // Table row (| Sector | health-clinic | …) or list line (- Sector: health-clinic).
+    //
+    // The value is anchored at BOTH ends. Without the trailing anchor,
+    // `Sector: legal_services` silently truncated to `legal` and the run then
+    // reported "there is no sectors/legal.mjs" — a true sentence about a
+    // sector id nobody wrote. Now the whole value has to be a well-formed id,
+    // and anything else is read as absent, which produces the honest finding
+    // (`sector/undeclared`) instead of a confusing one.
     const row = /^\s*\|\s*Sector\s*\|\s*`?([a-z0-9-]+)`?\s*\|/im.exec(flat);
     if (row) return row[1];
-    const line = /^\s*(?:[-*]\s*)?Sector\s*:\s*`?([a-z0-9-]+)`?/im.exec(flat);
+    const line = /^\s*(?:[-*]\s*)?Sector\s*:\s*`?([a-z0-9-]+)`?\s*$/im.exec(flat);
     if (line) return line[1];
   }
   return null;
@@ -118,24 +133,40 @@ export function smellsRegulated(text) {
   return REGULATED_SMELL.some((re) => re.test(String(text || '')));
 }
 
-/** Load one sector file, merged onto the base. */
+/**
+ * Load one sector file, merged onto the base.
+ *
+ * @returns {Promise<object|null>} the sector, or null when no such file exists.
+ * @throws when the file EXISTS and cannot be loaded — a broken file is not a
+ *   missing one, and reporting "there is no sectors/x.mjs" about a file that is
+ *   sitting right there was a false statement the caller printed. Found by a
+ *   cross-model pass on this file.
+ */
 export async function loadSector(name) {
   const id = String(name || '').trim().toLowerCase();
   if (!listSectors().includes(id)) return null;
-  try {
-    const raw = (await import(`../../sectors/${id}.mjs`)).default;
-    return merge(base, raw);
-  } catch { return null; }
+  const raw = (await import(`../../sectors/${id}.mjs`)).default;
+  if (!raw || typeof raw !== 'object') {
+    throw new Error(`sectors/${id}.mjs has no usable default export`);
+  }
+  return merge(base, raw);
 }
 
 /** Load every sector file. Used by the detector, which must consider all of them. */
 export async function loadAllSectors() {
   const out = [];
+  const broken = [];
   for (const id of listSectors()) {
-    const s = await loadSector(id);
-    if (s) out.push(s);
+    try {
+      const s = await loadSector(id);
+      if (s) out.push(s);
+    } catch (err) {
+      // One unloadable file must not take the detector down for the other
+      // eight, and it must not vanish either.
+      broken.push(`${id} (${err.message})`);
+    }
   }
-  return out;
+  return { sectors: out, broken };
 }
 
 /**
@@ -156,7 +187,12 @@ export async function loadAllSectors() {
 export async function resolveSector({ declared, jurisdiction, text }) {
   const problems = [];
   const notices = [];
-  const all = await loadAllSectors();
+  const { sectors: all, broken } = await loadAllSectors();
+  for (const b of broken) {
+    problems.push(
+      `sectors/${b.split(' ')[0]}.mjs exists and could not be loaded: ${b.slice(b.indexOf('(') + 1, -1)}. `
+      + `Every trade duty in that file is silently not being checked, on every build, until it loads.`);
+  }
   const detected = detectSectors(text, all);
 
   if (declared === 'none') {
@@ -175,7 +211,15 @@ export async function resolveSector({ declared, jurisdiction, text }) {
     return { declared: null, sector: null, rules: null, detected, problems, notices };
   }
 
-  const sector = await loadSector(declared);
+  let sector = null;
+  try {
+    sector = await loadSector(declared);
+  } catch (err) {
+    problems.push(
+      `the build declares \`Sector: ${declared}\` and sectors/${declared}.mjs threw on import: ${err.message}. `
+      + `The file exists. Nothing in it is being checked.`);
+    return { declared, sector: null, rules: null, detected, problems, notices };
+  }
   if (!sector) {
     problems.push(
       `the build declares \`Sector: ${declared}\` and there is no sectors/${declared}.mjs. `

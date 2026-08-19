@@ -129,10 +129,12 @@ export default {
 
   coverage: {
     uk: {
-      whoRegulates: 'https://www.legislation.gov.uk/uksi/2012/1916/regulation/284/made',
-      entryRestriction: 'https://www.legislation.gov.uk/uksi/2012/1916/regulation/284/made',
+      whoRegulates: null,
+      whoRegulatesWhy: 'No single regulator. The MHRA enforces medicines advertising, the ASA enforces the CAP Code, and local authorities license some procedures. No instrument naming a regulator for this trade as a trade was found.',
+      entryRestriction: null,
+      entryRestrictionWhy: 'There is no protected title or licence for a non-medical injector in the UK today. The restriction is on PRESCRIBING the medicine, not on injecting it, and whether the Health and Care Act 2022 s.180 licensing scheme for England has commenced was not confirmed in this pass.',
       websiteDuties: 'https://www.legislation.gov.uk/uksi/2012/1916/regulation/284/made',
-      advertisingLimits: 'https://www.asa.org.uk/type/non_broadcast/code_section/12.html',
+      advertisingLimits: 'https://www.legislation.gov.uk/uksi/2012/1916/regulation/280/made',
       complaintsRoute: 'https://www.asa.org.uk/type/non_broadcast/code_section/12.html',
     },
   },

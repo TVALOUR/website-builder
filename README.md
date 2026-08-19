@@ -88,7 +88,7 @@ repo is a NOT: not Inter, not the purple gradient, not four typefaces, not `tran
 hero-then-three-cards. A page can break none of them and still read as generated, because avoiding
 a default is not the same as making a decision, and there is no gate for average.
 
-So [`patterns/`](patterns/README.md) is the positive half: **twenty-two section archetypes**, each
+So [`patterns/`](patterns/README.md) is the positive half: **twenty-three section archetypes**, each
 with the question it answers, the case it is wrong for, and — the part that matters — what holds
 its negative space. Four heroes, none of them the eyebrow-headline-subtitle-two-buttons composite
 everybody ships. A services list with a real price column instead of a card grid. Opening hours
@@ -350,7 +350,7 @@ shared/        writing · design · directions · references · review · imager
 checks/        run.mjs + 13 rule families + brief.mjs + case suites + selftest   zero deps
 profiles/      one file per COUNTRY + _base.mjs + the research protocol in README.md
 sectors/       one file per TRADE, keyed by country + _base.mjs + its own research protocol
-patterns/      22 section archetypes + one stylesheet + a specimen sheet you can open and look at
+patterns/      23 section archetypes + one stylesheet + a specimen sheet you can open and look at
 templates/     brief skeleton, legal pages, consent banner, _headers, robots, structured data
 examples/      clean-control (passes) · dishonest / negative / bare / assets / sector controls (fail on purpose)
 .claude/       the Claude Code hooks (gate.mjs)

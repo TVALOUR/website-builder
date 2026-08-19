@@ -100,18 +100,41 @@ export async function run(ctx, report) {
   // NAMED match — the site calling itself "solicitors", "Gas Safe registered",
   // "chartered physiotherapists" — applies the duties, and every finding says
   // it came from detection. An INFERRED match never does, in either mode.
-  if (!sector && resolved.detected.length) {
-    const named = resolved.detected.filter((d) => d.confidence === 'named');
-    if (!managed && named.length === 1) {
+  const named = resolved.detected.filter((d) => d.confidence === 'named');
+  if (!sector && !managed && named.length) {
+    if (named.length > 1) {
+      // TWO trades named, and nothing is applied — but the run SAYS SO. The
+      // previous version fell through to a line reading "nothing in the site's
+      // own words names a trade this repo carries a file for", which was flatly
+      // false on exactly the case — a business doing two regulated things —
+      // where the duties matter most.
+      report.skip('sector', `audited site naming ${named.length} trades in its own words `
+        + `(${named.map((d) => d.name).join('; ')}). No duties were applied, because a file cannot tell which `
+        + `one this business is, or whether it is both. Re-run with --sector to apply one: `
+        + `${named.map((d) => d.id).join(' or ')}.`);
+    } else {
       const { loadSector } = await import('../lib/sector.mjs');
-      sector = await loadSector(named[0].id);
+      try {
+        sector = await loadSector(named[0].id);
+      } catch (err) {
+        report.add('sector/unknown', BLOCKER,
+          `sectors/${named[0].id}.mjs threw on import: ${err.message}`,
+          { file: `sectors/${named[0].id}.mjs` },
+          'The file exists, and nothing in it is being checked on any build.');
+        sector = null;
+      }
       rules = sector && (sector.jurisdictions || {})[profileName];
       derivedFromDetection = true;
       if (rules && rules.researched !== false) {
         report.skip('sector', `audited site, no brief to declare a trade — the site calls itself `
           + `"${named[0].name}" in its own words, so ${profileName}'s duties for that trade were applied. `
           + `Findings below are detection-derived: if the trade is wrong, so are they.`);
-      } else {
+      } else if (sector) {
+        // Detected, and this repo has nothing for that trade HERE. A different
+        // sentence from "nothing was detected", and the report owes the right one.
+        report.skip('sector', `audited site reading as "${named[0].name}", and sectors/${named[0].id}.mjs has `
+          + `no researched duties for ${profileName}. That is an absence of research, not a finding that the `
+          + `trade is unregulated there.`);
         rules = null;
       }
     }
@@ -119,7 +142,6 @@ export async function run(ctx, report) {
 
   // ------------------------------------------------------- undeclared trade
   if (managed && !declared) {
-    const named = resolved.detected.filter((d) => d.confidence === 'named');
     const inferred = resolved.detected.filter((d) => d.confidence === 'inferred');
     if (named.length || inferred.length || smellsRegulated(corpus)) {
       const what = named.length
@@ -145,25 +167,41 @@ export async function run(ctx, report) {
     if (!resolved.problems.length && !resolved.notices.length) {
       report.skip('sector', declared === 'none'
         ? 'the build declares Sector: none, so no trade duties were applied. That is an answer, on the record, that a human gave.'
-        : 'no trade duties applied: nothing declared, and nothing in the site\'s own words names a trade this repo carries a file for. '
-          + '`node checks/run.mjs --sectors` lists them.');
+        : named.length
+          ? `no trade duties applied. The site reads as "${named.map((d) => d.name).join('; ')}" — the line above `
+            + 'says why that was not enough to apply them.'
+          : 'no trade duties applied: nothing declared, and nothing in the site\'s own words names a trade this repo '
+            + 'carries a file for. `node checks/run.mjs --sectors` lists them.');
     }
     return;
   }
 
-  report.sector = {
-    id: sector.id,
-    name: sector.name,
-    jurisdiction: profileName,
-    regulator: rules.regulator || null,
-    fromDetection: derivedFromDetection,
-    status: (sector.provenance || {}).status || null,
-    sources: Array.isArray((sector.provenance || {}).sources) ? sector.provenance.sources.length : 0,
-  };
+  // On report.stats, NOT on a bespoke `report.sector` field. The bespoke field
+  // was assigned on every sectored run and serialised on none of them — the
+  // report's toJSON returns a fixed shape — so it was a machine nobody could
+  // read: this repo's own named anti-pattern, committed inside the feature that
+  // names it. Found by attacking the change on the round after making it.
+  report.stats.sector = sector.id;
+  report.stats.sectorName = sector.name;
+  report.stats.sectorJurisdiction = profileName;
+  report.stats.sectorFromDetection = derivedFromDetection;
+  report.stats.sectorProvenance = (sector.provenance || {}).status || null;
+  report.stats.sectorSources = Array.isArray((sector.provenance || {}).sources)
+    ? sector.provenance.sources.length : 0;
 
   const ledgerRaw = factsPath && existsSync(factsPath) ? readFileSync(factsPath, 'utf8') : '';
   const ledger = ledgerRaw ? parseLedger(ledgerRaw) : null;
   const sourcedText = ledger ? ledger.index.textOfSourced.join(' \n ') : '';
+  // EVERY DIGIT RUN in the sourced rows, as whole tokens.
+  //
+  // The first version flattened the sourced text to digits and asked whether it
+  // CONTAINED the number. That is a substring test over a digit soup, and it
+  // passes anything short enough: a build whose ledger held the sourced phone
+  // 01914012345 could publish "SRA 401234" — a number nobody confirmed, pointing
+  // at somebody else's firm — and this gate stayed silent. Reproduced on a
+  // throwaway fixture before it was fixed, which is the only reason to believe
+  // the fix.
+  const sourcedNumbers = new Set(sourcedText.match(/\d+/g) || []);
   const via = derivedFromDetection ? ' (trade inferred from the site\'s own words, not declared)' : '';
 
   for (const duty of rules.duties || []) {
@@ -187,12 +225,22 @@ export async function run(ctx, report) {
     }
 
     if (duty.kind === 'absent') {
+      // ONE finding per distinct phrase, naming every page it appears on. A
+      // footer carrying a prohibited line on all eleven pages is one problem
+      // with one fix, and eleven identical blockers is how a report stops being
+      // read at all.
+      const found = new Map();
       for (const page of pages) {
         const m = duty.pattern.exec(page.text);
         if (!m) continue;
+        const phrase = String(m[0]).trim().slice(0, 60);
+        if (!found.has(phrase)) found.set(phrase, []);
+        found.get(phrase).push(page.shown);
+      }
+      for (const [phrase, where] of found) {
         report.add('sector/prohibited-content', BLOCKER,
-          `${duty.what} — "${String(m[0]).trim().slice(0, 60)}"`,
-          { file: page.shown, sector: sector.id },
+          `${duty.what} — "${phrase}"${where.length > 1 ? ` (on ${where.length} pages)` : ''}`,
+          { file: where[0], sector: sector.id, pages: where },
           `${duty.why}${via}`);
       }
       continue;
@@ -220,11 +268,12 @@ export async function run(ctx, report) {
           if (seen.has(num)) continue;
           seen.add(num);
           // Digits only, so "SRA no. 401234" in the ledger matches "SRA 401234"
-          // on the page. A registration number is the one string a visitor is
-          // most likely to take on trust, and the trade press is full of sites
-          // publishing a number that belonged to a business two owners ago.
+          // on the page — but matched as a WHOLE TOKEN, never as a substring.
+          // A registration number is the one string a visitor is most likely to
+          // take on trust, and the trade press is full of sites publishing a
+          // number that belonged to a business two owners ago.
           const digits = num.replace(/\D/g, '');
-          if (digits.length >= 4 && sourcedText.replace(/\D/g, ' ').includes(digits)) continue;
+          if (digits.length >= 4 && sourcedNumbers.has(digits)) continue;
           report.add('sector/number-unsourced', BLOCKER,
             `${duty.what} "${num}" has no sourced row in facts.md`,
             { file: page.shown, sector: sector.id },

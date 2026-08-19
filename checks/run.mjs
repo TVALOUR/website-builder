@@ -91,7 +91,9 @@ const target = argv.find((a) => !a.startsWith('--')
   && !VALUE_FLAGS.includes(argv[argv.indexOf(a) - 1]));
 
 if (!target) {
-  console.error('Usage: node checks/run.mjs <site-dir> [--json] [--only fam,fam] [--skip fam] [--profile uk] [--facts path] [--assets path]');
+  console.error('Usage: node checks/run.mjs <site-dir> [--json] [--only fam,fam] [--skip fam] [--profile uk] [--sector <id>] [--facts path] [--assets path]');
+  console.error('       node checks/run.mjs --list        every gate this build knows about');
+  console.error('       node checks/run.mjs --sectors     every trade profile in sectors/');
   console.error('');
   console.error('  <site-dir> is REQUIRED. There is deliberately no default: a checker that');
   console.error('  scans the wrong directory and prints PASS is the failure this tool exists to stop.');

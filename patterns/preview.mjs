@@ -78,7 +78,7 @@ const html = `<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pattern library — website-builder</title>
-<meta name="description" content="Twenty-two section archetypes to build a page out of, and the reasons not to use each one.">
+<meta name="description" content="Twenty-three section archetypes to build a page out of, and the reasons not to use each one.">
 <style>
 ${readFileSync(join(here, 'patterns.css'), 'utf8')}
 </style>

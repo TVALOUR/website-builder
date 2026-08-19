@@ -274,7 +274,7 @@ website-builder/
 ├── start.mjs          ← opens a build: builds/<slug>/ + assets folders + brief skeleton + orders
 ├── assets.mjs         ← the asset desk: indexes what the client sent, writes the manifest
 ├── stages/            ← one folder per stage, each with a CONTEXT.md
-├── patterns/          ← 22 section archetypes to build a page OUT OF — open preview/index.html
+├── patterns/          ← 23 section archetypes to build a page OUT OF — open preview/index.html
 ├── shared/            ← writing · design · directions · references · review · imagery · conductor · legal
 ├── checks/            ← the gate: run.mjs, thirteen rule families, brief.mjs, case suites, zero deps
 ├── sectors/           ← one file per TRADE, keyed by country + _base.mjs + its own research protocol

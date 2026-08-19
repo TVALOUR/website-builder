@@ -146,9 +146,33 @@ coverage: {
 }
 ```
 
+**A question may be answered "nothing here requires it", and that is written down rather than
+cited.** Set the topic to `null` and add a sibling `<topic>Why` of at least 40 characters saying
+what was looked for and not found. The check reports it at MINOR — an unregulated trade is a
+finding a client should see — and distinguishes it from silence, which blocks.
+
+```js
+coverage: {
+  uk: {
+    websiteDuties: null,
+    websiteDutiesWhy: 'No instrument found requires anything on a gas engineer website. That is the '
+      + 'finding, and the present-duty in this file argues its case rather than citing a statute '
+      + 'that does not exist.',
+  },
+}
+```
+
+**One source may not answer three of the five questions.** `citations/coverage-repeated` is a
+MAJOR when it does, and it exists because the first nine sector files failed it: eight of them
+pointed three, four or five questions at the same URL. A statute restricting who may practise does
+not also say what the trade may not advertise, and a rule about website prices says nothing about
+the complaints route. Each was a claim-to-source link that did not hold, in the mechanism built to
+catch exactly that on the jurisdiction side, reproduced on the new axis by the person building it.
+Two uses of one instrument is plausible; three is a map filled in to satisfy the check.
+
 Required for every jurisdiction the file claims to have researched. Each value must be a URL that
-appears in `provenance.sources`, and should not be `secondary`. `checks/citations.mjs` fails a
-file that leaves one blank.
+appears in `provenance.sources` and is not `secondary` — or the explicit `null` + `<topic>Why`
+above. `checks/citations.mjs` blocks a file that leaves one genuinely blank.
 
 **Why five questions rather than a percentage.** A primary-source rate counts what is there. Only
 a coverage map asks what is *missing* — and the defect that produced this mechanism on the
@@ -156,7 +180,8 @@ jurisdiction side was a profile that answered every question it asked and never 
 mattered.
 
 Answer every one, **including when the answer is "nothing here requires it".** That is a finding
-too, and it needs a source.
+too — and it needs either a source or the written `<topic>Why` above. What it may never be is
+blank, and what it may never be is the previous question's URL pasted again.
 
 ## `provenance`
 

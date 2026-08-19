@@ -137,10 +137,15 @@ export default {
 
   coverage: {
     uk: {
-      whoRegulates: 'https://www.sra.org.uk/solicitors/standards-regulations/transparency-rules/',
+      whoRegulates: 'https://www.legislation.gov.uk/ukpga/2007/29/section/20',
       entryRestriction: 'https://www.legislation.gov.uk/ukpga/2007/29/section/12',
       websiteDuties: 'https://www.sra.org.uk/solicitors/standards-regulations/transparency-rules/',
-      advertisingLimits: 'https://www.sra.org.uk/solicitors/standards-regulations/transparency-rules/',
+      // The transparency rules are about PRICE and IDENTIFICATION, not about what
+      // a firm may say. The publicity rules live in the SRA Codes of Conduct,
+      // which this pass did not read — so the question is answered "not
+      // established" rather than answered with a source that does not carry it.
+      advertisingLimits: null,
+      advertisingLimitsWhy: 'The SRA Codes of Conduct carry the publicity and misleading-communication rules for solicitors. They were not read in this research pass, and the Transparency Rules cited elsewhere in this file do not cover advertising content.',
       complaintsRoute: 'https://www.sra.org.uk/solicitors/standards-regulations/transparency-rules/',
     },
   },
@@ -157,6 +162,13 @@ export default {
         accessed: '2026-08-19',
         class: 'regulator',
         quote: 'must display in a prominent place on its website',
+      },
+      {
+        claim: 'Legal Services Act 2007 s.20 — approved regulators. An approved regulator "may authorise persons to carry on any activity which is a reserved legal activity in respect of which it is a relevant approved regulator", which is what makes the SRA the SRA.',
+        url: 'https://www.legislation.gov.uk/ukpga/2007/29/section/20',
+        accessed: '2026-08-19',
+        class: 'primary',
+        quote: 'may authorise persons to carry on any activity which is a reserved legal activity',
       },
       {
         claim: 'Legal Services Act 2007 s.12 — the reserved legal activities. The scope question behind the `reserved-activity` confirm item: a business may lawfully do some of this work and not the rest, and its website is where the two get blurred.',

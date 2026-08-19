@@ -122,11 +122,13 @@ export default {
 
   coverage: {
     uk: {
-      whoRegulates: 'https://www.legislation.gov.uk/ukpga/1966/36/section/19',
+      whoRegulates: 'https://www.legislation.gov.uk/ukpga/1966/36/section/1',
       entryRestriction: 'https://www.legislation.gov.uk/ukpga/1966/36/section/19',
-      websiteDuties: 'https://www.legislation.gov.uk/ukpga/1966/36/section/19',
+      websiteDuties: null,
+      websiteDutiesWhy: 'No instrument found requires anything on a veterinary practice website. What s.19 does is make the page itself the regulated act, by covering holding oneself out as prepared to practise — which is a different point and is made in the duty rather than here.',
       advertisingLimits: 'https://www.legislation.gov.uk/ukpga/2024/13/part/4',
-      complaintsRoute: 'https://www.legislation.gov.uk/ukpga/1966/36/section/19',
+      complaintsRoute: null,
+      complaintsRouteWhy: 'The RCVS operates a complaints and disciplinary process under its Code of Professional Conduct, which was not read in this pass. Nothing in the Act read here sets out a client complaints route.',
     },
   },
 
@@ -142,6 +144,13 @@ export default {
         accessed: '2026-08-19',
         class: 'primary',
         quote: 'No individual shall practise, or hold himself out as practising or as being prepared to practise, veterinary surgery',
+      },
+      {
+        claim: 'Veterinary Surgeons Act 1966 s.1 — the constitution of the Council of the Royal College of Veterinary Surgeons. Cited for the who-regulates question, because s.19 restricts practice and does not constitute the regulator.',
+        url: 'https://www.legislation.gov.uk/ukpga/1966/36/section/1',
+        accessed: '2026-08-19',
+        class: 'primary',
+        quote: 'There shall continue to be a President and two Vice-Presidents of the College',
       },
       {
         claim: 'DMCC Act 2024 Part 4 Chapter 1 — the unfair commercial practices regime, cited for the advertisingLimits question because no veterinary-specific advertising instrument was read to a citable standard in this pass. Naming it rather than leaving the question blank is the point of the coverage map.',

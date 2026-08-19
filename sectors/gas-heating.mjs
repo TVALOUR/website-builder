@@ -126,9 +126,11 @@ export default {
     uk: {
       whoRegulates: 'https://www.legislation.gov.uk/uksi/1998/2451/regulation/3/made',
       entryRestriction: 'https://www.legislation.gov.uk/uksi/1998/2451/regulation/3/made',
-      websiteDuties: 'https://www.legislation.gov.uk/uksi/1998/2451/regulation/3/made',
+      websiteDuties: null,
+      websiteDutiesWhy: 'No instrument found requires anything on a gas engineer website. This is the finding, and the present-duty in this file argues its case in its own why-note rather than citing a statute that does not exist.',
       advertisingLimits: 'https://www.legislation.gov.uk/ukpga/2024/13/part/4',
-      complaintsRoute: 'https://www.legislation.gov.uk/uksi/1998/2451/regulation/3/made',
+      complaintsRoute: null,
+      complaintsRouteWhy: 'There is no ombudsman or statutory complaints route for gas work as such. Safety concerns go to the HSE or the Gas Safe Register; a consumer dispute runs on general consumer law. Neither was read to a citable standard in this pass.',
     },
   },
 

@@ -132,7 +132,11 @@ export default {
     uk: {
       whoRegulates: 'https://www.hcpc-uk.org/check-the-register/',
       entryRestriction: 'https://www.legislation.gov.uk/uksi/2002/254/article/39',
-      websiteDuties: 'https://www.legislation.gov.uk/uksi/2002/254/article/39',
+      // Article 39 restricts the TITLE. It says nothing about a website, and
+      // citing it for one was the map answering a question the instrument does
+      // not reach.
+      websiteDuties: null,
+      websiteDutiesWhy: 'No instrument found in this pass requires anything to appear on a clinic website. The registration-number duty in this file is argued from the title offence in its own why-note, and is a prompt rather than a breach.',
       advertisingLimits: 'https://www.asa.org.uk/type/non_broadcast/code_section/12.html',
       complaintsRoute: 'https://www.hcpc-uk.org/check-the-register/',
     },

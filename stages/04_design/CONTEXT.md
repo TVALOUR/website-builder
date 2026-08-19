@@ -54,7 +54,7 @@ because stage 01's delegation was still the last word in the field.
 
 ## Process
 
-> **Before anything else, open `patterns/preview/index.html`.** Twenty-two
+> **Before anything else, open `patterns/preview/index.html`.** Twenty-three
 > section archetypes with the reason not to use each one, and a token set to
 > replace. It is a vocabulary rather than a template, and it exists because the
 > design rules elsewhere in this repo are almost all negative: a page that breaks

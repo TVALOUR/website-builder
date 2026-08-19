@@ -129,8 +129,13 @@ export default {
 
   coverage: {
     uk: {
-      whoRegulates: 'https://www.legislation.gov.uk/ukpga/2015/15/section/83',
-      entryRestriction: 'https://www.legislation.gov.uk/ukpga/2015/15/section/83',
+      // s.83 is enforced by local weights and measures authorities and carries
+      // the redress-scheme statement. It does not constitute a regulator and it
+      // does not restrict who may trade, so it is not cited for either.
+      whoRegulates: null,
+      whoRegulatesWhy: 'There is no single regulator of letting agency in England. Enforcement of the fee-publication duty sits with local weights and measures authorities, and consumer redress with an approved scheme. No instrument constituting a regulator for this trade was read in this pass.',
+      entryRestriction: null,
+      entryRestrictionWhy: 'No licence is required to trade as a letting agent in England. Membership of an approved redress scheme is compulsory, which is a condition of trading rather than an entry qualification, and the instrument imposing it (the Estate Agents Act 1979 / CEARA 2007 regime) was not read to a citable standard in this pass.',
       websiteDuties: 'https://www.legislation.gov.uk/ukpga/2015/15/section/83',
       advertisingLimits: 'https://www.legislation.gov.uk/ukpga/2019/4/section/2',
       complaintsRoute: 'https://www.legislation.gov.uk/ukpga/2015/15/section/83',

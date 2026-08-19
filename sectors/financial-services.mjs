@@ -130,7 +130,7 @@ export default {
       entryRestriction: 'https://www.legislation.gov.uk/ukpga/2000/8/section/19',
       websiteDuties: 'https://www.handbook.fca.org.uk/handbook/GEN/4/Annex1.html',
       advertisingLimits: 'https://www.legislation.gov.uk/ukpga/2000/8/section/21',
-      complaintsRoute: 'https://www.legislation.gov.uk/ukpga/2000/8/section/19',
+      complaintsRoute: 'https://www.handbook.fca.org.uk/handbook/DISP/1/2.html',
     },
   },
 
@@ -146,6 +146,12 @@ export default {
         accessed: '2026-08-19',
         class: 'regulator',
         quote: 'Authorised and regulated by the Financial Conduct Authority',
+      },
+      {
+        claim: 'FCA Handbook DISP 1.2.1R — the duty to publish information about internal complaints handling, to refer eligible complainants to it, and to give clear information about the Financial Ombudsman Service on the website and in contract terms. This is the complaints route this trade owes, and it names the website.',
+        url: 'https://www.handbook.fca.org.uk/handbook/DISP/1/2.html',
+        accessed: '2026-08-19',
+        class: 'regulator',
       },
       {
         claim: 'FSMA 2000 s.19 — the general prohibition. Carrying on a regulated activity in the UK without authorisation or exemption is an offence, and credit broking is a regulated activity. This is the instrument behind the `unregulated-introducer` confirm item.',

@@ -298,6 +298,28 @@ say((sectorUnknown.json?.findings || []).some((f) => /dog-grooming/.test(f.messa
 console.log('\npattern library — it must meet the standard it teaches');
 const patterns = run(['patterns/preview', '--profile', 'uk', '--json', '--no-color']);
 {
+  // HOW MANY ARCHETYPES ARE THERE, ACTUALLY.
+  //
+  // The library shipped claiming twenty-two and containing twenty-three, in nine
+  // separate files, for a whole afternoon. Nobody counted, because the number
+  // read as a fact rather than as a claim. Every count now comes from the
+  // sections themselves, and both places that repeat it are checked against
+  // them — a claim about the artifact belongs in a probe, which is this repo's
+  // own ratified rule and the one it broke here.
+  const WORDS = { twenty: 20, 'twenty-one': 21, 'twenty-two': 22, 'twenty-three': 23,
+    'twenty-four': 24, 'twenty-five': 25, 'twenty-six': 26 };
+  const sectionSrc = readdirSync(join(root, 'patterns', 'sections'))
+    .filter((f) => f.endsWith('.html'))
+    .map((f) => readFileSync(join(root, 'patterns', 'sections', f), 'utf8')).join('\n');
+  const real = (sectionSrc.match(/^<!-- -+ [HBTAC]\d+$/gm) || []).length;
+  const readme = readFileSync(join(root, 'patterns', 'README.md'), 'utf8');
+  const tableRows = (readme.match(/^\| \*\*[HBTAC]\d+\*\*/gm) || []).length;
+  const word = (readme.match(/\b(twenty(?:-\w+)?)\s+section (?:shapes|archetypes)/i) || [])[1];
+  say(real > 0 && tableRows === real,
+    `patterns/README.md lists ${tableRows} archetypes and sections/ contains ${real}`);
+  say(word ? WORDS[word.toLowerCase()] === real : false,
+    `and the count written in prose ("${word}") is the count that is there`);
+
   const applicable = (patterns.json?.findings || []).filter((f) => /^(design|a11y|responsive)\//.test(f.gate));
   say(applicable.length === 0,
     applicable.length === 0
