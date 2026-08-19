@@ -419,7 +419,13 @@ try {
       `love or want to remake, the one they hate, brand colours and fonts, their old site ` +
       `- into builds/<slug>/_intake/. Then the interview from ` +
       `stages/01_discover/questions.md (question 0, part V, then the facts).\n` +
-      `  3. Write brief.md + facts.md and STOP for the human's yes.\n` +
+      `  3. ASK QUESTION 57b - what trade is this, in the regulator's words? Nobody volunteers ` +
+      `it, and for some trades the law names the WEBSITE: a letting agent must publish its fees ` +
+      `on it, a law firm its prices and complaints route, an aesthetics clinic may not name or ` +
+      `price Botox at all. Write the answer as a | Sector | <id> | row in facts.md. ` +
+      `node checks/run.mjs --sectors lists what is researched; "none" is a real answer and most ` +
+      `trades' answer, but it is an ANSWER, not a silence.\n` +
+      `  4. Write brief.md + facts.md and STOP for the human's yes.\n` +
       `Site files are hook-blocked until brief.md, facts.md and design.md exist. "Just ` +
       `build it" means asking the smallest set of unguessable questions, not skipping ` +
       `them (AGENTS.md rule 1).`);

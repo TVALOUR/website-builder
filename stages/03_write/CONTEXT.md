@@ -14,6 +14,15 @@ Write the actual words. Every one of them shippable, every claim traceable.
 
 ## Process
 
+> **If the build declares a Sector, read sectors/<id>.mjs before writing the services
+> page.** Some of what that trade may not say is an offence rather than a style choice, and it is
+> the COPY that gets it wrong, never the markup. shared/writing.md has the short version under
+> "What a regulated trade may not say".
+>
+> **And write the lines nobody writes** — the sentence after the submit button, the bank holidays,
+> the access line, the limit stated before anyone asks. Same file. They are boring to write and
+> they are what a real business's site has that a generated one does not.
+
 ### 1. Legal pages first
 
 Get them out of the way while you are still being careful. They are mechanical, they use only

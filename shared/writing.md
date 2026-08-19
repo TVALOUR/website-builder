@@ -123,6 +123,70 @@ No lorem ipsum, ever. Every word ships or is explicitly labelled as missing.
 
 ---
 
+## The lines nobody writes, which are the ones people read
+
+Every one of these is a sentence a real business's site has and a generated one does not, because
+nobody asked for it and no gate misses it. They are short, they are boring to write, and between
+them they do more work than the homepage.
+
+- **What happens after the button.** "We reply the same working day, usually by phone." A form
+  whose last line says what happens next converts better than any headline on the site, and almost
+  no generated site has one.
+- **The bank holidays.** Generated sites list Monday to Friday and stop. The customer's actual
+  question is about the day that is not in the list — so write "Sunday and bank holidays: closed",
+  and write the Christmas closure with its dates and take it down in January.
+- **The access line.** "Level access throughout, no step at the threshold, and the toilet is
+  accessible." Worth more to the people who need it than every accessibility statement on the site,
+  and it costs one sentence.
+- **The directions a satnav gets wrong.** "If your satnav sends you to Trescott Farm you have gone
+  half a mile too far." Nobody can invent this. It is the clearest possible proof a person wrote
+  the page.
+- **The limit, stated before it is asked about.** "There are two of us and we do not run more than
+  one job at a time. It is the reason the work is what it is, and it is the honest trade." Copy that
+  could not be false does not read as true.
+- **The thing the trade is bad at.** Real sites name the awkward part — a lead time, a minimum
+  charge, a job they will not take. It is the single fastest way to sound like a business rather
+  than a brochure, and it is the sentence a model will never volunteer.
+- **A caption on the photograph.** "The drying store. Oak sits here for a year before anything is
+  cut from it." Captions are almost never written, which is exactly why one reads as made.
+- **A date on anything temporary.** A notice with no date is a notice nobody can tell has gone
+  stale — and a stale one is the loudest possible signal that nobody maintains the site.
+
+## The wording of a price
+
+Prices are where copy is most tempted into vagueness and where vagueness costs the most.
+
+- **"From £420 a window" beats "competitive rates"** by every measure, including the number of
+  wasted phone calls.
+- **A "from" price owes the reader what moves it.** "Rot repairs are quoted separately after we
+  open it up" is the sentence that stops the price being a bait.
+- **"Prices on application" is a real answer** when the work genuinely varies, and it needs the
+  reason attached: "every roof is different and a number here would be a guess" is honest;
+  "contact us for a bespoke quotation" is a stall.
+- Whatever the number is, it is in `facts.md` with a source, or it does not go on the page.
+  `facts/unsourced-price` blocks it either way.
+
+## What a regulated trade may not say
+
+If the build declares a `Sector`, read `sectors/<id>.mjs` before writing a word of the services
+page. The copy is where these go wrong, not the markup, and some of them are offences rather than
+style:
+
+- **Never a protected title the client does not hold.** "Physiotherapy" on a sports-massage site is
+  the representation Health Professions Order 2001 art.39 is about, not a synonym.
+- **Never "cure", never "guaranteed results", never a named serious condition** on a clinic site.
+  CAP rule 12.6 and, for one condition, Cancer Act 1939 s.4, which has no evidence defence.
+- **Never name or price a prescription only medicine.** Botox and its siblings. Write the
+  consultation, the practitioner and the assessment instead — which is better copy anyway, because
+  it is about the person rather than the product.
+- **Never an accreditation stretched past its scope.** "Gas Safe registered" beside an electrical
+  offer is a claim about a registration that does not cover it.
+- **Say the registration, and link the register.** Every regulator in `sectors/` runs a free public
+  one. A number with a link beside it is checkable in a click; a number alone is a request to be
+  believed.
+
+---
+
 ## Microcopy
 
 The button labels, the form hints, the error messages, the empty states, the alt text. Nobody
