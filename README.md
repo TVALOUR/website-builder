@@ -1,5 +1,7 @@
 # website-builder
 
+[![checks](https://github.com/TVALOUR/website-builder/actions/workflows/checks.yml/badge.svg)](https://github.com/TVALOUR/website-builder/actions/workflows/checks.yml)
+
 **Websites that look made, not generated.**
 
 A folder of markdown, a zero-dependency checker, and (on Claude Code) working hook
