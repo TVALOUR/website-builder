@@ -364,6 +364,18 @@ function list() {
 }
 
 const argv = process.argv.slice(2);
+if (argv.some((a) => ['--help', '-h', '-?', '/?', '--usage'].includes(a.toLowerCase()))) {
+  console.log('');
+  console.log('Usage: node assets.mjs <slug> scan [--keep]   take in drop/, index it, write the manifest');
+  console.log('       node assets.mjs <slug> check           what is still unanswered, as questions to ask');
+  console.log('       node assets.mjs                        every build, and what is waiting in drop/');
+  console.log('');
+  console.log('  drop/ is the front door, at the repo root: logo · photos · brand · fonts ·');
+  console.log('  docs · reference. `scan` MOVES what is in it into builds/<slug>/_intake/ so');
+  console.log('  the next client cannot inherit the last one\'s files; --keep copies instead.');
+  console.log('');
+  process.exit(0);
+}
 const keep = argv.includes('--keep');
 const [slug, cmd] = argv.filter((a) => !a.startsWith('--'));
 if (!slug) list();

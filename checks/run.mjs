@@ -90,14 +90,27 @@ const VALUE_FLAGS = ['--only', '--skip', '--profile', '--assets', '--facts', '--
 const target = argv.find((a) => !a.startsWith('--')
   && !VALUE_FLAGS.includes(argv[argv.indexOf(a) - 1]));
 
+const usage = (write) => {
+  write('Usage: node checks/run.mjs <site-dir> [--json] [--only fam,fam] [--skip fam] [--profile uk] [--sector <id>] [--facts path] [--assets path]');
+  write('       node checks/run.mjs --list        every gate this build knows about');
+  write('       node checks/run.mjs --sectors     every trade profile in sectors/');
+  write('');
+  write('  <site-dir> is REQUIRED. There is deliberately no default: a checker that');
+  write('  scans the wrong directory and prints PASS is the failure this tool exists to stop.');
+  write('  Run `node checks/run.mjs --list` to see every gate.');
+};
+
+// --help is the first thing most people type, and it is not an error. It printed
+// the usage on stderr and exited 2 - the code this repo's own CI reads as "the
+// checker crashed" - so the friendliest possible first command looked like a
+// broken tool. One usage text, two exits: 0 when asked for, 2 when required.
+if (has('--help') || has('-h')) {
+  usage((line) => console.log(line));
+  process.exit(0);
+}
+
 if (!target) {
-  console.error('Usage: node checks/run.mjs <site-dir> [--json] [--only fam,fam] [--skip fam] [--profile uk] [--sector <id>] [--facts path] [--assets path]');
-  console.error('       node checks/run.mjs --list        every gate this build knows about');
-  console.error('       node checks/run.mjs --sectors     every trade profile in sectors/');
-  console.error('');
-  console.error('  <site-dir> is REQUIRED. There is deliberately no default: a checker that');
-  console.error('  scans the wrong directory and prints PASS is the failure this tool exists to stop.');
-  console.error('  Run `node checks/run.mjs --list` to see every gate.');
+  usage((line) => console.error(line));
   process.exit(2);
 }
 

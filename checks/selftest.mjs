@@ -673,6 +673,19 @@ console.log('\ndrop/ - the client\'s material reaches the build, and reaches not
   for (const r of runDrop()) say(r.ok, r.msg);
 }
 
+// ------------------------------------------------------------ the CLI itself
+//
+// What happens when somebody types the most cautious command they know. Asking
+// `node start.mjs --help` used to OPEN A BUILD called "help", and asking
+// `node checks/run.mjs --help` exited 2 - the code CI reads as a crash. Neither
+// breaks a build; both are the first five minutes of a tool asking to be trusted
+// with somebody's business.
+console.log('\nthe CLI - asking a tool to explain itself must not start anything, or look like a crash');
+{
+  const { runCli } = await import('./cli-cases.mjs');
+  for (const r of runCli()) say(r.ok, r.msg);
+}
+
 // ------------------------------------------------------- policy reading
 //
 // The regression this locks down was invisible for exactly the reason it was

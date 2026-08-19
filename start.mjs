@@ -55,6 +55,26 @@ const listBuilds = () => {
     .map((d) => ({ slug: d.name, state: join(buildsDir, d.name, 'STATE.md') }));
 };
 
+// `node start.mjs --help` used to slugify the flag and open a build called
+// "help" - a folder, a brief skeleton and a git repo, from the most cautious
+// command a new person can type. Flag forms only: a business really can be
+// called Help, and the bare word is a name, not a request for the usage.
+const HELP_FLAGS = ['--help', '-h', '-?', '/?', '--usage'];
+if (process.argv.slice(2).some((a) => HELP_FLAGS.includes(a.toLowerCase()))) {
+  console.log('');
+  console.log('Usage: node start.mjs "<project name>"   open a build: builds/<slug>/');
+  console.log('       node start.mjs                    list active builds and their next actions');
+  console.log('');
+  console.log('  It creates the build folder, its _intake/ and asset folders, a brief');
+  console.log('  skeleton, its own git repo, and prints the stage-01 orders.');
+  console.log('');
+  console.log('  Put the client\'s material in drop/ (repo root) first, or point them at it:');
+  console.log('  logo · photos · brand · fonts · docs · reference. The next');
+  console.log('  `node assets.mjs <slug> scan` moves it into the build.');
+  console.log('');
+  process.exit(0);
+}
+
 const name = process.argv.slice(2).join(' ').trim();
 
 if (!name) {
