@@ -129,6 +129,49 @@ caption now says the business is invented, which it did not.
 
 ---
 
+## 2026-08-19 (later) - the sector axis and the pattern library: NOT a run
+
+Both shipped the same day and **neither has been through a build.** That sentence is the whole
+point of this section, and it is here rather than in a footnote because a folder of nine sector
+files with primary-source citations looks exactly like something that has been used.
+
+| | State |
+|---|---|
+| Sector duties fired on a real client build | **never** |
+| Sector duties fired on a fixture | yes — four negative controls in `examples/sector-control/`, one per failure shape |
+| Sector citations re-read against their live sources | yes — `node checks/citations.mjs --online`, 18 quotes present, 0 drifted |
+| Question 57b (the trade) asked of a person | **never** |
+| Pattern library used in a build | **never** |
+| Pattern library measured against the gate it teaches | yes — zero design, a11y and responsive findings, and mutation-tested |
+
+### What running the new machinery over this repo ITSELF found
+
+Both are recorded because they are the honest yield of dogfooding, and because both are the same
+defect shape — a short pattern matching more than it means:
+
+- **`\bvets?\b` was a STRONG detection term**, and `examples/clean-control` is a **farrier's**
+  site that says "speak to your vet", the way every equine trade does. The fixture the whole
+  selftest depends on was handed an RCVS registration blocker. Moved to weak; farriery added as a
+  veto.
+- **`\bbuilders?\b` matched inside "website-builder"** — a hyphen is a word boundary — so this
+  repo's own pattern library was classified as a construction firm.
+
+### What the F3 critique on the same day found in the same code
+
+Eight defects, three of them S1, every one reproduced before it was fixed. The largest: **eight of
+nine sector coverage maps answered three to five different questions with the same URL** — the
+exact claim-to-source failure the coverage mechanism exists to catch on the jurisdiction side,
+reproduced on the new axis by the person building it. `citations/coverage-repeated` now catches it,
+and the 16 questions that genuinely had no instrument behind them say so in writing instead of
+pointing at one that does not carry them.
+
+The other two S1s: `sector/number-unsourced` was a substring test that let an unconfirmed
+registration number through if its digits appeared inside any longer sourced number, and the report
+printed a flatly false sentence on a site naming two trades. Full ledger in the private critique
+artifact; the fixes are in the git history.
+
+---
+
 ## Prior artifacts, and what they are
 
 | Artifact | What it is | What it is NOT |
