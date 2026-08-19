@@ -70,8 +70,38 @@ const UNINCORPORATED = anchored([
   'eenmanszaak', 'enskild firma',
 ]);
 
-/** Question 0, answer (c). */
-const DEMO = /\b(personal|portfolio|demo(?:nstration)?|fiction(?:al)?|invented|not\s+a\s+real|sample|teaching|example\s+(?:build|project)|test\s+build)\b/i;
+/**
+ * Question 0, answer (c).
+ *
+ * BE CONSERVATIVE HERE. The demo answer now has consequences in both
+ * directions: it switches off the trader-disclosure gates, it licenses the
+ * reserved phone range that `copy/placeholder` otherwise blocks, and it turns ON
+ * `legal/demo-undeclared`. A false demo therefore relaxes a real business's
+ * gates AND blocks it for not declaring something that is not true.
+ *
+ * The first draft matched the bare words `personal`, `portfolio` and `sample` —
+ * the CATEGORY LABELS from question 0 — against free prose, and an adversarial
+ * pass found five ordinary real-business entity cells that tripped it:
+ *
+ *   "sole trader, personal liability, no company"
+ *   "sole trader; the owner takes personal responsibility for the work"
+ *   "limited company; personal guarantee given to the bank"
+ *   "family business, personal service since 1998"
+ *   "sole trader offering a personal training service"
+ *
+ * Every one is a real business. So the ambiguous words now need their noun, and
+ * only the unambiguous ones stand alone.
+ */
+const DEMO = new RegExp([
+  // Unambiguous on their own in an Entity type cell.
+  'demo(?:nstration)?', 'fiction(?:al|-al)?', 'fictitious', 'invented',
+  'not\\s+a\\s+real', 'made\\s+up', 'teaching\\s+(?:example|build)', 'test\\s+build',
+  // Ambiguous alone — a real trader has personal liability and sells samples.
+  'personal\\s+(?:project|site|website|page|portfolio|build|demo)',
+  'portfolio\\s+(?:site|website|project|build|piece)',
+  'sample\\s+(?:site|website|build|project)',
+  'example\\s+(?:build|project|site)',
+].map((w) => `\\b(?:${w})\\b`).join('|'), 'i');
 
 /** Question 0, answer (b) — real, but with no shopfront and no service area. */
 const ONLINE_ONLY = /\b(saas|software|app\b|platform|online[-\s]?only|no\s+premises|product\s+company|not\s+a\s+(?:local\s+)?(?:business|trader))\b/i;
@@ -88,6 +118,41 @@ const ONLINE_ONLY = /\b(saas|software|app\b|platform|online[-\s]?only|no\s+premi
  */
 export const RESERVED_FICTION_NUMBER =
   /\b(?:555[-\s]?01\d{2}|01632\s?96\d{4}|07700\s?90\d{4}|08081\s?57\d{4}|\(?0[2378]\)?[\s-]?(?:5550|7010)[\s-]?\d{4})\b/;
+
+/**
+ * The same question, asked of a number that may be written for a machine.
+ *
+ * `RESERVED_FICTION_NUMBER` is anchored on word boundaries so it does not fire
+ * inside arbitrary digit runs — and that anchoring makes it blind to the form a
+ * `tel:` href actually takes. `tel:+16135550147` holds a perfectly good NANPA
+ * drama number with no boundary before the 555, so the check added to catch a
+ * demo publishing a LIVE number reported the reserved one as live. Found on the
+ * third pass over the same two builds, in the gate added on the second.
+ *
+ * So: test the human form first, then strip to digits and test the positional
+ * form of each reservation.
+ *
+ * @param {string} text a phone number in any format, or a tel: href value
+ */
+export function isReservedFictionNumber(text) {
+  const s = String(text || '');
+  if (RESERVED_FICTION_NUMBER.test(s)) return true;
+  const d = s.replace(/[^\d]/g, '').replace(/^00/, '');
+  return (
+    // NANPA: [1] + area code + 555 01xx
+    /^1?\d{3}555 ?01\d{2}$/.test(d)
+    // UK, with or without the 44 country code and with the trunk 0 either way
+    || /^(?:44|0)?1632 ?96\d{4}$/.test(d)
+    || /^(?:44|0)?7700 ?90\d{4}$/.test(d)
+    || /^(?:44|0)?8081 ?57\d{4}$/.test(d)
+    || /^(?:44|0)?3069 ?99\d{4}$/.test(d)
+    // UK per-area drama block: <area> 4960xxx
+    || /^(?:44|0)?1\d{2,3}4960\d{3}$/.test(d)
+    || /^(?:44|0)?20 ?7946 ?0\d{3}$/.test(d)
+    // ACMA geographic: [61] + single-digit area + 5550/7010 + four
+    || /^(?:61)?0?[2378](?:5550|7010)\d{4}$/.test(d)
+  );
+}
 
 /**
  * Read the project regime out of a facts ledger.

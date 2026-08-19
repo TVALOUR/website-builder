@@ -209,14 +209,19 @@ export function buildIndex(rows) {
     // way the header asks for it, and it produced "19 years" unsourced. Only
     // the units the quantity extractor recognises are recombined, so this
     // cannot invent a source for anything else.
+    // ONLY when the row holds exactly one number. `| Projects in 2024 | 47 |`
+    // has two, and recombining both indexed "2024 projects" as sourced — so a
+    // page claiming 2024 projects completed would have passed against a ledger
+    // that says 47. A recombination that can invent a source is worse than the
+    // false blocker it was written to remove. Found by attacking the change on
+    // the round after it was made.
     const UNITS = /\b(years?|customers|clients|patients|projects|jobs|reviews)\b/gi;
     const units = [...joined.matchAll(UNITS)].map((m) => m[0].toLowerCase());
-    if (units.length) {
-      for (const nm of joined.matchAll(/\b\d[\d,]*\+?\b/g)) {
-        for (const u of units) {
-          const v = norm.quantity(`${nm[0]} ${u}`);
-          if (v) idx.quantity.add(v);
-        }
+    const numbers = [...joined.matchAll(/\b\d[\d,]*\+?\b/g)].map((m) => m[0]);
+    if (units.length && numbers.length === 1) {
+      for (const u of units) {
+        const v = norm.quantity(`${numbers[0]} ${u}`);
+        if (v) idx.quantity.add(v);
       }
     }
   }

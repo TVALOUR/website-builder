@@ -22,7 +22,7 @@
 // Every case below is a phrase a real ledger would contain in one of the six
 // countries this repo ships a profile for.
 
-import { resolveRegime, RESERVED_FICTION_NUMBER } from './lib/regime.mjs';
+import { resolveRegime, isReservedFictionNumber } from './lib/regime.mjs';
 
 const row = (entity, preamble = '') =>
   `${preamble}\n\n| Fact | Value | Source | Confirmed |\n|---|---|---|---|\n| Entity type | ${entity} | owner | yes |\n`;
@@ -50,8 +50,21 @@ export const CASES = [
 
   // --- question 0 answer (c)
   ['fictional demo brand, not a real trading entity', null, true, 'demo, in the Entity type cell'],
-  ['personal portfolio, no business behind it', null, true, 'portfolio'],
+  
   ['invented for this demonstration', null, true, 'invented'],
+  ['personal portfolio site, no business behind it', null, true, 'portfolio, with its noun'],
+
+  // --- NOT demos. Every one of these is a real business whose entity cell
+  // happens to contain a word question 0 uses as a category label. All five
+  // were classified as demos by the first draft, which would have switched off
+  // a real business's trader-disclosure gates and then blocked it for failing
+  // to declare a fiction it was not.
+  ['sole trader, personal liability, no company', 'unincorporated', false, 'REAL - personal liability'],
+  ['sole trader; the owner takes personal responsibility for the work', 'unincorporated', false, 'REAL - personal responsibility'],
+  ['limited company; personal guarantee given to the bank', 'incorporated', false, 'REAL - personal guarantee'],
+  ['sole trader offering a personal training service', 'unincorporated', false, 'REAL - personal trainer'],
+  ['limited company with a portfolio of six rental properties', 'incorporated', false, 'REAL - property portfolio'],
+  ['sole trader; sends a fabric sample with every quote', 'unincorporated', false, 'REAL - sells samples'],
 ];
 
 export function runCases() {
@@ -81,6 +94,15 @@ export function runCases() {
 /** The reserved ranges must be recognised in every shipped country's format. */
 export const RESERVED = [
   ['(613) 555-0147', true, 'NANPA, Canada'],
+  // The tel: href forms. A number written for a machine has no word boundary
+  // before the 555, and the anchored pattern could not see it - so the gate
+  // that catches a demo publishing a LIVE number reported the RESERVED one as
+  // live. Found on the third pass over the same two builds.
+  ['tel:+16135550147', true, 'NANPA as a tel: href'],
+  ['+441632960442', true, 'UK drama as an international tel: href'],
+  ['tel:01632960442', true, 'UK drama, no spaces'],
+  ['+61855504412', true, 'ACMA geographic as a tel: href'],
+  ['tel:+61491570156', false, 'an ACMA mobile is an enumerated list, not a range - see au.mjs'],
   ['555-0100', true, 'NANPA, bare'],
   ['+1 212 555 0199', true, 'NANPA, international format'],
   ['01632 960123', true, 'Ofcom geographic catch-all'],
@@ -89,6 +111,8 @@ export const RESERVED = [
   ['08 7010 4321', true, 'ACMA, the range the profile used to omit'],
   // Must NOT fire on real numbers, or the gate blocks every honest build.
   ['(613) 236 1000', false, 'a real Ottawa number shape'],
+  ['tel:+16132361000', false, 'a real Ottawa number as a tel: href'],
+  ['tel:+441271860442', false, 'a real Barnstaple number as a tel: href - the fixture shipped this'],
   ['01271 860442', false, 'a real UK number shape'],
   ['555-1212', false, 'directory assistance — NOT in the fictional-safe range'],
   ['(02) 9374 4000', false, 'a real Sydney number shape'],
@@ -96,7 +120,7 @@ export const RESERVED = [
 
 export function runReserved() {
   return RESERVED.map(([text, should, note]) => {
-    const fired = RESERVED_FICTION_NUMBER.test(text);
+    const fired = isReservedFictionNumber(text);
     return { text, note, should, fired, ok: fired === should };
   });
 }

@@ -42,6 +42,25 @@
 //
 // None of that makes the law right. It makes the law's decay, its sourcing and
 // its gaps visible, which is the honest ceiling for a repo with no lawyer in it.
+//
+// WHAT THIS STILL CANNOT DO, stated so nobody reads a green run as more:
+//
+//   * `coverage` is a LINK, not a reading. It proves a question was answered and
+//     that the answer points at a non-secondary source. It cannot tell whether
+//     the source says what the profile claims it says, and a profile could point
+//     several topics at one broad instrument and pass. (Sometimes that is
+//     correct — the ePrivacy Directive genuinely answers both the consent and
+//     the e-marketing question for `eu`.)
+//   * `quote` proves the words are still on the page. It cannot prove the words
+//     mean what the claim says they mean, and the Canadian scope error this repo
+//     found was exactly that shape: a real section, quoted accurately, used to
+//     support a proposition it does not state.
+//   * A `secondary` citation is not wrong. Commencement timetables and "has the
+//     Bill been introduced" have no primary source, and a check that pushed
+//     those to primary would push people to cite something inapposite instead.
+//
+// The remaining gap is a qualified human reading a profile, and `verifiedBy`
+// stays null until one does.
 
 import { readdir, readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';

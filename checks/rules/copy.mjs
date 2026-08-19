@@ -23,7 +23,7 @@ import { read, displayPath } from '../lib/fs.mjs';
 import { visibleTextPositional, decodeEntities, tags, attr, title, meta } from '../lib/html.mjs';
 import { lineAt } from '../lib/fs.mjs';
 import { BLOCKER, MAJOR, MINOR, plural } from '../lib/report.mjs';
-import { RESERVED_FICTION_NUMBER } from '../lib/regime.mjs';
+import { RESERVED_FICTION_NUMBER, isReservedFictionNumber } from '../lib/regime.mjs';
 
 export const gates = [
   { id: 'copy/em-dash', severity: 'blocker', what: 'em-dash density above the measured human range' },
@@ -297,9 +297,7 @@ export async function run(ctx, report) {
       const candidate = tel ? tel[1] : (anyPhone.exec(text) || [])[0];
       // Reported once, not once per page. A finding about the BUILD repeated
       // nine times reads as nine problems and trains people to skim.
-      if (candidate && !demoNumberReported
-          && !RESERVED_FICTION_NUMBER.test(candidate.replace(/^\+61|^\+44|^\+1/, '0'))
-          && !RESERVED_FICTION_NUMBER.test(candidate)) {
+      if (candidate && !demoNumberReported && !isReservedFictionNumber(candidate)) {
         demoNumberReported = true;
         report.add('copy/placeholder', MAJOR,
           `this build declares the demo regime but publishes "${candidate.trim()}", which is not in a reserved fiction range`,
