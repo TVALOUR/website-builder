@@ -43,8 +43,9 @@ Meta Pixel firing on load could print `PASS`.
 
 ## When the country has no profile — the research protocol
 
-This is the part Tom asked for by name: *"perhaps the system would research and figure this out
-depending on the person's answer."* It is one pass, and it is the same pass every time.
+The question this answers, in the words it was asked in: *"perhaps the system would research and
+figure this out depending on the person's answer."* It is one pass, and it is the same pass every
+time.
 
 **Do not start it if the agent cannot search and fetch the live web.** A legal profile written from
 model memory is exactly the artifact this repo exists to prevent — the UK profile's own header
