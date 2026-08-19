@@ -115,7 +115,24 @@ h3 { font-size: 1.22rem; letter-spacing: 0; }
 
 p { margin: 0 0 var(--s-3); max-width: var(--measure); }
 
+/* FLOW SPACING. Headings carry no margin of their own, so the space between a
+ * heading and what follows it is set here, once, as a relationship rather than
+ * as a number on each element. The first version of this file omitted it and
+ * every lede sat jammed under the descenders of its own headline — invisible in
+ * the CSS, obvious in two seconds on the rendered page, and caught by looking. */
+h1 + p, h1 + .hero-ledger__lede { margin-top: var(--s-5); }
+h2 + p, h3 + p, h2 + ul, h2 + ol, h2 + dl, h3 + ul { margin-top: var(--s-3); }
+h2 + .index-list, h2 + .faq, h2 + .work-row, h2 + .entries, h2 + .people,
+h2 + .table-scroll, h2 + .where, h2 + .steps, p + .index-list, p + .faq,
+p + .steps, p + .form { margin-top: var(--s-5); }
+
 a { color: inherit; }
+
+/* A link that is a whole composed object — a wordmark, a card, a work item —
+ * should not be underlined. Everything else should be: removing underlines from
+ * body links to look tidy is one of the most reliable ways to make a page
+ * harder to use, and it looks tidy for about a week. */
+.plain { text-decoration: none; }
 
 /* Focus appears INSTANTLY. A focus ring that fades in is a focus ring a
  * keyboard user has already moved past. */
@@ -201,7 +218,7 @@ a { color: inherit; }
 /* ======================================================== 3. ARCHETYPES */
 
 /* --- H1 hero-ledger -------------------------------------------------- */
-.hero-ledger { display: grid; gap: var(--s-6); align-items: end; }
+.hero-ledger { display: grid; gap: var(--s-6); align-items: start; }
 .hero-ledger__lede { max-width: var(--measure-tight); color: var(--ink-soft); }
 .hero-ledger__index { border-top: 1px solid var(--ink); margin: 0; }
 .hero-ledger__index div {
@@ -211,6 +228,10 @@ a { color: inherit; }
 .hero-ledger__index dt { color: var(--ink-soft); }
 .hero-ledger__index dd { margin: 0; }
 @media (min-width: 62rem) {
+  /* align-items: start, so the index rule and the headline cap-height share a
+   * datum. Bottom-aligning them left the top-right quadrant genuinely void,
+   * which is the "empty is not negative space" failure this library is about —
+   * caught by looking at the rendered sheet, not by any gate. */
   .hero-ledger { grid-template-columns: minmax(0, 7fr) minmax(0, 4fr); gap: var(--s-8); }
 }
 
@@ -275,7 +296,7 @@ a { color: inherit; }
 }
 
 /* --- B5 faq ---------------------------------------------------------- */
-.faq { border-top: 1px solid var(--rule); }
+.faq { border-top: 1px solid var(--rule); max-width: 46rem; }
 .faq details { border-bottom: 1px solid var(--rule); }
 .faq summary {
   cursor: pointer; padding-block: var(--s-3);
@@ -317,7 +338,7 @@ a { color: inherit; }
 @media (min-width: 45rem) { .people { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-5); } }
 
 /* --- T2 hours -------------------------------------------------------- */
-.hours { margin: 0; font-variant-numeric: tabular-nums; }
+.hours { margin: 0; max-width: 28rem; font-variant-numeric: tabular-nums; }
 .hours div { display: flex; justify-content: space-between; gap: var(--s-4); border-bottom: 1px solid var(--rule); padding-block: var(--s-2); }
 .hours dt { color: var(--ink-soft); }
 .hours dd { margin: 0; }
@@ -333,7 +354,12 @@ a { color: inherit; }
   border: 1px solid var(--rule); border-radius: var(--radius); padding: var(--s-4);
   background: var(--paper-sunk); max-width: var(--measure);
 }
-.disclosure dl { margin: 0; display: grid; gap: var(--s-2); }
+.disclosure__title {
+  font-family: var(--font-text); font-size: 1rem; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint);
+}
+.disclosure dl { margin: var(--s-4) 0 0; display: grid; gap: var(--s-2); }
+.disclosure__check { margin: var(--s-3) 0 0; }
 .disclosure dt { color: var(--ink-faint); font-size: 0.875rem; }
 .disclosure dd { margin: 0 0 var(--s-2); font-variant-numeric: tabular-nums; }
 
@@ -367,7 +393,10 @@ a { color: inherit; }
 .form__after { border-top: 1px solid var(--rule); padding-top: var(--s-3); color: var(--ink-soft); }
 
 /* --- A2 cta-line ----------------------------------------------------- */
-.cta-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s-3) var(--s-5); }
+.cta-line {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s-3) var(--s-5);
+  border-top: 1px solid var(--rule); padding-top: var(--s-4);
+}
 .cta-line p { margin: 0; }
 
 /* --- C1 nav-stacked -------------------------------------------------- */
@@ -388,6 +417,9 @@ a { color: inherit; }
 .footer-ledger { border-top: 1px solid var(--dark-rule); }
 .footer-ledger__rows { display: grid; gap: var(--s-5); }
 .footer-ledger h2 { font-size: 1rem; letter-spacing: 0.12em; text-transform: uppercase; font-family: var(--font-text); color: var(--dark-ink); }
+.footer-ledger address { font-style: normal; }
+.footer-ledger h2 + * { margin-top: var(--s-3); }
+.footer-ledger__entity { margin: 0; max-width: none; }
 .footer-ledger ul { list-style: none; margin: var(--s-3) 0 0; padding: 0; display: grid; gap: var(--s-2); }
 .footer-ledger__legal { margin-top: var(--s-6); border-top: 1px solid var(--dark-rule); padding-top: var(--s-4); color: var(--dark-ink); }
 .footer-ledger__copy { margin: var(--s-3) 0 0; }

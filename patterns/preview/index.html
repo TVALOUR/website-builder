@@ -123,7 +123,24 @@ h3 { font-size: 1.22rem; letter-spacing: 0; }
 
 p { margin: 0 0 var(--s-3); max-width: var(--measure); }
 
+/* FLOW SPACING. Headings carry no margin of their own, so the space between a
+ * heading and what follows it is set here, once, as a relationship rather than
+ * as a number on each element. The first version of this file omitted it and
+ * every lede sat jammed under the descenders of its own headline — invisible in
+ * the CSS, obvious in two seconds on the rendered page, and caught by looking. */
+h1 + p, h1 + .hero-ledger__lede { margin-top: var(--s-5); }
+h2 + p, h3 + p, h2 + ul, h2 + ol, h2 + dl, h3 + ul { margin-top: var(--s-3); }
+h2 + .index-list, h2 + .faq, h2 + .work-row, h2 + .entries, h2 + .people,
+h2 + .table-scroll, h2 + .where, h2 + .steps, p + .index-list, p + .faq,
+p + .steps, p + .form { margin-top: var(--s-5); }
+
 a { color: inherit; }
+
+/* A link that is a whole composed object — a wordmark, a card, a work item —
+ * should not be underlined. Everything else should be: removing underlines from
+ * body links to look tidy is one of the most reliable ways to make a page
+ * harder to use, and it looks tidy for about a week. */
+.plain { text-decoration: none; }
 
 /* Focus appears INSTANTLY. A focus ring that fades in is a focus ring a
  * keyboard user has already moved past. */
@@ -209,7 +226,7 @@ a { color: inherit; }
 /* ======================================================== 3. ARCHETYPES */
 
 /* --- H1 hero-ledger -------------------------------------------------- */
-.hero-ledger { display: grid; gap: var(--s-6); align-items: end; }
+.hero-ledger { display: grid; gap: var(--s-6); align-items: start; }
 .hero-ledger__lede { max-width: var(--measure-tight); color: var(--ink-soft); }
 .hero-ledger__index { border-top: 1px solid var(--ink); margin: 0; }
 .hero-ledger__index div {
@@ -219,6 +236,10 @@ a { color: inherit; }
 .hero-ledger__index dt { color: var(--ink-soft); }
 .hero-ledger__index dd { margin: 0; }
 @media (min-width: 62rem) {
+  /* align-items: start, so the index rule and the headline cap-height share a
+   * datum. Bottom-aligning them left the top-right quadrant genuinely void,
+   * which is the "empty is not negative space" failure this library is about —
+   * caught by looking at the rendered sheet, not by any gate. */
   .hero-ledger { grid-template-columns: minmax(0, 7fr) minmax(0, 4fr); gap: var(--s-8); }
 }
 
@@ -283,7 +304,7 @@ a { color: inherit; }
 }
 
 /* --- B5 faq ---------------------------------------------------------- */
-.faq { border-top: 1px solid var(--rule); }
+.faq { border-top: 1px solid var(--rule); max-width: 46rem; }
 .faq details { border-bottom: 1px solid var(--rule); }
 .faq summary {
   cursor: pointer; padding-block: var(--s-3);
@@ -325,7 +346,7 @@ a { color: inherit; }
 @media (min-width: 45rem) { .people { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-5); } }
 
 /* --- T2 hours -------------------------------------------------------- */
-.hours { margin: 0; font-variant-numeric: tabular-nums; }
+.hours { margin: 0; max-width: 28rem; font-variant-numeric: tabular-nums; }
 .hours div { display: flex; justify-content: space-between; gap: var(--s-4); border-bottom: 1px solid var(--rule); padding-block: var(--s-2); }
 .hours dt { color: var(--ink-soft); }
 .hours dd { margin: 0; }
@@ -341,7 +362,12 @@ a { color: inherit; }
   border: 1px solid var(--rule); border-radius: var(--radius); padding: var(--s-4);
   background: var(--paper-sunk); max-width: var(--measure);
 }
-.disclosure dl { margin: 0; display: grid; gap: var(--s-2); }
+.disclosure__title {
+  font-family: var(--font-text); font-size: 1rem; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint);
+}
+.disclosure dl { margin: var(--s-4) 0 0; display: grid; gap: var(--s-2); }
+.disclosure__check { margin: var(--s-3) 0 0; }
 .disclosure dt { color: var(--ink-faint); font-size: 0.875rem; }
 .disclosure dd { margin: 0 0 var(--s-2); font-variant-numeric: tabular-nums; }
 
@@ -375,7 +401,10 @@ a { color: inherit; }
 .form__after { border-top: 1px solid var(--rule); padding-top: var(--s-3); color: var(--ink-soft); }
 
 /* --- A2 cta-line ----------------------------------------------------- */
-.cta-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s-3) var(--s-5); }
+.cta-line {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s-3) var(--s-5);
+  border-top: 1px solid var(--rule); padding-top: var(--s-4);
+}
 .cta-line p { margin: 0; }
 
 /* --- C1 nav-stacked -------------------------------------------------- */
@@ -396,6 +425,9 @@ a { color: inherit; }
 .footer-ledger { border-top: 1px solid var(--dark-rule); }
 .footer-ledger__rows { display: grid; gap: var(--s-5); }
 .footer-ledger h2 { font-size: 1rem; letter-spacing: 0.12em; text-transform: uppercase; font-family: var(--font-text); color: var(--dark-ink); }
+.footer-ledger address { font-style: normal; }
+.footer-ledger h2 + * { margin-top: var(--s-3); }
+.footer-ledger__entity { margin: 0; max-width: none; }
 .footer-ledger ul { list-style: none; margin: var(--s-3) 0 0; padding: 0; display: grid; gap: var(--s-2); }
 .footer-ledger__legal { margin-top: var(--s-6); border-top: 1px solid var(--dark-rule); padding-top: var(--s-4); color: var(--dark-ink); }
 .footer-ledger__copy { margin: var(--s-3) 0 0; }
@@ -545,7 +577,7 @@ a { color: inherit; }
 -->
 <section class="wrap band">
   <figure class="hero-figure">
-    <img src="../../examples/assets-control/assets/photos/yard.png" alt="The workshop yard at Trescott with stacked oak boards under cover" width="1200" height="675">
+    <img src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%201200%20800%22%20role%3D%22img%22%3E%3Crect%20width%3D%221200%22%20height%3D%22800%22%20fill%3D%22%23e9e3d8%22%2F%3E%3Crect%20x%3D%228%22%20y%3D%228%22%20width%3D%221184%22%20height%3D%22784%22%20fill%3D%22none%22%20stroke%3D%22%23cfc6b6%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M8%20792%20L1192%208%22%20stroke%3D%22%23e0d8c9%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M8%208%20L1192%20792%22%20stroke%3D%22%23e0d8c9%22%20stroke-width%3D%222%22%2F%3E%3Ctext%20x%3D%22600%22%20y%3D%22416%22%20text-anchor%3D%22middle%22%20font-family%3D%22Georgia%2Cserif%22%20font-size%3D%2234%22%20fill%3D%22%23847c6d%22%3Ethe%20client%E2%80%99s%20photograph%3C%2Ftext%3E%3C%2Fsvg%3E" alt="The workshop yard at Trescott with stacked oak boards under cover" width="1200" height="675">
     <figcaption>The drying store, Trescott. Oak sits here for a year before anything is cut from it.</figcaption>
   </figure>
   <h1 class="hero-figure__title">Wood that has already done its moving.</h1>
@@ -683,7 +715,7 @@ a { color: inherit; }
       <p>We measure, look behind things, and write down what we find. You get a fixed price and a list of what would change it, which is usually rot nobody could see and occasionally a wall that is not where the plan says.</p>
       <p><a class="btn-quiet" href="#enquire">Book a survey</a></p>
     </div>
-    <img src="../../examples/assets-control/assets/photos/team.png" alt="Ben measuring a window reveal with a folding rule" width="800" height="600">
+    <img src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%201200%20800%22%20role%3D%22img%22%3E%3Crect%20width%3D%221200%22%20height%3D%22800%22%20fill%3D%22%23e9e3d8%22%2F%3E%3Crect%20x%3D%228%22%20y%3D%228%22%20width%3D%221184%22%20height%3D%22784%22%20fill%3D%22none%22%20stroke%3D%22%23cfc6b6%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M8%20792%20L1192%208%22%20stroke%3D%22%23e0d8c9%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M8%208%20L1192%20792%22%20stroke%3D%22%23e0d8c9%22%20stroke-width%3D%222%22%2F%3E%3Ctext%20x%3D%22600%22%20y%3D%22416%22%20text-anchor%3D%22middle%22%20font-family%3D%22Georgia%2Cserif%22%20font-size%3D%2234%22%20fill%3D%22%23847c6d%22%3Ethe%20client%E2%80%99s%20photograph%3C%2Ftext%3E%3C%2Fsvg%3E" alt="Ben measuring a window reveal with a folding rule" width="800" height="600">
   </div>
 </section>
 
@@ -701,8 +733,8 @@ a { color: inherit; }
      WHAT HOLDS THE SPACE: the numeral column. It is a fixed 3rem gutter, which
      gives the whole block a left edge to hang from.
 -->
-<section class="wrap band-short surface-sunk">
-  <div class="wrap" style="padding-inline: 0">
+<section class="band-short surface-sunk">
+  <div class="wrap">
     <h2>What happens after you ring</h2>
     <ol class="steps">
       <li>
@@ -750,7 +782,7 @@ a { color: inherit; }
 -->
 <section class="wrap band-short">
   <h2>Questions people actually ask</h2>
-  <div class="faq" style="max-width: 46rem">
+  <div class="faq">
     <details>
       <summary>Do you take on small jobs?</summary>
       <p>One or two a month, usually for people we have worked for before. Ring and ask. If we say no we will tell you who to try.</p>
@@ -835,17 +867,17 @@ a { color: inherit; }
   <h2>Recent work</h2>
   <div class="work-row">
     <figure>
-      <img src="../../examples/assets-control/assets/photos/yard.png" alt="Oak staircase with a cut string, seen from the hall" width="600" height="600">
+      <img src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%201200%20800%22%20role%3D%22img%22%3E%3Crect%20width%3D%221200%22%20height%3D%22800%22%20fill%3D%22%23e9e3d8%22%2F%3E%3Crect%20x%3D%228%22%20y%3D%228%22%20width%3D%221184%22%20height%3D%22784%22%20fill%3D%22none%22%20stroke%3D%22%23cfc6b6%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M8%20792%20L1192%208%22%20stroke%3D%22%23e0d8c9%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M8%208%20L1192%20792%22%20stroke%3D%22%23e0d8c9%22%20stroke-width%3D%222%22%2F%3E%3Ctext%20x%3D%22600%22%20y%3D%22416%22%20text-anchor%3D%22middle%22%20font-family%3D%22Georgia%2Cserif%22%20font-size%3D%2234%22%20fill%3D%22%23847c6d%22%3Ethe%20client%E2%80%99s%20photograph%3C%2Ftext%3E%3C%2Fsvg%3E" alt="Oak staircase with a cut string, seen from the hall" width="600" height="600">
       <h3>Stair, Georgeham</h3>
       <p>English oak, cut string, 14 risers.</p>
     </figure>
     <figure>
-      <img src="../../examples/assets-control/assets/photos/team.png" alt="Painted kitchen with a scrubbed sycamore worktop" width="600" height="600">
+      <img src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%201200%20800%22%20role%3D%22img%22%3E%3Crect%20width%3D%221200%22%20height%3D%22800%22%20fill%3D%22%23e9e3d8%22%2F%3E%3Crect%20x%3D%228%22%20y%3D%228%22%20width%3D%221184%22%20height%3D%22784%22%20fill%3D%22none%22%20stroke%3D%22%23cfc6b6%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M8%20792%20L1192%208%22%20stroke%3D%22%23e0d8c9%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M8%208%20L1192%20792%22%20stroke%3D%22%23e0d8c9%22%20stroke-width%3D%222%22%2F%3E%3Ctext%20x%3D%22600%22%20y%3D%22416%22%20text-anchor%3D%22middle%22%20font-family%3D%22Georgia%2Cserif%22%20font-size%3D%2234%22%20fill%3D%22%23847c6d%22%3Ethe%20client%E2%80%99s%20photograph%3C%2Ftext%3E%3C%2Fsvg%3E" alt="Painted kitchen with a scrubbed sycamore worktop" width="600" height="600">
       <h3>Kitchen, Croyde</h3>
       <p>Tulipwood, painted on site.</p>
     </figure>
     <figure>
-      <img src="../../examples/assets-control/assets/photos/hero-texture.png" alt="Repaired sash window with new cords and beads" width="600" height="600">
+      <img src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%201200%20800%22%20role%3D%22img%22%3E%3Crect%20width%3D%221200%22%20height%3D%22800%22%20fill%3D%22%23e9e3d8%22%2F%3E%3Crect%20x%3D%228%22%20y%3D%228%22%20width%3D%221184%22%20height%3D%22784%22%20fill%3D%22none%22%20stroke%3D%22%23cfc6b6%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M8%20792%20L1192%208%22%20stroke%3D%22%23e0d8c9%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M8%208%20L1192%20792%22%20stroke%3D%22%23e0d8c9%22%20stroke-width%3D%222%22%2F%3E%3Ctext%20x%3D%22600%22%20y%3D%22416%22%20text-anchor%3D%22middle%22%20font-family%3D%22Georgia%2Cserif%22%20font-size%3D%2234%22%20fill%3D%22%23847c6d%22%3Ethe%20client%E2%80%99s%20photograph%3C%2Ftext%3E%3C%2Fsvg%3E" alt="Repaired sash window with new cords and beads" width="600" height="600">
       <h3>Sashes, Barnstaple</h3>
       <p>Nine windows, four with rot repairs.</p>
     </figure>
@@ -944,7 +976,7 @@ a { color: inherit; }
 -->
 <section class="wrap band-tight">
   <h2>When we are here</h2>
-  <dl class="hours" style="max-width: 28rem">
+  <dl class="hours">
     <div><dt>Monday to Thursday</dt><dd>7am to 5pm</dd></div>
     <div><dt>Friday</dt><dd>7am to 1pm</dd></div>
     <div><dt>Saturday</dt><dd>By arrangement</dd></div>
@@ -1007,7 +1039,7 @@ a { color: inherit; }
 -->
 <section class="wrap band-tight">
   <div class="disclosure">
-    <h2 style="font-size: 1rem; font-family: var(--font-text); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint)">Registered details</h2>
+    <h2 class="disclosure__title">Registered details</h2>
     <dl>
       <dt>Trading name</dt>
       <dd>Trescott Joinery Limited</dd>
@@ -1020,7 +1052,7 @@ a { color: inherit; }
       <dt>Public liability</dt>
       <dd>&pound;5m, with a named insurer on the certificate we will send you</dd>
     </dl>
-    <p style="margin: 0"><a class="btn-quiet" href="https://find-and-update.company-information.service.gov.uk/">Check the company on the register</a></p>
+    <p class="disclosure__check"><a class="btn-quiet" href="https://find-and-update.company-information.service.gov.uk/">Check the company on the register</a></p>
   </div>
 </section>
 
@@ -1139,7 +1171,7 @@ a { color: inherit; }
      here because the shape is a line, not a band.
 -->
 <section class="wrap band-tight">
-  <div class="cta-line" style="border-top: 1px solid var(--rule); padding-top: var(--s-4)">
+  <div class="cta-line">
     <p>Surveys are free and there is no obligation attached to one.</p>
     <a class="btn-quiet" href="#enquire">Ask about a job</a>
   </div>
@@ -1178,7 +1210,7 @@ a { color: inherit; }
      unusable on a touchscreen — `responsive/hover-only` blocks it.
 -->
 <header class="wrap nav-stacked">
-  <a href="index.html" style="text-decoration: none">
+  <a class="plain" href="index.html">
     <span class="nav-stacked__mark">Trescott Joinery</span>
     <span class="nav-stacked__place">Barnstaple</span>
   </a>
@@ -1205,7 +1237,7 @@ a { color: inherit; }
      is an alternative to, and adding the button back turns it into one.
 -->
 <header class="wrap nav-rule">
-  <a class="nav-rule__mark" href="index.html" style="text-decoration: none">Trescott Joinery</a>
+  <a class="nav-rule__mark plain" href="index.html">Trescott Joinery</a>
   <nav aria-label="Primary">
     <ul>
       <li><a href="work.html">Work</a></li>
@@ -1244,7 +1276,7 @@ a { color: inherit; }
     <div class="footer-ledger__rows">
       <div>
         <h2>Where</h2>
-        <address style="font-style: normal">
+        <address>
           Trescott Yard<br>
           Bickington Road<br>
           Barnstaple EX31 2AA
@@ -1252,7 +1284,7 @@ a { color: inherit; }
       </div>
       <div>
         <h2>When</h2>
-        <p style="margin: var(--s-3) 0 0">Monday to Thursday, 7am to 5pm<br>Friday, 7am to 1pm<br>Closed Sunday and bank holidays</p>
+        <p>Monday to Thursday, 7am to 5pm<br>Friday, 7am to 1pm<br>Closed Sunday and bank holidays</p>
       </div>
       <div>
         <h2>Reach us</h2>
@@ -1264,7 +1296,7 @@ a { color: inherit; }
     </div>
 
     <div class="footer-ledger__legal">
-      <p style="margin: 0">
+      <p class="footer-ledger__entity">
         Trescott Joinery Limited, registered in England, company number 09876543.
         Registered office as above. VAT GB 123 4567 89.
       </p>

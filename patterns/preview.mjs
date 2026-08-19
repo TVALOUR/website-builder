@@ -47,12 +47,30 @@ if (missing.length) {
 // so the responsive and design families would have silently checked nothing and
 // printed a clean run. That is the exact shape of failure this repo exists to
 // stop, and it happened here first.
+// The photograph stand-in, drawn as an inline SVG so the sheet stays a single
+// portable file with no binaries behind it.
+//
+// It is a PLATE, not a picture. The first version of this sheet pointed the
+// image archetypes at the repo's own synthetic test PNGs and rendered three
+// bright pink rectangles, which made a library about restraint look broken. The
+// alternative — a stock photograph of somebody's workshop — is the exact
+// dishonesty `assets/generated-forbidden-subject` exists to block, so it was
+// never available. A drawn plate that says what it is standing in for is the
+// third option, and it is the one this repo would tell a client to ship.
+const PLATE = 'data:image/svg+xml;utf8,'
+  + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img">'
+    + '<rect width="1200" height="800" fill="#e9e3d8"/>'
+    + '<rect x="8" y="8" width="1184" height="784" fill="none" stroke="#cfc6b6" stroke-width="2"/>'
+    + '<path d="M8 792 L1192 8" stroke="#e0d8c9" stroke-width="2"/>'
+    + '<path d="M8 8 L1192 792" stroke="#e0d8c9" stroke-width="2"/>'
+    + '<text x="600" y="416" text-anchor="middle" font-family="Georgia,serif" font-size="34" fill="#847c6d">'
+    + 'the client’s photograph</text></svg>');
+
 const parts = ORDER.map((f) => readFileSync(join(sectionsDir, f), 'utf8'))
-  // The section files carry SITE-REALISTIC image paths, because they are meant
-  // to be copied into a build. The specimen sheet is two directories away from
-  // the only images this repo ships, so it rewrites them. Documented rather
-  // than hidden: if an image is missing in the preview, this line is why.
-  .map((s) => s.replace(/src="assets\/photos\//g, 'src="../../examples/assets-control/assets/photos/'));
+  // The section files carry SITE-REALISTIC paths, because they are meant to be
+  // copied into a build. The sheet swaps them for the plate above.
+  .map((s) => s.replace(/src="assets\/photos\/[^"]+"/g, () => `src="${PLATE}"`));
 
 const html = `<!doctype html>
 <html lang="en-GB">
@@ -90,6 +108,30 @@ ${parts.join('\n\n')}
 // patterns/preview` then gates the SHEET and never the fragments. The fragments
 // are copy-paste sources with site-realistic paths, not pages, and a checker
 // walking them reports missing files that are missing on purpose.
+const out = join(here, 'preview', 'index.html');
+
+// --check: generate in memory and compare, without touching the tree. The
+// committed sheet is what people look at, so a sheet that has drifted from the
+// sections it claims to show is a lie in a folder about not lying. The selftest
+// runs this, which is how the drift gets caught rather than noticed.
+if (process.argv.includes('--check')) {
+  let current = null;
+  try { current = readFileSync(out, 'utf8'); } catch { /* below */ }
+  if (current === null) {
+    console.error('patterns/preview/index.html does not exist. Run: node patterns/preview.mjs');
+    process.exit(1);
+  }
+  // Line endings are the one difference git is allowed to introduce.
+  const norm = (t) => t.split('\r\n').join('\n');
+  if (norm(current) !== norm(html)) {
+    console.error('patterns/preview/index.html is STALE — a section or the stylesheet changed');
+    console.error('and the committed sheet was not regenerated. Run: node patterns/preview.mjs');
+    process.exit(1);
+  }
+  console.log('patterns/preview/index.html is current');
+  process.exit(0);
+}
+
 mkdirSync(join(here, 'preview'), { recursive: true });
-writeFileSync(join(here, 'preview', 'index.html'), html);
+writeFileSync(out, html);
 console.log(`patterns/preview/index.html written from ${ORDER.length} section files`);

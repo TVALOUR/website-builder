@@ -306,6 +306,16 @@ const patterns = run(['patterns/preview', '--profile', 'uk', '--json', '--no-col
   // The CSS has to actually be READ, or the assertion above is a clean run over
   // nothing — which is precisely how the first version of this check passed.
   const st = patterns.json?.stats || {};
+  // The committed sheet is what people open. A sheet that has drifted from the
+  // sections it claims to show is a lie in a folder about not lying, and it is
+  // the failure mode of every generated artifact anybody commits.
+  const drift = spawnSync(process.execPath, [join(root, 'patterns', 'preview.mjs'), '--check'],
+    { cwd: root, encoding: 'utf8' });
+  say(drift.status === 0,
+    drift.status === 0
+      ? 'and the committed specimen sheet matches the sections it is generated from'
+      : 'patterns/preview/index.html is STALE — run node patterns/preview.mjs');
+
   say((st.contrastPairsChecked || 0) > 0 && (st.mediaQueries || 0) > 0 && (Array.isArray(st.typefaces) ? st.typefaces.length : Number(st.typefaces) || 0) > 0,
     'and the checker actually read the stylesheet '
     + `(${st.contrastPairsChecked} contrast pairs, ${st.mediaQueries} media queries, ${Array.isArray(st.typefaces) ? st.typefaces.length : st.typefaces} typefaces) `
