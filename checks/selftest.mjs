@@ -354,6 +354,78 @@ console.log('\nasset provenance — laundering routes and false positives');
   say(ASSET_CASES.length >= 10, `${ASSET_CASES.length} asset cases exercised`);
 }
 
+// ------------------------------------------------ the fixture's own prose
+//
+// NOTES.md explains why the reference build reports the majors it reports, and
+// the README quotes that number. It said "two" after the second one had stopped
+// firing, and nothing re-read it — the sixth instance of a claim about the code
+// going stale in prose. The number in the heading now fails with the fixture.
+console.log('\nNOTES.md — the number it claims must be the number the fixture produces');
+{
+  const notes = readFileSync(join(root, 'examples', 'clean-control', 'NOTES.md'), 'utf8');
+  const claimed = /reports\s+(\d+|one|two|three|no)\s+majors?/i.exec(notes);
+  const words = { no: 0, one: 1, two: 2, three: 3 };
+  const n = claimed ? (words[claimed[1].toLowerCase()] ?? Number(claimed[1])) : null;
+  const actual = clean.json?.counts?.major || 0;
+  say(claimed !== null, 'NOTES.md states a major count in its heading');
+  say(n === actual, `NOTES.md claims ${n} major(s); the fixture reports ${actual}`);
+}
+
+// --------------------------------------------- plain English must be enough
+//
+// A privacy page written the way a person talks, covering every ground any
+// shipped profile asks for. Every profile's `mustMention` patterns must find
+// what they are looking for in it.
+//
+// WHAT a jurisdiction requires is local law and rightly differs between
+// profiles. HOW HARD IT IS TO SAY IT is not, and this is a check that no
+// profile has quietly become a vocabulary test. It exists because two did:
+// `ca` demanded the literal phrase "privacy officer" while the statute's own
+// term is "person in charge of the protection of personal information", and
+// `au` demanded a verb-noun collocation ("correct your information") where
+// four other profiles accept the bare word — so one honest page passed in four
+// countries and failed in the fifth, for no reason in that country's law.
+//
+// A gate that demands a form of words is a gate people satisfy by pasting in
+// boilerplate, which is the exact opposite of what these are for.
+console.log('\nplain English — no profile may require a form of words');
+{
+  const PLAIN = `
+    Privacy. Last reviewed August 19, 2026.
+    Who we are: Kingswell Awnings Pty Ltd, Adelaide. Ray Kingswell is accountable for privacy
+    here and is the person in charge of the protection of personal information. Ring him on
+    (08) 5550 4412 or contact us at office@example.example.
+    What personal information we collect: nothing automatic. No analytics and no cookies. If you
+    ring or email, we hold your name, your number and what you told us about the job, so that we
+    can quote it and do it. That is what we use it for, and consent is the basis for it.
+    We do not disclose anything overseas or outside Australia; nothing goes to a foreign recipient.
+    We keep job records for seven years and delete a dead quote within twelve months — that is how
+    long we keep it.
+    Your rights: you can ask what we hold, ask for a copy, ask us to correct it, and withdraw your
+    consent. If you are in Quebec you can also ask for it in a portable format (portability).
+    If you are not happy, complain to the OAIC, the Office of the Australian Information
+    Commissioner, the Information Commissioner, the Privacy Commissioner, the privacy commissioner
+    of Canada at priv.gc.ca, the Commission d'acces a l'information, or the ICO. The right to
+    complain is yours either way, and the supervisory authority will hear it.
+    Cookies: this site sets none. Nothing identifies, locates or profiles you, nothing is strictly
+    necessary because there is nothing to remember, and there is no consent to withdraw — no
+    cookies are set at all, so there is nothing to opt out of or deactivate. How long each cookie
+    lasts is therefore not a question: none is set. Where the data goes: nowhere; it is not
+    transferred, and there is no transfer safeguard to describe because nothing leaves.
+    Legal basis and lawful basis: your consent, and our legitimate interests in replying to you.
+    Do Not Track: this site does not respond to Do Not Track signals because it does not track.
+  `;
+  const { listProfiles, loadProfile } = await import('./lib/profile.mjs');
+  for (const name of listProfiles()) {
+    const { profile } = loadProfile(name);
+    const must = profile?.legal?.pages?.privacy?.mustMention || [];
+    const misses = must.filter(([re]) => !re.test(PLAIN)).map(([, label]) => String(label).slice(0, 46));
+    say(misses.length === 0,
+      `${name.padEnd(14)} privacy mustMention all satisfied by plain English`
+      + (misses.length ? ` <- demands wording for: ${misses.join(' | ')}` : ''));
+  }
+}
+
 // ------------------------------------------------- the shipped config template
 //
 // `config.example.md` is the file stage 00 tells every new clone to copy. It

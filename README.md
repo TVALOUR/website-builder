@@ -34,12 +34,21 @@ everyone: the same gradient, the same hero, the same three cards.
 > **Every AI builds the same website because none of them ask what is in the person's
 > head.**
 
-![The worked reference build that ships with the repo - a farriery site with sourced prices, a tel: call-to-action and a hero whose empty space is held by a price index](.github/clean-control.png)
+![The reference build that ships with the repo - a farriery site for an invented business, with sourced prices, a tel: call-to-action on an Ofcom drama number, and a hero whose empty space is held by a price index](.github/clean-control.png)
 
-*The reference build (`examples/clean-control/`) - it passes the gate, its every fact
-traces to a sourced ledger row, and its two remaining majors are documented on purpose
-in its NOTES.md. Rendered samples, not adjectives - the same rule the pipeline holds
-its own design stage to.*
+*The reference build (`examples/clean-control/`). **Hartland Farriery is an invented
+business** — a fixture, on a reserved `.example` domain and an Ofcom drama number, and
+every page says so. What is real is the discipline: it passes the gate, every fact on it
+traces to a sourced ledger row, and its one remaining major is documented on purpose in
+its NOTES.md. Rendered samples, not adjectives — the same rule the pipeline holds its own
+design stage to.*
+
+> The caption above did not used to say the business was invented, and the phone number
+> in that button was not the drama number the fixture's own ledger claimed it was — it was
+> an ordinary Barnstaple number that may belong to somebody. On a repo whose argument is
+> that a plausible invented fact is the one nobody checks. Both are fixed, and
+> `legal/demo-undeclared` and `copy/placeholder` now catch that shape rather than trusting
+> anyone to remember it.
 
 ## What this folder does about it
 
@@ -82,12 +91,12 @@ node checks/run.mjs builds/<slug>/site --facts builds/<slug>/facts.md
 
 ```
   ✗ BLOCKER  facts/unsourced-price   4 prices with no sourced row in facts.md: "£120", "£80", …
-  ✗ BLOCKER  facts/href-mismatch     link reads "Call 01271 860 442" but dials 01271860999
+  ✗ BLOCKER  facts/href-mismatch     link reads "Call 01632 960 442" but dials 01632960999
   ✗ BLOCKER  integrity/form-dead     form has no action and nothing in the JS handles its submit
   ✗ BLOCKER  legal/privacy-policy    no privacy page found
 ```
 
-Exit `0` ships. Exit `1` does not. **Twelve rule families, 152 gates**, no npm install, no
+Exit `0` ships. Exit `1` does not. **Twelve rule families, 153 gates**, no npm install, no
 lockfile, no `node_modules`:
 
 | Family | What it will not let past |

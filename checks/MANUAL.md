@@ -91,6 +91,7 @@ no file, do not substitute the nearest one — research it (`profiles/README.md`
 | `legal/third-party-preconsent` | Search for `fonts.googleapis.com`, `youtube.com/embed` (not `-nocookie`), `google.com/maps/embed`. |
 | `legal/business-identity` | Limited company: is the company number and registered office on the site? Sole trader: is there a geographic address? Both: an email or phone? Not applied when facts.md's Entity type row declares a personal, demo, fictional or online-product project - those owe honesty, not shopfront disclosures. |
 | `legal/regulated-claim` | Search for star ratings, "award-winning", "leading", "guarantee", "fully insured", "N years", "certified by". Each needs a sourced row. |
+| `legal/demo-undeclared` | `facts.md` answers question 0 as a demo, personal or fictional project, and no page says so to a reader. The demo answer relaxes what must EXIST and licenses the reserved phone range - a visitor cannot read `facts.md`, so the page has to carry the line. |
 | `legal/stale-date` | Does each legal page carry a last-updated date? |
 | `legal/copyright-year` | Is the footer year hardcoded? It goes stale every January. |
 | `legal/terms` | Does a terms page exist? |

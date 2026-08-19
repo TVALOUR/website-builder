@@ -17,8 +17,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 SITE = "https://hartlandfarriery.example"   # reserved .example TLD: never resolves,
                                             # never belongs to anyone, safe in a fixture
 BIZ = "Hartland Farriery"
-PHONE_DISPLAY = "01271 860 442"
-PHONE_TEL = "01271860442"
+PHONE_DISPLAY = "01632 960 442"
+PHONE_TEL = "01632960442"
 EMAIL = "will@hartlandfarriery.example"
 AREA = "North Devon"
 
@@ -43,7 +43,7 @@ JSONLD = """{
   "name": "%(biz)s",
   "description": "Mobile farrier covering %(area)s. Hot and cold shoeing, remedial work and trims.",
   "url": "%(site)s/",
-  "telephone": "+441271860442",
+  "telephone": "+441632960442",
   "email": "%(email)s",
   "priceRange": "\\u00a3\\u00a3",
   "address": {
@@ -619,7 +619,7 @@ SUB = {"tel": PHONE_TEL, "phone": PHONE_DISPLAY, "email": EMAIL}
 written = [
     page("index.html", "Hartland Farriery | Mobile farrier, North Devon",
          "Mobile farrier covering North Devon since 2011. Hot and cold shoeing, "
-         "remedial work and trims. Full set from 95 pounds. Call 01271 860 442.",
+         "remedial work and trims. Full set from 95 pounds. Call 01632 960 442.",
          INDEX % SUB, jsonld=True),
     page("services.html", "Shoeing and prices | Hartland Farriery",
          "Hot shoeing 95 pounds, cold shoeing 85 pounds, front two 65 pounds, "

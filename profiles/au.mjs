@@ -277,8 +277,19 @@ export default {
         why: "Privacy Act 1988 s.6D + APP 1.3: mandatory ONLY once the business is an APP entity — i.e. turnover exceeds AUD 3m, OR it provides a health service, trades in personal information, is a Commonwealth contracted service provider, is a credit reporting body, or has voluntarily opted in. Confirm the entity's actual status in facts.md before treating an absent policy as a compliance gap rather than a missed best practice.",
         mustMention: [
           [/\b(what|which)\s+(personal\s+)?(data|information)\s+(we|do\s+we|is)\s+collect|we\s+collect\b|personal\s+information\s+(we|that)/i, 'what personal information is collected'],
-          [/\b(purpose|why)\s+we\s+(collect|use)|how\s+we\s+use\s+(your\s+)?(data|information)\b/i, 'the purpose personal information is collected and used for (APP 1.3(b))'],
-          [/\b(access|correct(ion)?)\s+(your\s+)?(personal\s+)?(data|information)|\bright\s+to\s+(access|correct)\b/i, 'how to access or correct your information (APP 12/13)'],
+          // WIDENED 2026-08-19. These two patterns demanded a verb-noun
+          // collocation while uk, eu, ca and intl-baseline all accept the bare
+          // word — so a privacy page written in plain English passed in four
+          // jurisdictions and failed in Australia, for no reason in Australian
+          // law. Found by the second naive build, whose page said "so that we
+          // can quote it and do it" and "ask us to correct it".
+          //
+          // What a profile requires is a matter of local law and rightly
+          // differs. HOW HARD IT IS TO SAY IT is not, and a gate that demands a
+          // form of words rather than a disclosure is a gate people route around
+          // by pasting in boilerplate — which is the opposite of what this is for.
+          [/\b(purpose|why)\s+we\s+(collect|use)|how\s+we\s+use\s+(your\s+)?(data|information)|\bwhat\s+we\s+use\s+it\s+for\b|\bso\s+(that\s+)?we\s+can\b|\bwe\s+use\s+(it|them|this)\s+to\b|\bin\s+order\s+to\b/i, 'the purpose personal information is collected and used for (APP 1.3(b))'],
+          [/\b(access|correct(ion)?)\s+(your\s+|the\s+)?(personal\s+)?(data|information|details|record)|\bright\s+to\s+(access|correct)\b|\b(correct|access|change|update)\s+(it|them|this|that)\b|\bask\s+(us\s+)?(what\s+we\s+hold|for\s+a\s+copy)\b|\byour\s+rights\b/i, 'how to access or correct your information (APP 12/13)'],
           [/\boverseas|\bcross.border|\boutside\s+australia|\bforeign\s+(recipient|server)\b/i, 'whether information is disclosed overseas, and to which countries if practicable (APP 8 / APP 1.3)'],
           [/\b(oaic|information\s+commissioner)\b/i, 'the right to complain to the OAIC'],
           [/[\w.+-]+@[\w-]+\.[\w.]+|\bcontact\s+us\b/i, 'a contact route for a privacy request'],

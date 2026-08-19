@@ -2,7 +2,15 @@
 
 > **This business is invented.** It is a fixture for a checker, and it uses the
 > reserved `.example` TLD and an Ofcom drama phone range so nothing here can
-> resolve to, or be confused with, a real farrier. The *shape* of the file is
+> resolve to, or be confused with, a real farrier.
+>
+> That claim was FALSE until 2026-08-19. This file said "an Ofcom drama phone
+> range" while every page published 01271 860 442 — a Barnstaple number that
+> Ofcom has never reserved and that may belong to somebody. It sat in the
+> README's own screenshot, in the primary call-to-action, on the repo whose
+> whole argument is that a plausible invented fact is the one nobody catches.
+> Nothing found it because nothing checked that a build claiming the demo
+> regime actually uses a reserved range. `copy/placeholder` does now. The *shape* of the file is
 > the real thing: this is what `stages/01_discover` produces on a live job.
 
 **The rule this file exists to enforce:** every factual claim on the website
@@ -29,7 +37,7 @@ contains `[NEEDS: …]`, `TBC`, `TODO` or `UNKNOWN`.
 | Registration | Farriers Registration Council, FRC 08812 | owner; number given verbally, to be checked against the FRC public register before launch | yes |
 | Forge address | Barn 3, Kenwith Lane, Bideford, Devon | owner | yes |
 | Postcode | EX39 3PH | owner | yes |
-| Phone | 01271 860 442 | owner | yes |
+| Phone | 01632 960 442 | Ofcom drama range 01632 960000-960999, the catch-all for any area code Ofcom does not list separately | yes |
 | Email | will@hartlandfarriery.example | owner | yes |
 | Trading since | 2011 | owner; qualified Hereford and Ludlow College 2011 | yes |
 | Insurance | public liability via the Worshipful Company of Farriers scheme | owner; certificate seen 2026-01-14 | yes |

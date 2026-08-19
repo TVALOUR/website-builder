@@ -177,6 +177,8 @@ function firstWordShape(h) {
 // ---------------------------------------------------------------- run
 
 export async function run(ctx, report) {
+  // Build-level, not page-level: see the demo-number check below.
+  let demoNumberReported = false;
   const { htmlFiles, siteDir, profile } = ctx;
   // Thresholds are per 1,000 words of visible copy, and both come from measured
   // corpora rather than taste. See the block near the end of this file.
@@ -283,6 +285,32 @@ export async function run(ctx, report) {
     //
     // The regime now arrives on ctx (checks/lib/regime.mjs) instead of being
     // parsed inside legal.mjs where nothing else could see it.
+    // The other direction, and the one an adversarial pass asks about: a build
+    // that CLAIMS the demo regime and then publishes an ordinary-looking phone
+    // number. Either it is not really a demo — in which case the ledger is
+    // wrong and the relaxed gates are being taken under false pretences — or it
+    // is, and the number it invented may ring a real household. Both are worth
+    // stopping, and a demo with no phone number at all is fine and silent here.
+    if (ctx.regime?.isDemo) {
+      const anyPhone = /\b(?:\+?\d{1,3}[\s.-]?)?(?:\(\d{2,4}\)|\d{2,5})[\s.-]?\d{3,4}[\s.-]?\d{3,4}\b/;
+      const tel = /href\s*=\s*["']tel:([^"']+)["']/i.exec(raw);
+      const candidate = tel ? tel[1] : (anyPhone.exec(text) || [])[0];
+      // Reported once, not once per page. A finding about the BUILD repeated
+      // nine times reads as nine problems and trains people to skim.
+      if (candidate && !demoNumberReported
+          && !RESERVED_FICTION_NUMBER.test(candidate.replace(/^\+61|^\+44|^\+1/, '0'))
+          && !RESERVED_FICTION_NUMBER.test(candidate)) {
+        demoNumberReported = true;
+        report.add('copy/placeholder', MAJOR,
+          `this build declares the demo regime but publishes "${candidate.trim()}", which is not in a reserved fiction range`,
+          { file: shown },
+          'Question 0 tells a fictional build to use the range its numbering authority reserves '
+          + '(profiles/<id>.mjs locale.fictionalPhoneRange lists them) precisely so a published '
+          + 'number cannot ring a real person. If this business is real, fix facts.md instead — '
+          + 'the demo answer is switching off gates it should not be.');
+      }
+    }
+
     RESERVED_FICTION_NUMBER.lastIndex = 0;
     const reserved = RESERVED_FICTION_NUMBER.exec(placeholderScope);
     if (reserved && !ctx.regime?.isDemo) {

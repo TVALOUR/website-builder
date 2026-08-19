@@ -40,7 +40,7 @@ contains `[NEEDS: …]`, `TBC`, `TODO` or `UNKNOWN`.
 | Registration | Farriers Registration Council, FRC 08812 | owner; number given verbally, to be checked against the FRC public register before launch | yes |
 | Forge address | Barn 3, Kenwith Lane, Bideford, Devon | owner | yes |
 | Postcode | EX39 3PH | owner | yes |
-| Phone | 01271 860 442 | owner | yes |
+| Phone | 01632 960 442 | owner | yes |
 | Email | will@hartlandfarriery.example | owner | yes |
 | Trading since | 2011 | owner; qualified Hereford and Ludlow College 2011 | yes |
 | Insurance | public liability via the Worshipful Company of Farriers scheme | owner; certificate seen 2026-01-14 | yes |

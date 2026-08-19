@@ -39,6 +39,7 @@ export const gates = [
   { id: 'legal/third-party-preconsent', severity: 'major', what: 'third-party embeds that leak the visitor before any choice' },
   { id: 'legal/business-identity', severity: 'major', what: 'the trading disclosures the law requires on the site' },
   { id: 'legal/regulated-claim', severity: 'blocker', what: 'ratings, awards, accreditations and guarantees with no sourced row' },
+  { id: 'legal/demo-undeclared', severity: 'blocker', what: 'a build that claims the demo regime says so on the page' },
   { id: 'legal/stale-date', severity: 'minor', what: 'legal pages carry a last-updated date' },
   { id: 'legal/copyright-year', severity: 'minor', what: 'a hardcoded copyright year that will go stale' },
 ];
@@ -384,6 +385,38 @@ export async function run(ctx, report) {
 
   // ------------------------------------------------ business identity
   const siteText = htmlFiles.map((f) => visibleText(read(f))).join('\n');
+  // THE DEMO REGIME IS A CLAIM, AND IT BUYS SOMETHING. Declaring it in facts.md
+  // switches off the trader-disclosure gates and licenses the reserved phone
+  // range that `copy/placeholder` otherwise blocks. Question 0's own text says a
+  // fictional project "declares [what is invented] on the page as fictional" —
+  // and nothing checked that, so the declaration was a free pass in one
+  // direction: relax the gates in a private file, publish a page that reads as a
+  // real business.
+  //
+  // Found by attacking the regime resolver added in the same session, which had
+  // made the exemption more valuable without making it cost anything.
+  if (regime.isDemo) {
+    const DECLARED = /\b(demonstration|demo\s+(site|build|project)|not\s+a\s+real\s+(business|company|firm)|does\s+not\s+exist|fictional|fictitious|invented|sample\s+site|example\s+site)\b/i;
+    const declaringPages = htmlFiles.filter((f) => DECLARED.test(visibleText(read(f))));
+    if (!declaringPages.length) {
+      report.add('legal/demo-undeclared', BLOCKER,
+        'facts.md claims the demo regime, and no page says so to a reader', {},
+        'The demo answer to question 0 relaxes what must EXIST — it does not relax what must be '
+        + 'HONEST, and it is the reason this build is allowed to publish a reserved phone number '
+        + 'and skip the trader disclosures. A visitor cannot read facts.md. Put one line on the '
+        + 'page: what this is, and that the business is not real. If the business IS real, the '
+        + 'ledger is what needs fixing, not the page.');
+    } else if (declaringPages.length < htmlFiles.length) {
+      const missing = htmlFiles.filter((f) => !declaringPages.includes(f))
+        .map((f) => displayPath(f, siteDir));
+      report.add('legal/demo-undeclared', MAJOR,
+        `${missing.length} of ${htmlFiles.length} pages do not say this is a demonstration`,
+        { file: missing[0], count: missing.length },
+        'People land on inside pages from search and from links, not only on the home page. '
+        + 'Put the line in the shared layout so it cannot be on some pages and not others.');
+    }
+  }
+
   if (nonTrader) {
     report.skip('legal/business-identity',
       `facts.md declares entity type "${regime.raw}" - trader identity disclosures ${demoish ? 'not applied' : 'reduced to contact details'}`);
