@@ -346,7 +346,9 @@ function check(slug, quiet = false) {
 
   // Dropped after the last scan means not in the manifest, so not in this report
   // and not in the build. Silence here would read as 'nothing outstanding'.
-  const waiting = dropFiles();
+  const deep = [];
+  const waiting = dropFiles(deep);
+  warnDeep(deep);
   if (waiting.length) {
     console.log(`  ${waiting.length} file(s) are sitting in drop/. Anything dropped since the`);
     console.log('  last scan is not in this build, so it is not in the report below either:');

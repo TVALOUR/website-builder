@@ -325,12 +325,28 @@ const readDrop = (dir, depth = 0) => {
   }
 };
 readDrop(dropDir);
-const intakeProblems = dropUntaken.length ? [
-  `${dropUntaken.length} file(s) are in drop/ and are not in this build: `
-  + `${dropUntaken.slice(0, 6).join(', ')}${dropUntaken.length > 6 ? `, and ${dropUntaken.length - 6} more` : ''}.`,
+// How many builds are open decides whether this can BLOCK. `scan` moves drop/
+// into whichever build you name, so with two builds open the gate's own remedy
+// could push one client's photographs into the other client's site - the wrong-
+// build error, committed on the gate's instructions. One build: block, the
+// answer is unambiguous. More than one: say it loudly and let the human aim it.
+const openBuilds = existsSync(join(root, 'builds'))
+  ? readdirSync(join(root, 'builds'), { withFileTypes: true })
+    .filter((d) => d.isDirectory() && existsSync(join(root, 'builds', d.name, 'STATE.md'))).length
+  : 0;
+const dropBlocks = dropUntaken.length > 0 && openBuilds <= 1;
+const dropLine = `${dropUntaken.length} file(s) are in drop/ and are not in this build: `
+  + `${dropUntaken.slice(0, 6).join(', ')}${dropUntaken.length > 6 ? `, and ${dropUntaken.length - 6} more` : ''}.`;
+const intakeProblems = dropBlocks ? [
+  dropLine,
   `Run \`node assets.mjs ${slug} scan\`. Discovery is not finished while material somebody `
   + 'handed over is sitting outside the build - it is the half of the brief they wrote themselves.',
 ] : [];
+if (dropUntaken.length && !dropBlocks) {
+  siblings.push(`${dropLine} ${openBuilds} builds are open, so this is a note and not a blocker: `
+    + `\`node assets.mjs <slug> scan\` moves drop/ into whichever build you name, and only you know `
+    + 'whose material that is. Aim it, or move the files into the right build\'s _intake/ by hand.');
+}
 
 // An UNSET policy is fine: the default applies, and the default is the safe one.
 // An INVALID policy is not, and it used to be reported and then not counted, so
@@ -345,7 +361,7 @@ if (filler) fillerProblems.push(`brief.md's sections repeat themselves — ${dis
 
 const problems = missing.length + thin.length + unanswered.length
   + jurisdictionProblems.length + invalidPolicy.length + fillerProblems.length
-  + (dropUntaken.length ? 1 : 0);
+  + (dropBlocks ? 1 : 0);
 const ok = problems === 0;
 
 if (asJson) {

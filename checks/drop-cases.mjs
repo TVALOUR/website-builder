@@ -283,7 +283,20 @@ export async function runDrop() {
     const fixed = JSON.parse((run(dir, ['checks/brief.mjs', 'builds/colwell-plumbing', '--json']).stdout) || '{}');
     out.push({
       ok: fixed.ok === true && (fixed.dropUntaken || []).length === 0,
-      msg: 'and passes again as soon as the scan takes it in — the block clears by doing the thing, not by waiting',
+      msg: 'and passes again as soon as the scan takes it in - the block clears by doing the thing, not by waiting',
+    });
+
+    // With a second build open, the blocker's own remedy becomes dangerous: `scan`
+    // moves drop/ into whichever build you name, so blocking build A over material
+    // meant for build B would be the gate instructing the wrong-build error.
+    open(dir, 'Second Client');
+    put(dir, 'drop/photos/for-the-other-client.jpg', 'THEIRS');
+    const twoOpen = JSON.parse((run(dir, ['checks/brief.mjs', 'builds/colwell-plumbing', '--json']).stdout) || '{}');
+    out.push({
+      ok: twoOpen.ok === true
+        && (twoOpen.dropUntaken || []).includes('photos/for-the-other-client.jpg')
+        && (twoOpen.notes || []).some((n) => /not a blocker/.test(n)),
+      msg: 'with two builds open it drops to a named note instead - the gate never tells you to move one client’s files into another build',
     });
   } finally { rmSync(dir, { recursive: true, force: true }); }
 
