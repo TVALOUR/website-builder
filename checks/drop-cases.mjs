@@ -34,8 +34,11 @@ const haveGit = () => spawnSync('git', ['--version'], { stdio: 'ignore' }).statu
 // drop/ scaffolding copied from the real repo — scaffolding included, because
 // whether the READMEs are treated as client material is one of the things under
 // test and inventing my own copies here would test the wrong file.
-function engine() {
+function engine(withChecker = false) {
   const dir = mkdtempSync(join(tmpdir(), 'wb-drop-'));
+  if (withChecker) {
+    for (const d of ['checks', 'profiles']) cpSync(join(root, d), join(dir, d), { recursive: true });
+  }
   for (const f of ['assets.mjs', 'start.mjs', '.gitignore']) {
     if (existsSync(join(root, f))) cpSync(join(root, f), join(dir, f));
   }
@@ -76,7 +79,7 @@ const files = (dir, rel) => {
   return out.sort();
 };
 
-export function runDrop() {
+export async function runDrop() {
   const out = [];
 
   // ---- 1. material moves in, its folder survives, the scaffolding does not ----
@@ -212,13 +215,85 @@ export function runDrop() {
     });
   } finally { rmSync(dir, { recursive: true, force: true }); }
 
+  // ---- 7. a folder dragged in from a photo library, several levels deep ----
+  dir = engine();
+  try {
+    put(dir, 'drop/photos/2019/kitchens/job-12/before/wall.jpg', 'DEEP');
+    // Deeper than any walker in this repo reads. It must not vanish quietly:
+    // silence here is indistinguishable from "there was nothing there".
+    put(dir, 'drop/photos/a/b/c/d/e/f/g/h/i/j/k/l/m/buried.jpg', 'TOO-DEEP');
+
+    open(dir, 'Deep Co');
+    const r = scan(dir, 'deep-co');
+
+    out.push({
+      ok: files(dir, 'builds/deep-co/_intake').includes('photos/2019/kitchens/job-12/before/wall.jpg'),
+      msg: 'a folder dragged in from a photo library, five levels down, is taken in with its structure',
+    });
+    out.push({
+      ok: /nested deeper/.test(r.stdout || ''),
+      msg: 'and anything nested deeper than the scan reads is REPORTED, not silently left behind',
+    });
+
+    // The emptied folders should not sit there looking like the files are still in them.
+    // The too-deep file is still there on purpose - it was never taken - so its
+    // folders must SURVIVE the prune. Only the emptied ones go.
+    const leftovers = files(dir, 'drop');
+    out.push({
+      ok: !existsSync(join(dir, 'drop', 'photos', '2019'))
+        && leftovers.filter((f) => !/readme\.md$/i.test(f)).join() === 'photos/a/b/c/d/e/f/g/h/i/j/k/l/m/buried.jpg',
+      msg: 'emptied folders are cleared so drop/ does not look full when it is not, while a folder still holding something is left alone',
+    });
+    out.push({
+      ok: ['logo', 'photos', 'brand', 'fonts', 'docs', 'reference']
+        .every((f) => existsSync(join(dir, 'drop', f, 'README.md'))),
+      msg: 'while the six named folders always survive — they are the front door, not somebody\'s leftovers',
+    });
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+
+  // ---- 8. the discovery gate will not pass while their material sits outside ----
+  //
+  // The claim "it moves into your build" rested entirely on an agent remembering
+  // to run the asset scan. This is what makes it true: a brief that otherwise
+  // PASSES must fail while a handed-over file is still in drop/, and pass again
+  // the moment it is taken in.
+  dir = engine(true);
+  try {
+    const { REAL } = await import('./brief-cases.mjs');
+    open(dir, 'Colwell Plumbing');
+    const build = join(dir, 'builds', 'colwell-plumbing');
+    writeFileSync(join(build, 'brief.md'), REAL);
+
+    const before = run(dir, ['checks/brief.mjs', 'builds/colwell-plumbing', '--json']);
+    const beforeJson = JSON.parse(before.stdout || '{}');
+    out.push({
+      ok: beforeJson.ok === true,
+      msg: `the reference brief passes the discovery gate on its own (control: ${beforeJson.ok})`,
+    });
+
+    put(dir, 'drop/logo/their-logo.svg', 'LOGO');
+    const after = run(dir, ['checks/brief.mjs', 'builds/colwell-plumbing', '--json']);
+    const afterJson = JSON.parse(after.stdout || '{}');
+    out.push({
+      ok: afterJson.ok === false && (afterJson.dropUntaken || []).includes('logo/their-logo.svg'),
+      msg: 'the SAME brief fails discovery while a file they handed over is still sitting in drop/',
+    });
+
+    scan(dir, 'colwell-plumbing');
+    const fixed = JSON.parse((run(dir, ['checks/brief.mjs', 'builds/colwell-plumbing', '--json']).stdout) || '{}');
+    out.push({
+      ok: fixed.ok === true && (fixed.dropUntaken || []).length === 0,
+      msg: 'and passes again as soon as the scan takes it in — the block clears by doing the thing, not by waiting',
+    });
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+
   return out;
 }
 
 // Runnable on its own: node checks/drop-cases.mjs
 if (process.argv[1] && process.argv[1].endsWith('drop-cases.mjs')) {
   let bad = 0;
-  for (const r of runDrop()) {
+  for (const r of await runDrop()) {
     if (!r.ok) bad++;
     console.log(`${r.ok ? '  ok  ' : '  FAIL'}  ${r.msg}`);
   }

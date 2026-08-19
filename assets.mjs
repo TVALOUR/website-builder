@@ -19,7 +19,7 @@
 // Zero dependencies. Node 18+.
 
 import {
-  copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync,
+  copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmdirSync, rmSync, statSync, writeFileSync,
 } from 'node:fs';
 import { basename, dirname, join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -55,12 +55,19 @@ const kindOf = (p) => {
   return 'photo';
 };
 
-function walk(dir, out = [], depth = 0) {
-  if (depth > 6 || !existsSync(dir)) return out;
+// `max` and `deep` exist because the depth limit used to be a silent one: a
+// dragged-in photo library nested deeper than the cap was not taken, not
+// counted, and not mentioned - invisible in every command at once, which is the
+// worst way for a folder whose whole job is "your material reaches the build" to
+// fail. Anything cut off now comes back in `deep` so a caller can say so.
+function walk(dir, out = [], depth = 0, opts = {}) {
+  const max = opts.max ?? 6;
+  if (!existsSync(dir)) return out;
+  if (depth > max) { if (opts.deep) opts.deep.push(dir); return out; }
   for (const e of readdirSync(dir, { withFileTypes: true })) {
     if (e.name.startsWith('.') || e.name === 'MANIFEST.md') continue;
     const p = join(dir, e.name);
-    if (e.isDirectory()) walk(p, out, depth + 1);
+    if (e.isDirectory()) walk(p, out, depth + 1, opts);
     else out.push(p);
   }
   return out;
@@ -90,7 +97,21 @@ function walk(dir, out = [], depth = 0) {
 // as if it were the client's material. node:path knows both separators.
 const isScaffold = (p) => basename(String(p)).toLowerCase() === 'readme.md';
 
-const dropFiles = () => (existsSync(dropDir) ? walk(dropDir).filter((f) => !isScaffold(f)) : []);
+// 12, not the default 6: people drag whole folders in, and a photo library four
+// levels down inside a year folder inside a jobs folder is an ordinary thing to
+// hand over, not an abuse of the tool.
+const DROP_MAX_DEPTH = 12;
+const dropFiles = (deep) => (existsSync(dropDir)
+  ? walk(dropDir, [], 0, { max: DROP_MAX_DEPTH, deep }).filter((f) => !isScaffold(f))
+  : []);
+
+const warnDeep = (deep) => {
+  if (!deep || !deep.length) return;
+  console.log('');
+  console.log(`  ${deep.length} folder(s) in drop/ are nested deeper than ${DROP_MAX_DEPTH} levels and were NOT read:`);
+  for (const d of deep.slice(0, 5)) console.log(`    ${relative(dropDir, d).split(sep).join('/')}`);
+  console.log('  Move what is in them nearer the top of drop/ - nothing below that depth is taken in.');
+};
 
 // A name already in _intake/ is never overwritten. Two clients whose photos are
 // both called IMG_0421.jpg is the ordinary case, not the exotic one.
@@ -108,9 +129,30 @@ function freeName(target) {
   return join(dir, `${stem}-${process.pid}${ext}`);
 }
 
+// A folder someone dragged in stays behind, empty, after its files move. It
+// then reads as "my photos are still sitting there", which is the opposite of
+// what happened. Only ever removes a directory that is empty at that moment, and
+// never the six named folders or drop/ itself - they are the scaffolding.
+function pruneEmpty(dir, depth = 0) {
+  if (depth > DROP_MAX_DEPTH || !existsSync(dir)) return;
+  for (const e of readdirSync(dir, { withFileTypes: true })) {
+    if (e.isDirectory()) pruneEmpty(join(dir, e.name), depth + 1);
+  }
+  const keepers = new Set(FOLDERS.map(([n]) => n));
+  const rel = relative(dropDir, dir);
+  if (!rel || keepers.has(rel)) return;
+  // rmdirSync, not rmSync: rmSync on a directory without `recursive: true` throws
+  // EISDIR, and `force` only swallows ENOENT - so the first version of this
+  // threw every time and the catch hid it. The prune looked implemented and did
+  // nothing. rmdirSync is also the safer primitive: it REFUSES a non-empty
+  // directory rather than trusting the check above.
+  try { if (!readdirSync(dir).length) rmdirSync(dir); } catch { /* leave it */ }
+}
+
 function adopt(buildDir, keep = false) {
   const taken = [];
-  for (const abs of dropFiles()) {
+  const deep = [];
+  for (const abs of dropFiles(deep)) {
     const rel = relative(dropDir, abs).split(sep).join('/');
     const target = freeName(join(buildDir, '_intake', ...rel.split('/')));
     try {
@@ -127,6 +169,8 @@ function adopt(buildDir, keep = false) {
       console.error(`  could not take drop/${rel}: ${e.message}`);
     }
   }
+  if (!keep) pruneEmpty(dropDir);
+  warnDeep(deep);
   return taken;
 }
 
@@ -235,6 +279,17 @@ function scan(slug, keep = false) {
   for (const [name] of FOLDERS) mkdirSync(join(assetsDir, name), { recursive: true });
   mkdirSync(join(buildDir, '_intake'), { recursive: true });
 
+  const others = (existsSync(buildsDir)
+    ? readdirSync(buildsDir, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name)
+    : []).filter((b) => b !== slug);
+  if (others.length && dropFiles().length) {
+    // Two clients open at once is the ordinary case for anyone doing this for a
+    // living, and drop/ is shared. Say whose build this is BEFORE moving anything.
+    console.log('');
+    console.log(`  drop/ goes into builds/${slug}/ — not ${others.map((b) => `builds/${b}/`).join(' or ')}.`);
+    console.log('  Ctrl-C now if that is the wrong build.');
+  }
+
   const taken = adopt(buildDir, keep);
   if (taken.length) {
     console.log('');
@@ -326,7 +381,8 @@ function check(slug, quiet = false) {
 }
 
 function list() {
-  const waiting = dropFiles();
+  const deep = [];
+  const waiting = dropFiles(deep);
   if (waiting.length) {
     const bytes = waiting.reduce((n, f) => { try { return n + statSync(f).size; } catch { return n; } }, 0);
     console.log('');
@@ -335,6 +391,7 @@ function list() {
     if (waiting.length > 10) console.log(`    ... and ${waiting.length - 10} more.`);
     console.log('  They move into a build the next time you run:  node assets.mjs <slug> scan');
   }
+  warnDeep(deep);
 
   const builds = existsSync(buildsDir)
     ? readdirSync(buildsDir, { withFileTypes: true }).filter((d) => d.isDirectory())

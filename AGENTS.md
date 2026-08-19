@@ -129,7 +129,9 @@ path.** `node assets.mjs <slug> scan` moves everything in it into `builds/<slug>
 next client does not inherit the last one's photographs; `--keep` copies), creates the same six folders
 under `assets/`, indexes whatever landed, and writes the manifest with a row per file:
 where it came from, whether it is the client's to publish, whether it was generated, where it is
-used, and its alt text. The gate refuses to publish an image with no row, no Source or no Rights
+used, and its alt text. **The discovery gate blocks on this**: `node checks/brief.mjs builds/<slug>`
+fails while a file in `drop/` is not in the build, because "their material reaches the build" cannot
+rest on an agent remembering to run a command. The gate refuses to publish an image with no row, no Source or no Rights
 answer, and it flags material the client handed over that the site quietly ignored.
 
 **Two defaults are OFF, per build, enforced rather than remembered:**

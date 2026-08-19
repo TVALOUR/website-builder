@@ -27,7 +27,7 @@
 // Zero dependencies. Node 18+.
 
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
-import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -298,6 +298,40 @@ else if (/\[NEEDS:/i.test(readFileSync(factsPath, 'utf8'))) {
 }
 if (!existsSync(manifestPath)) siblings.push(`no asset manifest yet. Run \`node assets.mjs ${slug} scan\` — it creates the folders, indexes whatever landed in _intake/, and prints exactly what is still unanswered.`);
 
+// -------------------------------------------------- material still in drop/
+//
+// The repo tells people their material "moves into your build" once they put it
+// in drop/. That sentence is only true if something makes it true. Without this
+// check it rested entirely on an agent remembering to run the asset scan - and a
+// rule that depends on remembering is the failure mode this whole repo is built
+// against. Skip it and the build proceeds on the model's defaults while the
+// client's logo sits one directory away, which is the exact outcome the front
+// door exists to prevent.
+//
+// What blocks is material in drop/ that is NOT in this build. A file taken in
+// with `--keep` is in both places and counts as taken, so the deliberate
+// keep-a-library workflow does not deadlock discovery.
+const dropDir = join(root, 'drop');
+const dropUntaken = [];
+const readDrop = (dir, depth = 0) => {
+  if (depth > 12 || !existsSync(dir)) return;
+  for (const e of readdirSync(dir, { withFileTypes: true })) {
+    if (e.name.startsWith('.')) continue;
+    const p = join(dir, e.name);
+    if (e.isDirectory()) { readDrop(p, depth + 1); continue; }
+    if (e.name.toLowerCase() === 'readme.md') continue;
+    const rel = relative(dropDir, p);
+    if (!existsSync(join(buildDir, '_intake', rel))) dropUntaken.push(rel.split(sep).join('/'));
+  }
+};
+readDrop(dropDir);
+const intakeProblems = dropUntaken.length ? [
+  `${dropUntaken.length} file(s) are in drop/ and are not in this build: `
+  + `${dropUntaken.slice(0, 6).join(', ')}${dropUntaken.length > 6 ? `, and ${dropUntaken.length - 6} more` : ''}.`,
+  `Run \`node assets.mjs ${slug} scan\`. Discovery is not finished while material somebody `
+  + 'handed over is sitting outside the build - it is the half of the brief they wrote themselves.',
+] : [];
+
 // An UNSET policy is fine: the default applies, and the default is the safe one.
 // An INVALID policy is not, and it used to be reported and then not counted, so
 // `- **Imagery:** generated_allowed` (underscore) passed the check while
@@ -310,7 +344,8 @@ if (loremish) fillerProblems.push('brief.md contains lorem ipsum. That is not a 
 if (filler) fillerProblems.push(`brief.md's sections repeat themselves — ${distinct} distinct words across ${bodyWords.length} (${Math.round(diversity * 100)}%). A real brief is full of names, places, prices and the client's own phrasing. This one is padding.`);
 
 const problems = missing.length + thin.length + unanswered.length
-  + jurisdictionProblems.length + invalidPolicy.length + fillerProblems.length;
+  + jurisdictionProblems.length + invalidPolicy.length + fillerProblems.length
+  + (dropUntaken.length ? 1 : 0);
 const ok = problems === 0;
 
 if (asJson) {
@@ -320,6 +355,7 @@ if (asJson) {
     thinSections: thin.map((t) => ({ key: t.key, title: t.title, words: t.words, floor: t.min, reason: t.reason })),
     unansweredBlocking: unanswered.map(([id]) => id),
     policyProblems, jurisdictionProblems, fillerProblems, notes: siblings,
+    dropUntaken,
     lexicalDiversity: Math.round(diversity * 100) / 100,
     motion: motion || 'none (default)', imagery: imagery || 'client-assets-only (default)',
   }, null, 2) + '\n');
@@ -355,6 +391,10 @@ if (jurisdictionProblems.length) {
 if (policyProblems.length) {
   console.log(bar('Motion and imagery'));
   for (const p of policyProblems) console.log(`  ${p}`);
+}
+if (intakeProblems.length) {
+  console.log(bar('Material they handed over that never reached the build'));
+  for (const p of intakeProblems) console.log(`  ${p}`);
 }
 if (siblings.length) {
   console.log(bar('Alongside the brief'));

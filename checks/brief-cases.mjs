@@ -34,7 +34,7 @@ const LOREM = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do e
 const SALAD = '_intake remak must not feel colour limited sell service price hour area phone '
   + 'qualif logo font photo right edit visitor motion imagery domain existing site do five-second.';
 
-const REAL = `# Brief — Colwell Plumbing
+export const REAL = `# Brief — Colwell Plumbing
 
 ## Project regime
 A real business. Ben Colwell trades as a sole trader, no limited company, has done since 2013.

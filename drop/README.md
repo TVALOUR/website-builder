@@ -20,16 +20,25 @@ moves into `builds/<slug>/_intake/`, where the rest of the pipeline reads it.
 
 Not sure which folder? Drop it in `drop/` itself. It still gets picked up; the
 guess about what it is just gets made from the filename instead of the folder.
+Drag whole folders in if that is easier — the structure comes with them.
+
+Want to say something about a file? Put it in a text file of your own next to it
+(`drop/docs/notes.txt` is fine). These READMEs are the folder's own scaffolding,
+so anything written in them stays here and never reaches the build.
 
 ## What happens to it
 
 1. It moves to `builds/<slug>/_intake/`, keeping the folder you put it in.
    Moves, not copies — so the next build does not silently inherit the last
    client's material. Nothing is deleted; use `--keep` on the scan to copy instead.
+   Folders left empty by the move are tidied away; the six above always stay.
 2. Every file gets a row in `builds/<slug>/assets/MANIFEST.md`: what it shows,
    where it came from, whether it is yours to publish, where it is used, its alt text.
 3. That manifest is a gate, not a note. `checks/rules/assets.mjs` refuses to ship an
    image with no row, no source, or no answer on rights.
+4. And none of it depends on anyone remembering: the discovery gate
+   (`node checks/brief.mjs builds/<slug>`) fails while a file you handed over is
+   still sitting in here, so the brief cannot be signed off around your material.
 
 Two questions get asked about anything here, and they are worth thinking about
 before you are asked: **where did this come from**, and **is it yours to publish?**

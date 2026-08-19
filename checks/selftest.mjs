@@ -670,7 +670,7 @@ console.log('\nstart.mjs — a build\'s git history belongs to the build, not to
 console.log('\ndrop/ - the client\'s material reaches the build, and reaches nothing else');
 {
   const { runDrop } = await import('./drop-cases.mjs');
-  for (const r of runDrop()) say(r.ok, r.msg);
+  for (const r of await runDrop()) say(r.ok, r.msg);
 }
 
 // ------------------------------------------------------------ the CLI itself
