@@ -11,9 +11,10 @@
 // Run with no arguments to see the active builds and their next actions.
 // Zero dependencies. Node 18+.
 
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { execFileSync } from 'node:child_process';
 
 const root = dirname(fileURLToPath(import.meta.url));
 const buildsDir = join(root, 'builds');
@@ -108,11 +109,64 @@ try {
 }
 writeFileSync(join(buildDir, 'STATE.md'), state);
 
+// Every build gets its own git history from the first file, not just at launch.
+// builds/<slug>/ stays git-ignored by THIS repo (the engine) -- this is a
+// separate, nested repo scoped to just the one site, so an agent can commit
+// checkpoints as it works and site/ is already in a real repo to point a
+// deploy target at.
+//
+// Three things this has to get right, found by adversarial review before
+// this ever shipped:
+//  - GIT_DIR/GIT_WORK_TREE/GIT_INDEX_FILE, if set in the calling shell (git
+//    hooks, `git rebase -x`, some CI/agent wrappers), redirect `git init`
+//    into whatever repo THOSE point at -- reproduced: it silently committed
+//    into the ENGINE's own history instead of creating a nested repo. Strip
+//    them from the child's env explicitly; inheriting process.env is not safe.
+//  - `-b main` needs git >= 2.28; symbolic-ref works on any version and does
+//    the same thing (repoint HEAD before the first commit exists).
+//  - if commit fails (most likely: no user.name/user.email configured) after
+//    init+add already ran, a half-repo is worse than no repo -- clean it up
+//    so "gitReady = false" means what it says and the printed advice is true.
+//  - never touch a build that is ALREADY a repo. The cleanup below deletes
+//    .git, so running this block over existing history would be the one
+//    unrecoverable failure in the file -- and it would also overwrite a
+//    .gitignore the owner had edited and repoint HEAD at an unborn `main`,
+//    hiding the commits that are there. start.mjs normally exits before this
+//    when STATE.md exists, so only a hand-deleted STATE.md reaches it; the
+//    guard is one line and the thing it prevents cannot be undone.
+let gitReady = existsSync(join(buildDir, '.git'));
+const gitEnv = { ...process.env };
+for (const k of ['GIT_DIR', 'GIT_WORK_TREE', 'GIT_INDEX_FILE', 'GIT_OBJECT_DIRECTORY',
+  'GIT_ALTERNATE_OBJECT_DIRECTORIES', 'GIT_COMMON_DIR', 'GIT_CEILING_DIRECTORIES']) {
+  delete gitEnv[k];
+}
+const git = (args) => execFileSync('git', args, { cwd: buildDir, env: gitEnv, stdio: 'ignore', timeout: 10000 });
+if (!gitReady) {
+  try {
+    // _intake/ is the client's raw handed-over material (photos, sketches,
+    // screenshots, an old logo file) -- unprocessed and often not this
+    // client's to redistribute. It stays out of the build's own git history by
+    // default, same reasoning as this engine's own .gitignore for builds/.
+    writeFileSync(join(buildDir, '.gitignore'), '_intake/\n');
+    git(['init', '-q']);
+    git(['symbolic-ref', 'HEAD', 'refs/heads/main']);
+    git(['add', '-A']);
+    git(['commit', '-q', '--allow-empty', '-m', 'start: open build']);
+    gitReady = true;
+  } catch {
+    try { rmSync(join(buildDir, '.git'), { recursive: true, force: true }); } catch { /* best effort */ }
+  }
+}
+
 const configured = existsSync(join(root, 'config.md'));
 
 console.log(`
-Opened builds/${slug}/
-${configured ? '' : `
+Opened builds/${slug}/${gitReady ? ' (its own git repo, ready for checkpoint commits)' : ''}
+${gitReady ? '' : `
+  NOTE: could not git-init this build (git missing, or no user.name/user.email
+  configured). The build works the same either way -- run "git init" by hand in
+  builds/${slug}/ later if you want history.
+`}${configured ? '' : `
   FIRST: config.md does not exist yet. Run stage 00 once
   (stages/00_setup/CONTEXT.md) — it takes a minute and every build reads it.
 `}

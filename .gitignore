@@ -16,6 +16,13 @@ builds/*/
 
 # Local scratch
 tmp/
+
+# A shelf for finished sites, from an earlier layout of this repo. Nothing in the
+# pipeline writes here any more - builds/ is the working folder - but the line
+# stays because the cost of keeping it is zero and the cost of dropping it is a
+# folder of real client sites landing in a public fork. Ignore rules for paths
+# holding client work are cheap; removing one is the sort of tidy-up that only
+# looks harmless until it isn't.
 sites/
 
 # Your own stage-00 answers, including your name and email. config.example.md is

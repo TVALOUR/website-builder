@@ -281,7 +281,17 @@ four real conversations — never a one-prompt black box, never babysat step by 
    redirect anything.
 
 The finished site lands in `builds/<slug>/site/` as plain static files — open
-`index.html`, or host it anywhere.
+`index.html`, or host it anywhere. `start.mjs` also `git init`s each `builds/<slug>/`
+the moment it's created (its own repo, separate from this engine repo's own history,
+which never sees your build content — see `builds/` below), with a `.gitignore` that
+keeps `_intake/` — the client's raw handed-over material — out of it by default. That
+gives the build real commit history to checkpoint against from the first file, and
+`site/` is deploy-ready once it's built: point Cloudflare Pages or Netlify's build
+output directory at `builds/<slug>/site/`, or push just that subtree wherever you're
+deploying. (GitHub Pages' classic branch deploy serves the repo root or `/docs`, not
+an arbitrary subfolder — use its Actions-based deploy, or push `site/` as its own repo,
+if that's the target.) Before pushing anywhere public, remember `brief.md`/`facts.md`
+are tracked too — they're the client's real planning material, not `.gitignore`d.
 
 ## Using the checker on any existing site
 
@@ -354,7 +364,8 @@ patterns/      23 section archetypes + one stylesheet + a specimen sheet you can
 templates/     brief skeleton, legal pages, consent banner, _headers, robots, structured data
 examples/      clean-control (passes) · dishonest / negative / bare / assets / sector controls (fail on purpose)
 .claude/       the Claude Code hooks (gate.mjs)
-builds/        your work, one folder per site — git-ignored
+builds/        your work, one folder per site — git-ignored HERE, but each site
+               gets its own nested git repo (start.mjs git-inits it, _intake/ excluded)
 ```
 
 ## Requirements
