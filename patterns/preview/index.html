@@ -1,0 +1,1287 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pattern library — website-builder</title>
+<meta name="description" content="Twenty-two section archetypes to build a page out of, and the reasons not to use each one.">
+<style>
+/* website-builder — the pattern library's stylesheet.
+ *
+ * ONE file, organised as: tokens · base · one clearly-marked block per
+ * archetype. Copy an archetype's markup from patterns/sections/*.html and its
+ * block from here. Nothing in this file is a framework; there is no build step,
+ * no utility layer and no class you have to learn.
+ *
+ * READ patterns/README.md FIRST. This file is the shapes. That file is why they
+ * are these shapes, and — more usefully — when not to use them.
+ *
+ * Everything here passes the design, accessibility and responsive families of
+ * this repo's own gate. `node checks/selftest.mjs` asserts it, because a
+ * library that teaches a standard it does not meet is worth less than nothing.
+ */
+
+/* ============================================================ 1. TOKENS
+ *
+ * REPLACE THESE. All of them. They are a worked example of a token set, not a
+ * house style, and a build that ships them unchanged has skipped the one
+ * decision stage 04 exists to make.
+ *
+ * The two font tokens are the load-bearing ones. The gate rejects Inter,
+ * Roboto, Open Sans, Poppins, Lato, Montserrat, Space Grotesk, DM Sans and the
+ * rest of the generator-default list as a DISPLAY face, and it rejects a bare
+ * generic (`serif`, `system-ui`, Georgia, Arial) in first position too — not
+ * because those are bad faces, but because a bare generic in first position is
+ * the absence of a decision.
+ *
+ * Two families is the hard cap. This set uses two. Where a third face is
+ * tempting — a wordmark, a stat, a pull quote, a label — the answer is a
+ * weight, a case and a letter-spacing treatment of one you already have.
+ */
+:root {
+  /* Type. One display face, one text face, and nothing else, ever. */
+  --font-display: "Iowan Old Style", "Hoefler Text", "Source Serif 4", "Charter", serif;
+  --font-text: "Charter", "Bitstream Charter", "Iowan Old Style", serif;
+
+  /* Ink and paper, both tinted toward the anchor hue. Never #000 on #fff:
+   * pure black on pure white is the one combination no printed thing has
+   * ever had, and the eye reads it as a screenshot of a document. */
+  --paper: #f7f4ee;
+  --paper-sunk: #efeae1;
+  --ink: #1c1a17;
+  --ink-soft: #4a463f;
+  --ink-faint: #726c62;
+  --rule: #d6cfc2;
+
+  /* One accent, and it covers well under 5% of any viewport. An accent that
+   * fills a band is not an accent, it is a second paper colour. */
+  --accent: #7a2f1d;
+  --accent-ink: #fdfbf7;
+
+  /* A dark surface, for the one or two bands that change register. */
+  --dark: #221f1b;
+  --dark-ink: #ebe5da;
+  --dark-rule: #423c33;
+
+  /* Spacing: multiples of 4, named. An arbitrary 17px is a value nobody chose. */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 16px;
+  --s-4: 24px;
+  --s-5: 32px;
+  --s-6: 48px;
+  --s-7: 72px;
+  --s-8: 112px;
+  --s-9: 160px;
+
+  /* Measure. Prose lives between 45 and 75 characters, always. */
+  --measure: 62ch;
+  --measure-tight: 46ch;
+
+  /* Exactly two radii and one shadow. A zoo of either is five opinions about
+   * where the light is coming from. */
+  --radius: 2px;
+  --radius-round: 999px;
+  --lift: 0 1px 0 var(--rule);
+
+  --page: 1240px;
+}
+
+/* ============================================================== 2. BASE */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  /* The single most effective line in this file. Horizontal scroll at 320px is
+   * the most common defect in hand-built responsive CSS and the hardest to
+   * notice on a desktop. */
+  overflow-x: clip;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  -webkit-text-size-adjust: 100%;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.012em;
+  overflow-wrap: anywhere;
+  margin: 0;
+}
+
+h1 { font-size: clamp(2.4rem, 5.6vw, 4.1rem); }
+h2 { font-size: clamp(1.7rem, 3.2vw, 2.5rem); }
+h3 { font-size: 1.22rem; letter-spacing: 0; }
+
+p { margin: 0 0 var(--s-3); max-width: var(--measure); }
+
+a { color: inherit; }
+
+/* Focus appears INSTANTLY. A focus ring that fades in is a focus ring a
+ * keyboard user has already moved past. */
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.wrap {
+  width: 100%;
+  max-width: var(--page);
+  margin-inline: auto;
+  padding-inline: var(--s-4);
+}
+
+/* The skip link is not decoration and not optional. */
+.skip {
+  position: absolute;
+  left: var(--s-3);
+  top: calc(var(--s-3) * -6);
+  z-index: 10;
+  background: var(--ink);
+  color: var(--paper);
+  padding: var(--s-2) var(--s-3);
+  text-decoration: none;
+}
+.skip:focus { top: var(--s-3); }
+
+/* Buttons and links. The transition names its properties: `transition: all`
+ * animates things nobody meant to animate, including layout. */
+.btn {
+  display: inline-block;
+  padding: var(--s-3) var(--s-5);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-family: var(--font-text);
+  font-size: 1rem;
+  text-decoration: none;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  transition: background-color 120ms linear, color 120ms linear;
+}
+.btn:hover { background: var(--ink); border-color: var(--ink); }
+
+.btn-quiet {
+  display: inline-block;
+  padding: var(--s-2) 0;
+  border-bottom: 2px solid var(--accent);
+  text-decoration: none;
+  transition: border-color 120ms linear;
+}
+.btn-quiet:hover { border-color: var(--ink); }
+
+/* The eyebrow. It is HERE, once, because it is a legitimate device — and it is
+ * used on exactly two of the twenty-two archetypes in this library, which is
+ * the whole point. A kicker above every heading is the pattern it was meant to
+ * escape, wearing a different hat. */
+.eyebrow {
+  font-family: var(--font-text);
+  font-size: 0.8125rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: 0 0 var(--s-3);
+}
+
+/* Numerals that line up. This is what a monospace face is usually smuggled in
+ * for, and it is one property. */
+.figures { font-variant-numeric: tabular-nums; }
+
+/* Section rhythm. FOUR different vertical measures, deliberately — a page
+ * where every band shares one padding value reads as a stack, not a
+ * composition, and the gate says so. */
+.band-tall { padding-block: var(--s-9); }
+.band { padding-block: var(--s-8); }
+.band-short { padding-block: var(--s-6); }
+.band-tight { padding-block: var(--s-5); }
+
+.surface-dark { background: var(--dark); color: var(--dark-ink); }
+.surface-dark a { color: var(--dark-ink); }
+.surface-sunk { background: var(--paper-sunk); }
+
+/* ======================================================== 3. ARCHETYPES */
+
+/* --- H1 hero-ledger -------------------------------------------------- */
+.hero-ledger { display: grid; gap: var(--s-6); align-items: end; }
+.hero-ledger__lede { max-width: var(--measure-tight); color: var(--ink-soft); }
+.hero-ledger__index { border-top: 1px solid var(--ink); margin: 0; }
+.hero-ledger__index div {
+  display: flex; justify-content: space-between; gap: var(--s-4);
+  border-bottom: 1px solid var(--rule); padding-block: var(--s-3);
+}
+.hero-ledger__index dt { color: var(--ink-soft); }
+.hero-ledger__index dd { margin: 0; }
+@media (min-width: 62rem) {
+  .hero-ledger { grid-template-columns: minmax(0, 7fr) minmax(0, 4fr); gap: var(--s-8); }
+}
+
+/* --- H2 hero-statement ----------------------------------------------- */
+.hero-statement { max-width: 22ch; }
+.hero-statement + .hero-statement__after {
+  margin-top: var(--s-7); display: flex; flex-wrap: wrap; gap: var(--s-5);
+  border-top: 1px solid var(--rule); padding-top: var(--s-4); color: var(--ink-soft);
+}
+
+/* --- H3 hero-figure -------------------------------------------------- */
+.hero-figure { margin: 0; }
+.hero-figure img { display: block; width: 100%; height: auto; border-radius: var(--radius); }
+.hero-figure__title { margin-top: var(--s-6); }
+.hero-figure figcaption {
+  margin-top: var(--s-3); color: var(--ink-faint); font-size: 0.9375rem;
+  max-width: var(--measure); border-left: 2px solid var(--rule); padding-left: var(--s-3);
+}
+
+/* --- H4 hero-directory ----------------------------------------------- */
+.hero-directory { display: grid; gap: var(--s-5); }
+.hero-directory__card {
+  border: 1px solid var(--rule); border-radius: var(--radius);
+  padding: var(--s-4); background: var(--paper-sunk);
+}
+.hero-directory__card dl { margin: 0; display: grid; gap: var(--s-2); }
+.hero-directory__card dt { color: var(--ink-faint); font-size: 0.875rem; }
+.hero-directory__card dd { margin: 0 0 var(--s-3); }
+@media (min-width: 55rem) {
+  .hero-directory { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); align-items: start; }
+}
+
+/* --- B1 band-statement ----------------------------------------------- */
+.statement { font-size: clamp(1.25rem, 2.1vw, 1.6rem); line-height: 1.4; max-width: 34ch; }
+
+/* --- B2 index-list --------------------------------------------------- */
+.index-list { border-top: 1px solid var(--ink); }
+.index-list__row {
+  display: grid; gap: var(--s-1) var(--s-4);
+  grid-template-columns: minmax(0, 1fr) auto;
+  border-bottom: 1px solid var(--rule); padding-block: var(--s-4);
+}
+.index-list__row h3 { grid-column: 1; }
+.index-list__price { grid-column: 2; grid-row: 1; text-align: right; }
+.index-list__note { grid-column: 1 / -1; color: var(--ink-soft); margin: 0; }
+
+/* --- B3 split -------------------------------------------------------- */
+.split { display: grid; gap: var(--s-5); align-items: center; }
+.split img { display: block; width: 100%; height: auto; border-radius: var(--radius); }
+@media (min-width: 55rem) {
+  .split { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--s-7); }
+  .split--flip > :first-child { order: 2; }
+}
+
+/* --- B4 steps -------------------------------------------------------- */
+.steps { list-style: none; margin: 0; padding: 0; counter-reset: step; display: grid; gap: var(--s-5); }
+.steps li { counter-increment: step; display: grid; grid-template-columns: 3rem minmax(0, 1fr); gap: var(--s-3); }
+.steps li::before {
+  content: counter(step, decimal-leading-zero);
+  font-family: var(--font-display); font-size: 1.5rem; color: var(--accent);
+  font-variant-numeric: tabular-nums; line-height: 1.1;
+}
+
+/* --- B5 faq ---------------------------------------------------------- */
+.faq { border-top: 1px solid var(--rule); }
+.faq details { border-bottom: 1px solid var(--rule); }
+.faq summary {
+  cursor: pointer; padding-block: var(--s-3);
+  font-family: var(--font-display); font-size: 1.15rem;
+}
+.faq p { padding-bottom: var(--s-3); }
+
+/* --- B6 quote -------------------------------------------------------- */
+.quote { margin: 0; max-width: 34ch; }
+.quote blockquote { margin: 0; font-family: var(--font-display); font-size: clamp(1.4rem, 2.6vw, 2rem); line-height: 1.25; }
+.quote figcaption { margin-top: var(--s-4); color: var(--ink-faint); font-size: 0.9375rem; }
+
+/* --- B7 spec-table --------------------------------------------------- */
+.table-scroll { overflow-x: auto; }
+.spec { border-collapse: collapse; width: 100%; min-width: 34rem; font-variant-numeric: tabular-nums; }
+.spec caption { text-align: left; color: var(--ink-faint); padding-bottom: var(--s-3); }
+.spec th, .spec td { text-align: left; padding: var(--s-3) var(--s-4) var(--s-3) 0; border-bottom: 1px solid var(--rule); }
+.spec thead th { border-bottom: 1px solid var(--ink); }
+
+/* --- B8 work-row ----------------------------------------------------- */
+.work-row { display: grid; gap: var(--s-5); }
+.work-row figure { margin: 0; }
+.work-row img { display: block; width: 100%; height: auto; border-radius: var(--radius); }
+.work-row h3 { margin-top: var(--s-3); }
+.work-row p { color: var(--ink-soft); margin-top: var(--s-1); }
+@media (min-width: 45rem) { .work-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 68rem) { .work-row { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-4); } }
+
+/* --- B9 article-list ------------------------------------------------- */
+.entries { list-style: none; margin: 0; padding: 0; }
+.entries li { display: grid; gap: var(--s-1) var(--s-5); border-bottom: 1px solid var(--rule); padding-block: var(--s-4); }
+.entries time { color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+@media (min-width: 45rem) { .entries li { grid-template-columns: 9rem minmax(0, 1fr); } }
+
+/* --- T1 people ------------------------------------------------------- */
+.people { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-4); }
+.people li { border-top: 1px solid var(--rule); padding-top: var(--s-3); }
+.people p { color: var(--ink-soft); margin: var(--s-1) 0 0; }
+@media (min-width: 45rem) { .people { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-5); } }
+
+/* --- T2 hours -------------------------------------------------------- */
+.hours { margin: 0; font-variant-numeric: tabular-nums; }
+.hours div { display: flex; justify-content: space-between; gap: var(--s-4); border-bottom: 1px solid var(--rule); padding-block: var(--s-2); }
+.hours dt { color: var(--ink-soft); }
+.hours dd { margin: 0; }
+.hours__exception { margin-top: var(--s-3); color: var(--accent); max-width: var(--measure); }
+
+/* --- T3 where -------------------------------------------------------- */
+.where { display: grid; gap: var(--s-5); }
+.where__note { border-left: 2px solid var(--accent); padding-left: var(--s-3); }
+@media (min-width: 55rem) { .where { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-7); } }
+
+/* --- T4 disclosure --------------------------------------------------- */
+.disclosure {
+  border: 1px solid var(--rule); border-radius: var(--radius); padding: var(--s-4);
+  background: var(--paper-sunk); max-width: var(--measure);
+}
+.disclosure dl { margin: 0; display: grid; gap: var(--s-2); }
+.disclosure dt { color: var(--ink-faint); font-size: 0.875rem; }
+.disclosure dd { margin: 0 0 var(--s-2); font-variant-numeric: tabular-nums; }
+
+/* --- T5 notice ------------------------------------------------------- */
+.notice {
+  border-top: 2px solid var(--accent); border-bottom: 1px solid var(--rule);
+  padding-block: var(--s-3); display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-4);
+  align-items: baseline;
+}
+.notice time { color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+.notice p { margin: 0; }
+
+/* --- A1 form --------------------------------------------------------- */
+.form { display: grid; gap: var(--s-4); max-width: 34rem; }
+.form label { display: block; margin-bottom: var(--s-1); }
+.form input, .form textarea {
+  width: 100%;
+  /* 16px minimum, or iOS zooms the whole page on focus and the visitor has to
+   * pinch back out to read what they typed. */
+  font-size: 1rem;
+  font-family: var(--font-text);
+  padding: var(--s-3);
+  color: var(--ink);
+  background: var(--paper);
+  /* The border width never changes between states. A 1px border becoming 2px
+   * on focus moves every field below it. */
+  border: 1px solid var(--ink-faint);
+  border-radius: var(--radius);
+}
+.form .hint { display: block; color: var(--ink-faint); font-size: 0.9375rem; margin-top: var(--s-1); }
+.form__after { border-top: 1px solid var(--rule); padding-top: var(--s-3); color: var(--ink-soft); }
+
+/* --- A2 cta-line ----------------------------------------------------- */
+.cta-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s-3) var(--s-5); }
+.cta-line p { margin: 0; }
+
+/* --- C1 nav-stacked -------------------------------------------------- */
+.nav-stacked { padding-block: var(--s-4); border-bottom: 1px solid var(--rule); }
+.nav-stacked__mark { font-family: var(--font-display); font-size: 1.35rem; letter-spacing: 0.02em; }
+.nav-stacked__place { display: block; font-family: var(--font-text); font-size: 0.75rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--ink-faint); margin-top: var(--s-1); }
+.nav-stacked ul { list-style: none; display: flex; flex-wrap: wrap; gap: var(--s-4); margin: var(--s-4) 0 0; padding: 0; }
+.nav-stacked a { text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 120ms linear; }
+.nav-stacked a:hover { border-color: var(--ink); }
+
+/* --- C2 nav-rule ----------------------------------------------------- */
+.nav-rule { display: flex; flex-wrap: wrap; gap: var(--s-3) var(--s-5); align-items: baseline; padding-block: var(--s-3); border-bottom: 2px solid var(--ink); }
+.nav-rule__mark { font-family: var(--font-display); font-size: 1.2rem; margin-right: auto; }
+.nav-rule ul { list-style: none; display: flex; flex-wrap: wrap; gap: var(--s-4); margin: 0; padding: 0; }
+.nav-rule a { text-decoration: none; }
+
+/* --- C3 footer-ledger ------------------------------------------------ */
+.footer-ledger { border-top: 1px solid var(--dark-rule); }
+.footer-ledger__rows { display: grid; gap: var(--s-5); }
+.footer-ledger h2 { font-size: 1rem; letter-spacing: 0.12em; text-transform: uppercase; font-family: var(--font-text); color: var(--dark-ink); }
+.footer-ledger ul { list-style: none; margin: var(--s-3) 0 0; padding: 0; display: grid; gap: var(--s-2); }
+.footer-ledger__legal { margin-top: var(--s-6); border-top: 1px solid var(--dark-rule); padding-top: var(--s-4); color: var(--dark-ink); }
+.footer-ledger__copy { margin: var(--s-3) 0 0; }
+.footer-ledger__legal ul { display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-4); margin-top: var(--s-2); }
+@media (min-width: 45rem) { .footer-ledger__rows { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-6); } }
+
+/* ==================================================== 4. REDUCED MOTION
+ *
+ * There is almost nothing to disable here, which is the intended state: this
+ * library's default motion policy is `none`, and the only transitions in it are
+ * on colour, for hover and focus feedback. That is feedback, not animation.
+ * The rule stays anyway, because the next person to add something will not
+ * remember to add it. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================= 5. PRINT
+ *
+ * A local business's contact page and price list get printed, and a page that
+ * prints as three sheets of navigation is a page nobody prints twice. */
+@media print {
+  body { background: #fff; color: #000; font-size: 11pt; }
+  .nav-stacked, .nav-rule, .skip, .btn { display: none; }
+  .footer-ledger { border-top: 1px solid #999; }
+  a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 9pt; }
+}
+
+</style>
+<!--
+  GENERATED by patterns/preview.mjs. Edit patterns/sections/*.html, not this.
+
+  A specimen sheet, not a page. Four heroes means four h1 elements, which no
+  real page has and which the SEO family will correctly object to. The design,
+  accessibility and responsive families are the ones that apply here, and
+  checks/selftest.mjs asserts them.
+
+  Every business, price, name and photograph on this sheet is invented. The
+  phone number is inside Ofcom's drama range for Barnstaple and the email uses
+  the reserved .example TLD, so neither can reach a real person.
+-->
+</head>
+<body>
+<a class="skip" href="#sheet">Skip to the patterns</a>
+<main id="sheet">
+<!-- ===================================================================== H
+     HEROES. Four shapes, and the reason there are four is that the fifth one
+     everybody builds is the composite this whole library exists to avoid:
+
+         a small uppercase eyebrow
+         a very large headline
+         one line of grey subtitle
+         two buttons
+         all centred on one vertical axis
+
+     There is nothing wrong with any single element in that list. What is wrong
+     is that it is the arrangement a model reaches for when nobody has decided
+     anything, so it is the arrangement that reads as generated no matter how
+     good the type is. Every hero below makes a different decision about what
+     holds the space beside the headline, which is the actual design question.
+
+     Copy the markup. The CSS block is in patterns.css under the same code.
+-->
+
+
+<!-- --------------------------------------------------------------- H1
+     hero-ledger
+     The headline takes seven columns; a ruled index of real facts takes the
+     rest. This is the highest-hit-rate hero in the library for a local trade,
+     because the facts a customer came for are visible before they scroll.
+
+     USE WHEN the business has real numbers a visitor is looking for: prices,
+     hours, a service area, a lead time, a callout charge.
+
+     DO NOT USE WHEN those numbers are not in facts.md. An index of vague
+     phrases is worse than no index, and it will fail facts/* anyway.
+
+     WHAT HOLDS THE SPACE: the rule system. The right column is not "the empty
+     side", it is a second reading order, and the hairlines make it one.
+-->
+<section class="wrap band-tall">
+  <div class="hero-ledger">
+    <div>
+      <h1>Fitted joinery, made in the workshop at Trescott and installed by the person who made it.</h1>
+      <p class="hero-ledger__lede">Kitchens, stairs, sash windows and one-off furniture, for houses across north Devon. Most jobs are booked eight to ten weeks ahead.</p>
+      <p><a class="btn" href="#enquire">Ask about a job</a></p>
+    </div>
+    <dl class="hero-ledger__index figures">
+      <div><dt>Workshop</dt><dd>Trescott, Barnstaple</dd></div>
+      <div><dt>Travels</dt><dd>Within 30 miles</dd></div>
+      <div><dt>Day rate</dt><dd>&pound;340</dd></div>
+      <div><dt>Survey</dt><dd>Free, and not a sales visit</dd></div>
+      <div><dt>Lead time</dt><dd>8 to 10 weeks</dd></div>
+    </dl>
+  </div>
+</section>
+
+
+<!-- --------------------------------------------------------------- H2
+     hero-statement
+     One sentence, at a size that means it. Nothing else above the fold except
+     a rule and three plain facts under it.
+
+     USE WHEN the business has one thing to say and the confidence to say it
+     alone. Studios, makers, consultancies, anyone whose work is the argument.
+
+     DO NOT USE WHEN the visitor arrived with a question. A statement hero
+     answers "who are you"; it does not answer "do you cover my postcode",
+     and a plumber's customer is asking the second one.
+
+     WHAT HOLDS THE SPACE: the measure. The headline is capped at 22ch, so the
+     line breaks are a decision rather than an accident of viewport width, and
+     the space to its right is the margin of a page rather than a gap in a grid.
+-->
+<section class="wrap band-tall">
+  <h1 class="hero-statement">We make one thing at a time, properly.</h1>
+  <div class="hero-statement__after">
+    <span>Established 2009</span>
+    <span>Two joiners</span>
+    <span>No subcontractors</span>
+  </div>
+</section>
+
+
+<!-- --------------------------------------------------------------- H3
+     hero-figure
+     A real photograph, with a real caption that says what it is. The headline
+     comes after the image, not over it.
+
+     USE WHEN there is genuinely good photography of the actual work, and the
+     client owns it. Check assets/MANIFEST.md before you reach for this.
+
+     DO NOT USE WHEN the photograph would be stock, generated, or of somebody
+     else's workshop. A missing image beats a dishonest one, and the assets
+     family will block the dishonest one anyway.
+
+     WHAT HOLDS THE SPACE: the image, and then the caption's hairline, which
+     stops the text under it floating.
+
+     NOTE the caption. Almost nobody writes one, which is exactly why a real
+     one reads as made by a person: it names the place, the job and the year.
+-->
+<section class="wrap band">
+  <figure class="hero-figure">
+    <img src="../../examples/assets-control/assets/photos/yard.png" alt="The workshop yard at Trescott with stacked oak boards under cover" width="1200" height="675">
+    <figcaption>The drying store, Trescott. Oak sits here for a year before anything is cut from it.</figcaption>
+  </figure>
+  <h1 class="hero-figure__title">Wood that has already done its moving.</h1>
+</section>
+
+
+<!-- --------------------------------------------------------------- H4
+     hero-directory
+     Headline and lede on the left, and the whole contact block visible on the
+     right, above the fold, on the first screen.
+
+     USE WHEN the site's job is to make the phone ring: emergency trades,
+     clinics, anything where the visitor is already decided and only needs the
+     number.
+
+     DO NOT USE WHEN the business wants to be considered rather than called.
+     Putting the phone number this early tells a visitor the decision is easy,
+     which is right for a blocked drain and wrong for a kitchen.
+
+     WHAT HOLDS THE SPACE: the card. It is a panel with a job, not a decoration,
+     and it earns the asymmetry by being the thing half the visitors came for.
+-->
+<section class="wrap band">
+  <div class="hero-directory">
+    <div>
+      <p class="eyebrow">Emergency repairs</p>
+      <h1>Something broken, and somebody who answers the phone.</h1>
+      <p>Boarding up, temporary repairs and same-week permanent fixes across north Devon. If it is out of hours, ring rather than email.</p>
+    </div>
+    <div class="hero-directory__card">
+      <dl class="figures">
+        <dt>Phone</dt>
+        <dd><a href="tel:01271960118">01271 960 118</a></dd>
+        <dt>Hours</dt>
+        <dd>7am to 6pm, Monday to Saturday</dd>
+        <dt>Out of hours</dt>
+        <dd>Answered, but only for water and security</dd>
+        <dt>Callout</dt>
+        <dd>&pound;65, waived if the work goes ahead</dd>
+      </dl>
+      <a class="btn" href="tel:01271960118">Call Ben</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===================================================================== B
+     BODY SECTIONS. Nine shapes to build a page out of.
+
+     The rule this group exists to enforce: a page needs at least two GENUINELY
+     DIFFERENT section archetypes, and "two identical splits back to back" is
+     the mild version of having one. Pick shapes that disagree with each other.
+
+     Every one of these is an alternative to the three-equal-cards-with-icons
+     row, which is not banned and is also not a decision.
+-->
+
+
+<!-- --------------------------------------------------------------- B1
+     band-statement
+     A full-bleed change of surface, one paragraph at a real measure, and
+     nothing else in the band.
+
+     USE ONCE per page, at the point the argument turns.
+
+     DO NOT USE twice. A second dark band is a stripe pattern, and the first
+     one stops meaning anything.
+
+     WHAT HOLDS THE SPACE: the surface change itself. This is the one shape
+     where a genuinely empty right-hand side is correct, because the band is
+     the object and the paragraph sits inside it.
+-->
+<section class="surface-dark band">
+  <div class="wrap">
+    <p class="statement">Everything here is made by two people in one building. If that is slower than you need, we would rather tell you now than take the deposit.</p>
+  </div>
+</section>
+
+
+<!-- --------------------------------------------------------------- B2
+     index-list
+     Services as a ruled list with a price column. The single most useful
+     alternative to a card grid, and the one that reads as a working business
+     rather than a brochure.
+
+     USE WHEN there are real prices, or a real reason there are none.
+
+     DO NOT USE WHEN the prices are guesses. facts/unsourced-price will block
+     it, correctly.
+
+     WHAT HOLDS THE SPACE: the price column and the hairlines. The eye reads
+     down the right edge, which is why the figures are tabular.
+-->
+<section class="wrap band">
+  <h2>What we make, and what it costs</h2>
+  <p>Prices are a starting point for a typical job in an ordinary house. A survey turns them into a real number, and the survey is free.</p>
+  <div class="index-list figures">
+    <div class="index-list__row">
+      <h3>Sash window repair</h3>
+      <p class="index-list__price">from &pound;420 a window</p>
+      <p class="index-list__note">Cords, weights, beads and a repaint. Rot repairs are quoted separately after we open it up.</p>
+    </div>
+    <div class="index-list__row">
+      <h3>Fitted kitchen</h3>
+      <p class="index-list__price">from &pound;14,000</p>
+      <p class="index-list__note">Made here, in oak or painted tulipwood. Appliances and worktops are bought in and passed on at cost.</p>
+    </div>
+    <div class="index-list__row">
+      <h3>Staircase</h3>
+      <p class="index-list__price">from &pound;5,200</p>
+      <p class="index-list__note">Straight flights. A winder or a curved string is a different job and a different number.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- --------------------------------------------------------------- B3
+     split
+     Seven columns of prose against five of image. Add `split--flip` to put the
+     image first on wide screens.
+
+     USE WHEN a claim needs evidence beside it.
+
+     DO NOT USE more than twice on a page, and never twice consecutively
+     without flipping. Two identical splits in a row is the shape that made
+     "AI website" a recognisable phrase.
+
+     WHAT HOLDS THE SPACE: nothing needs to. Both columns are occupied. This is
+     the safest shape in the library and therefore the easiest to overuse.
+-->
+<section class="wrap band-short">
+  <div class="split">
+    <div>
+      <h2>The survey is the quote</h2>
+      <p>We measure, look behind things, and write down what we find. You get a fixed price and a list of what would change it, which is usually rot nobody could see and occasionally a wall that is not where the plan says.</p>
+      <p><a class="btn-quiet" href="#enquire">Book a survey</a></p>
+    </div>
+    <img src="../../examples/assets-control/assets/photos/team.png" alt="Ben measuring a window reveal with a folding rule" width="800" height="600">
+  </div>
+</section>
+
+
+<!-- --------------------------------------------------------------- B4
+     steps
+     A process as a numbered run. The numerals are the structure, set in the
+     display face, and there are no icons anywhere near it.
+
+     USE WHEN the visitor's real worry is "what happens if I ring you".
+
+     DO NOT USE with more than five steps. Six steps is a project plan, and
+     nobody reads a project plan on a homepage.
+
+     WHAT HOLDS THE SPACE: the numeral column. It is a fixed 3rem gutter, which
+     gives the whole block a left edge to hang from.
+-->
+<section class="wrap band-short surface-sunk">
+  <div class="wrap" style="padding-inline: 0">
+    <h2>What happens after you ring</h2>
+    <ol class="steps">
+      <li>
+        <div>
+          <h3>We talk for ten minutes</h3>
+          <p>Usually enough to say whether this is a job for us. If it is not, we will say who it is for.</p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h3>We come and measure</h3>
+          <p>Free, and it is not a sales visit. If you want to think about it for six months, that is fine.</p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h3>You get a written price</h3>
+          <p>Fixed, itemised, and with the things that could change it listed underneath.</p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h3>We book a date</h3>
+          <p>Eight to ten weeks out, and we keep it. If we cannot, you hear it from us before you notice.</p>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+
+<!-- --------------------------------------------------------------- B5
+     faq
+     Real questions, in the words customers use, in a native accordion. No
+     JavaScript, keyboard-operable for free, and it prints.
+
+     USE WHEN question 10 of the interview produced a list. That answer is
+     usually this section, near enough verbatim.
+
+     DO NOT USE for questions nobody asks. An FAQ written by the business is
+     a list of things the business wants to say, and every visitor can tell.
+
+     WHAT HOLDS THE SPACE: the rules between rows. Cap the block at a measure
+     so the summaries do not run the full page width.
+-->
+<section class="wrap band-short">
+  <h2>Questions people actually ask</h2>
+  <div class="faq" style="max-width: 46rem">
+    <details>
+      <summary>Do you take on small jobs?</summary>
+      <p>One or two a month, usually for people we have worked for before. Ring and ask. If we say no we will tell you who to try.</p>
+    </details>
+    <details>
+      <summary>Why is the lead time so long?</summary>
+      <p>Because there are two of us and we do not run more than one job at a time. It is the reason the work is what it is, and it is the honest trade.</p>
+    </details>
+    <details>
+      <summary>Do you want money up front?</summary>
+      <p>A third when we order materials, a third on delivery to site, the rest when you are happy. Nothing before the survey.</p>
+    </details>
+  </div>
+</section>
+
+
+<!-- --------------------------------------------------------------- B6
+     quote
+     One testimonial. Not three. Not a carousel.
+
+     USE WHEN there is a real one with a real name, a real role and a date, and
+     the person has agreed to it appearing.
+
+     DO NOT USE WHEN any part of that is missing. facts/testimonial-unsourced
+     blocks a quote with no attributed row, and it is right to.
+
+     WHAT HOLDS THE SPACE: the measure again. A pull quote at 34ch in the
+     display face is an object; the same words at full width are a paragraph.
+-->
+<section class="wrap band-short">
+  <figure class="quote">
+    <blockquote>He told me the windows were fine and he would rather not take the job. Then he came back two years later when they were not.</blockquote>
+    <figcaption>Helen Prowse, Braunton. Sash repairs, March 2024.</figcaption>
+  </figure>
+</section>
+
+
+<!-- --------------------------------------------------------------- B7
+     spec-table
+     A real table, in a scroll container, with tabular figures.
+
+     USE WHEN the data is a table. Prices by size, timber by species, opening
+     hours by branch. A table beats a card grid every time the reader wants to
+     compare rather than browse.
+
+     DO NOT wrap it in anything that hides the overflow. A wide table with no
+     scroll container is the most common horizontal-scroll bug on a phone.
+
+     WHAT HOLDS THE SPACE: the column rules. Nothing else is needed.
+-->
+<section class="wrap band-short">
+  <div class="table-scroll">
+    <table class="spec">
+      <caption>Timber we keep in stock, and what it is for</caption>
+      <thead>
+        <tr><th scope="col">Species</th><th scope="col">Air dried</th><th scope="col">Typical use</th><th scope="col">Per cubic foot</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>English oak</td><td>18 months</td><td>Frames, stairs, external doors</td><td>&pound;62</td></tr>
+        <tr><td>Douglas fir</td><td>12 months</td><td>Structural, exposed beams</td><td>&pound;38</td></tr>
+        <tr><td>Tulipwood</td><td>Kiln</td><td>Painted kitchens, mouldings</td><td>&pound;29</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<!-- --------------------------------------------------------------- B8
+     work-row
+     Three or four pieces of work: image, title, one line. No card, no border,
+     no shadow, no hover lift.
+
+     USE WHEN the photography is good enough to carry it.
+
+     DO NOT USE as a features grid with icons instead of photographs. That is
+     the card row this shape replaces.
+
+     WHAT HOLDS THE SPACE: the images. The one-line descriptions are doing real
+     work too, and each one names a place or a material rather than an adjective.
+-->
+<section class="wrap band-short">
+  <h2>Recent work</h2>
+  <div class="work-row">
+    <figure>
+      <img src="../../examples/assets-control/assets/photos/yard.png" alt="Oak staircase with a cut string, seen from the hall" width="600" height="600">
+      <h3>Stair, Georgeham</h3>
+      <p>English oak, cut string, 14 risers.</p>
+    </figure>
+    <figure>
+      <img src="../../examples/assets-control/assets/photos/team.png" alt="Painted kitchen with a scrubbed sycamore worktop" width="600" height="600">
+      <h3>Kitchen, Croyde</h3>
+      <p>Tulipwood, painted on site.</p>
+    </figure>
+    <figure>
+      <img src="../../examples/assets-control/assets/photos/hero-texture.png" alt="Repaired sash window with new cords and beads" width="600" height="600">
+      <h3>Sashes, Barnstaple</h3>
+      <p>Nine windows, four with rot repairs.</p>
+    </figure>
+  </div>
+</section>
+
+
+<!-- --------------------------------------------------------------- B9
+     entries
+     Dated items in a ruled list: news, jobs finished, posts. A date column and
+     a title, and no thumbnails.
+
+     USE WHEN there are genuinely entries, and they are genuinely dated.
+
+     DO NOT USE for a blog with no posts. An empty section tells a visitor the
+     business has stalled, and that is worse than not having one.
+
+     WHAT HOLDS THE SPACE: the date column, which is why the dates are tabular
+     and left-aligned rather than tucked under the title.
+-->
+<section class="wrap band-short">
+  <h2>From the workshop</h2>
+  <ul class="entries">
+    <li>
+      <time datetime="2026-07-02">2 July 2026</time>
+      <div>
+        <h3>The oak we bought in 2024 is finally dry</h3>
+        <p>Two years in the store, and the moisture meter agrees. It becomes a staircase in September.</p>
+      </div>
+    </li>
+    <li>
+      <time datetime="2026-05-18">18 May 2026</time>
+      <div>
+        <h3>We are booked until October</h3>
+        <p>Surveys are still free and still worth doing early. The date you book is the date you get.</p>
+      </div>
+    </li>
+  </ul>
+</section>
+
+
+<!-- ===================================================================== T
+     TRUST AND SUBSTANCE. Five shapes that carry the things a real business's
+     website has and a generated one never does, because nobody asked for them.
+
+     This is the group most likely to be the reason a visitor rings. None of it
+     is design; all of it is the site knowing something.
+-->
+
+
+<!-- --------------------------------------------------------------- T1
+     people
+     The team as a plain list: first name, what they actually do, one sentence
+     that could only be about them. No headshots in circles, no job titles
+     invented to fill a row.
+
+     USE WHEN there is more than one person and the visitor will meet them.
+
+     DO NOT USE for a team of one. A "Meet the team" page with one person on it
+     tells a visitor the business is smaller than it wants to admit, which is a
+     worse impression than saying "it is me, and here is my name".
+
+     WHAT HOLDS THE SPACE: the top rules. Two columns on wide screens; the
+     sentences are the content, so they get the width.
+-->
+<section class="wrap band-short">
+  <h2>Who you will deal with</h2>
+  <ul class="people">
+    <li>
+      <h3>Ben</h3>
+      <p>Does the surveys and most of the fitting. He is the one who will tell you a repair is cheaper than a replacement, which is not always what people want to hear.</p>
+    </li>
+    <li>
+      <h3>Marta</h3>
+      <p>Runs the machine shop and the spray booth. Everything painted goes through her, and she will not release it wet.</p>
+    </li>
+  </ul>
+</section>
+
+
+<!-- --------------------------------------------------------------- T2
+     hours
+     Opening hours as a definition list, with a DATED exception underneath.
+
+     USE ON every local business site, in the footer at minimum.
+
+     DO NOT ship the exception line as a permanent fixture. A "closed over
+     Christmas" notice still up in March is the clearest possible signal that
+     nobody maintains the site.
+
+     WHAT HOLDS THE SPACE: nothing. This is a small block and should stay one.
+
+     THE POINT: the bank-holiday and exception lines. Almost every generated
+     site lists Monday to Friday and stops, and almost every real customer's
+     first question is about the day that is not in the list.
+-->
+<section class="wrap band-tight">
+  <h2>When we are here</h2>
+  <dl class="hours" style="max-width: 28rem">
+    <div><dt>Monday to Thursday</dt><dd>7am to 5pm</dd></div>
+    <div><dt>Friday</dt><dd>7am to 1pm</dd></div>
+    <div><dt>Saturday</dt><dd>By arrangement</dd></div>
+    <div><dt>Sunday and bank holidays</dt><dd>Closed</dd></div>
+  </dl>
+  <p class="hours__exception">Closed from <time datetime="2026-12-23">23 December</time> to <time datetime="2027-01-05">5 January</time>. Emergency callouts only, on the mobile.</p>
+</section>
+
+
+<!-- --------------------------------------------------------------- T3
+     where
+     Location without a third-party map embed. Written directions, parking,
+     access, and what the building looks like.
+
+     USE INSTEAD OF a Google Maps iframe, which loads Google before the visitor
+     has consented to anything and will trip legal/third-party-preconsent. If
+     the client wants the map, it goes behind the consent choice or behind a
+     click, and this block is still what people actually use to find the place.
+
+     DO NOT skip the access line. "Two steps at the front, level access at the
+     side" is worth more to the people who need it than any accessibility
+     statement on the site.
+
+     WHAT HOLDS THE SPACE: two equal columns of genuinely different content.
+-->
+<section class="wrap band-short">
+  <h2>Finding the workshop</h2>
+  <div class="where">
+    <div>
+      <p>Trescott Yard is the third turning off the Bickington road after the garage, signed for the industrial units. We are the long grey shed at the back, past the skip hire.</p>
+      <p class="where__note">If your satnav sends you to Trescott Farm, you have gone half a mile too far. Turn round at the chapel.</p>
+    </div>
+    <div>
+      <h3>Getting in</h3>
+      <p>Park anywhere on the concrete. The workshop door is the one that is open. Level access throughout, no step at the threshold, and the toilet is accessible.</p>
+      <p>Dogs are fine outside. Not in the machine shop.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- --------------------------------------------------------------- T4
+     disclosure
+     The regulated-trade block. Registration number, the register it can be
+     checked in, the insurer, and the entity details the law requires.
+
+     USE WHEN the build declares a Sector. `sectors/<id>.mjs` lists exactly what
+     this trade owes; the sector family will block a ship without it.
+
+     DO NOT invent any of it. Every number here needs a sourced row in facts.md
+     and a date somebody looked it up in the public register, not the date the
+     client remembered it.
+
+     WHAT HOLDS THE SPACE: nothing, and it should not try to. This is a panel
+     of facts. It goes near the footer, not in the hero.
+
+     THE LINK IS THE POINT. A registration number on its own is a claim. A
+     registration number with the register beside it is checkable in one click,
+     and every regulator this repo knows about runs a free public register.
+-->
+<section class="wrap band-tight">
+  <div class="disclosure">
+    <h2 style="font-size: 1rem; font-family: var(--font-text); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint)">Registered details</h2>
+    <dl>
+      <dt>Trading name</dt>
+      <dd>Trescott Joinery Limited</dd>
+      <dt>Registered in England, company number</dt>
+      <dd>09876543</dd>
+      <dt>Registered office</dt>
+      <dd>Trescott Yard, Bickington Road, Barnstaple EX31 2AA</dd>
+      <dt>VAT number</dt>
+      <dd>GB 123 4567 89</dd>
+      <dt>Public liability</dt>
+      <dd>&pound;5m, with a named insurer on the certificate we will send you</dd>
+    </dl>
+    <p style="margin: 0"><a class="btn-quiet" href="https://find-and-update.company-information.service.gov.uk/">Check the company on the register</a></p>
+  </div>
+</section>
+
+
+<!-- --------------------------------------------------------------- T5
+     notice
+     A dated notice bar. Not dismissible, not sticky, not animated.
+
+     USE WHEN something is temporarily true: a closure, a move, a shortage, a
+     price change coming.
+
+     DO NOT USE for marketing. A notice bar that says "20% off this month" is a
+     banner, and visitors have been trained not to read banners since 1998.
+
+     WHAT HOLDS THE SPACE: the accent rule above it, which is the only place in
+     this library the accent colour appears as a structural line.
+
+     THE DATE IS NOT DECORATION. It is the thing that makes the notice credible
+     and the thing that makes it obvious when it has gone stale.
+-->
+<section class="wrap band-tight">
+  <div class="notice">
+    <time datetime="2026-08-04">Since 4 August</time>
+    <p>The Bickington road is closed for resurfacing. Come in from the Barnstaple end until the middle of September.</p>
+  </div>
+</section>
+
+
+<!-- ===================================================================== A
+     THE THINGS A VISITOR DOES. Two shapes, and the second one is one line.
+
+     Almost every gate failure that costs a real business money lives here: a
+     form that goes nowhere, a label that is a placeholder, an input that makes
+     iOS zoom, and no sentence anywhere saying what happens after you press the
+     button.
+-->
+
+
+<!-- --------------------------------------------------------------- A1
+     form
+     A contact form written by somebody who has received one.
+
+     USE ON every site. `integrity/contact-route` blocks a site with no way at
+     all to make contact, and rightly.
+
+     FRONT END ONLY. This repo builds no back end, so the `action` points at
+     whatever service the build agreed with the client, and `security/
+     form-destination` asks where the data physically goes and whether that is
+     written down. A form with no action and no JavaScript handler is a form
+     that silently drops enquiries, which is the most expensive bug on a small
+     business's site and the hardest one to notice.
+
+     WHAT TO COPY, IN ORDER OF HOW OFTEN IT IS MISSING:
+
+       1. THE SENTENCE AFTER THE BUTTON. "We ring back the same evening" is
+          worth more than the entire homepage, and nobody writes it.
+       2. Real <label> elements. A placeholder is not a label: it disappears
+          the moment somebody types, and screen readers do not reliably
+          announce it.
+       3. The privacy link AT THE POINT OF COLLECTION, not only in the footer.
+          If the form asks about a health problem or anything else sensitive,
+          it collects special category data and the notice needs to say so.
+       4. font-size 16px on the inputs, or iOS zooms the page on focus and the
+          visitor has to pinch back out to read what they typed.
+       5. A button that says what happens. "Send enquiry", never "Submit".
+-->
+<section class="wrap band" id="enquire">
+  <h2>Ask about a job</h2>
+  <p>Tell us roughly what and roughly where. You will get a person, not an autoresponder.</p>
+
+  <form class="form" method="post" action="https://formsubmit.example/trescott">
+    <div>
+      <label for="name">Your name</label>
+      <input id="name" name="name" type="text" autocomplete="name" required>
+    </div>
+    <div>
+      <label for="phone">Phone</label>
+      <input id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel">
+      <span class="hint" id="phone-hint">The quickest way to get an answer. We will not ring before 8am.</span>
+    </div>
+    <div>
+      <label for="where">Where the job is</label>
+      <input id="where" name="where" type="text" autocomplete="postal-code">
+      <span class="hint">A postcode is enough. We travel about 30 miles.</span>
+    </div>
+    <div>
+      <label for="what">What you are thinking about</label>
+      <textarea id="what" name="what" rows="5"></textarea>
+    </div>
+    <div>
+      <button class="btn" type="submit">Send enquiry</button>
+    </div>
+    <p class="form__after">
+      We reply the same working day, usually by phone. What you send here goes to Ben and Marta
+      and nowhere else, and it is deleted after a year.
+      <a href="privacy.html">How we handle it</a>.
+    </p>
+  </form>
+</section>
+
+
+<!-- --------------------------------------------------------------- A2
+     cta-line
+     One line. The action, and the reason to take it, on a rule.
+
+     USE BETWEEN sections, where a full call-to-action band would be a third
+     interruption on a page that already has two.
+
+     DO NOT change the wording. Pick one phrase for the action, and use that
+     exact phrase in every button on the site. "Ask about a job", "Ask about a
+     job", "Ask about a job" reads as one business. "Get in touch" here and
+     "Request a quote" there reads as three pages written by three people,
+     which is what it is.
+
+     WHAT HOLDS THE SPACE: the rule the line sits on. There is no empty half
+     here because the shape is a line, not a band.
+-->
+<section class="wrap band-tight">
+  <div class="cta-line" style="border-top: 1px solid var(--rule); padding-top: var(--s-4)">
+    <p>Surveys are free and there is no obligation attached to one.</p>
+    <a class="btn-quiet" href="#enquire">Ask about a job</a>
+  </div>
+</section>
+
+
+<!-- ===================================================================== C
+     NAVIGATION AND FOOTER. The two pieces of a site that get the least design
+     attention and appear on every page.
+
+     The defaults this group exists to replace:
+
+       NAV     wordmark left · inline links · button right · hairline border
+       FOOTER  four columns headed Product, Company, Resources, Legal
+
+     Neither is wrong. Both are what a generator produces when nobody decided,
+     which means shipping either one unexamined is the single cheapest way to
+     make a site look like every other site.
+-->
+
+
+<!-- --------------------------------------------------------------- C1
+     nav-stacked
+     Wordmark on its own line with a place under it, links on the line below.
+     Two rows, no button, nothing hidden behind a hamburger on desktop.
+
+     USE WHEN the business is somewhere. A place under a wordmark is the oldest
+     trade sign there is and it still works: it tells a visitor in two words
+     whether they are in the right county.
+
+     DO NOT USE with more than five links. Five is the ceiling in stage 02 and
+     it is a real ceiling.
+
+     ON MOBILE this wraps to two lines and stays operable. There is deliberately
+     no hamburger: five links wrap fine, and a menu that only opens on hover is
+     unusable on a touchscreen — `responsive/hover-only` blocks it.
+-->
+<header class="wrap nav-stacked">
+  <a href="index.html" style="text-decoration: none">
+    <span class="nav-stacked__mark">Trescott Joinery</span>
+    <span class="nav-stacked__place">Barnstaple</span>
+  </a>
+  <nav aria-label="Primary">
+    <ul>
+      <li><a href="work.html">Work</a></li>
+      <li><a href="prices.html">Prices</a></li>
+      <li><a href="workshop.html">The workshop</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </nav>
+</header>
+
+
+<!-- --------------------------------------------------------------- C2
+     nav-rule
+     A single line under a heavy rule. The rule is the design; the links are
+     plain text.
+
+     USE WHEN the site is editorial or the display face is doing enough work
+     already.
+
+     DO NOT add a button to the right-hand end. That is the default shape this
+     is an alternative to, and adding the button back turns it into one.
+-->
+<header class="wrap nav-rule">
+  <a class="nav-rule__mark" href="index.html" style="text-decoration: none">Trescott Joinery</a>
+  <nav aria-label="Primary">
+    <ul>
+      <li><a href="work.html">Work</a></li>
+      <li><a href="prices.html">Prices</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </nav>
+</header>
+
+
+<!-- --------------------------------------------------------------- C3
+     footer-ledger
+     A footer that is a record of the business rather than a farm of links:
+     where it is, when it is open, how to reach it, and the legal tail.
+
+     USE ON every site this repo builds.
+
+     WHAT GOES IN IT, and why each one is here:
+
+       · THE ADDRESS AND THE PHONE, as text a person can copy. Not an image,
+         not only in a map embed.
+       · THE HOURS. The most-read thing in most footers.
+       · THE LEGAL TAIL: privacy, cookies, terms, accessibility. Every page
+         links to all four; `legal/footer-links` checks it, and the four ship
+         by default rather than on request.
+       · THE ENTITY DETAILS the jurisdiction requires. `legal/business-identity`
+         knows what those are for the country in the brief.
+       · A COPYRIGHT YEAR THAT IS NOT HARDCODED, or one you will update.
+         `legal/copyright-year` catches a year that has gone stale, which is
+         the most visible possible sign that nobody has touched the site.
+
+     DO NOT put the legal links in the primary navigation. They belong here.
+-->
+<footer class="surface-dark band-short footer-ledger">
+  <div class="wrap">
+    <div class="footer-ledger__rows">
+      <div>
+        <h2>Where</h2>
+        <address style="font-style: normal">
+          Trescott Yard<br>
+          Bickington Road<br>
+          Barnstaple EX31 2AA
+        </address>
+      </div>
+      <div>
+        <h2>When</h2>
+        <p style="margin: var(--s-3) 0 0">Monday to Thursday, 7am to 5pm<br>Friday, 7am to 1pm<br>Closed Sunday and bank holidays</p>
+      </div>
+      <div>
+        <h2>Reach us</h2>
+        <ul>
+          <li><a href="tel:01271960118">01271 960 118</a></li>
+          <li><a href="mailto:ben@trescott-joinery.example">ben@trescott-joinery.example</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-ledger__legal">
+      <p style="margin: 0">
+        Trescott Joinery Limited, registered in England, company number 09876543.
+        Registered office as above. VAT GB 123 4567 89.
+      </p>
+      <ul>
+        <li><a href="privacy.html">Privacy</a></li>
+        <li><a href="cookies.html">Cookies</a></li>
+        <li><a href="terms.html">Terms</a></li>
+        <li><a href="accessibility.html">Accessibility</a></li>
+      </ul>
+      <!-- No year. A static site cannot update one, a hardcoded year going stale is the most
+           visible possible sign that nobody maintains the site, and copyright does not require
+           a date. legal/copyright-year exists for exactly this. -->
+      <p class="footer-ledger__copy">&copy; Trescott Joinery Limited</p>
+    </div>
+  </div>
+</footer>
+
+</main>
+</body>
+</html>

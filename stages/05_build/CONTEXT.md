@@ -27,6 +27,14 @@ rather than deciding it quietly in the markup.
 
 ## Process
 
+> **The shapes are in `patterns/`.** Copy the markup from `patterns/sections/*.html`
+> and the matching block from `patterns/patterns.css` — the codes match. Do not
+> retype an archetype from memory: the details that make them work (16px inputs,
+> `minmax(0, 1fr)` on image tracks, a border width that does not change on focus,
+> named transition properties, the sentence after the submit button) are exactly
+> the details that get dropped, and each one is a gate.
+
+
 1. **Check your inputs.** All four present, no unresolved `[NEEDS: …]` or `<<PLACEHOLDER>>`.
    If any are open, stop. Building around a gap is how a gap becomes fiction.
 

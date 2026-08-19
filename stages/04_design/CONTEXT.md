@@ -54,6 +54,14 @@ because stage 01's delegation was still the last word in the field.
 
 ## Process
 
+> **Before anything else, open `patterns/preview/index.html`.** Twenty-two
+> section archetypes with the reason not to use each one, and a token set to
+> replace. It is a vocabulary rather than a template, and it exists because the
+> design rules elsewhere in this repo are almost all negative: a page that breaks
+> none of them can still be the most average arrangement the model knows.
+> `patterns/README.md` is the how, and it is short.
+
+
 ### 1. Read what they gave you, first
 
 Open `references.md` and take each card's **Steal** items — one influence per axis (type /

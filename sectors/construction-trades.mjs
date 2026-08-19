@@ -51,6 +51,15 @@ export default {
     not: [
       // A gas or electrical specialist has its own file and its own statute.
       /\bgas safe\b|\bNICEIC\b|\bpart p\b/i,
+      // SOFTWARE. Found by running this detector over this repo's own pattern
+      // library, whose <title> is "Pattern library — website-builder": a hyphen
+      // is a word boundary, so \bbuilders?\b matches inside "website-builder"
+      // and a page about making websites was classified as a construction firm.
+      // Left as a comment rather than a silent fix because it is the exact
+      // loose-pattern shape every false blocker in this repo has had, committed
+      // by the person writing the rule against it.
+      /\b(?:website|site|page|web|funnel|landing[- ]?page|form|app|store|store[- ]?front)[- ]builders?\b/i,
+      /\bbody\s?builder|\bempire[- ]?builder|\bteam[- ]?builder|\bmodel builder/i,
     ],
   },
 

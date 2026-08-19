@@ -27,12 +27,19 @@ export default {
   detect: {
     strong: [
       /\bveterinary (?:surgery|surgeons?|practice|clinic|hospital)\b/i,
-      /\bvets?\b(?=\s|,|\.|$)/i,
       /\bMRCVS\b/,
       /\bRCVS\b/,
       /\bequine vet/i,
     ],
     weak: [
+      // `\bvets?\b` IS NOT A STRONG TERM, and putting it in the strong list broke
+      // this repo's own reference fixture on the first run. clean-control is a
+      // FARRIER's site; it says "speak to your vet" the way every equine trade
+      // does, and it was handed a veterinary-registration BLOCKER for it.
+      // Farriers, animal physiotherapists, groomers, kennels, feed merchants and
+      // livery yards all use the word about somebody else. Naming the practice
+      // is what the strong list is for.
+      /\bvets?\b(?=\s|,|\.|$)/i,
       /\bpets?\b/i,
       /\bvaccinations?\b/i,
       /\bneutering\b/i,
@@ -45,6 +52,11 @@ export default {
       // this sector, and sweeping them in would be the exact over-reach s.19
       // itself is careful about.
       /\b(?:dog groom|cattery|kennels|pet (?:shop|sitting|food)|dog walk)/i,
+      // A FARRIER is a separately registered trade under the Farriers
+      // (Registration) Act 1975 and is emphatically not a veterinary surgeon.
+      // This veto exists because the detector got it wrong on the repo's own
+      // reference fixture, which is a farriery site.
+      /\bfarrier|\bfarriery\b|\bshoeing\b|\bhoof care\b/i,
     ],
   },
 

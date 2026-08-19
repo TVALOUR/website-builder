@@ -83,6 +83,24 @@ until you ask for them, and both are enforced rather than remembered:
 top of your homepage executed two or three ways — with your real headline — and you point
 at one. "No opinion, show me options" is a first-class answer from the first minute.
 
+**2b. And it has something better than its defaults to reach for.** Every design rule in this
+repo is a NOT: not Inter, not the purple gradient, not four typefaces, not `transition: all`, not
+hero-then-three-cards. A page can break none of them and still read as generated, because avoiding
+a default is not the same as making a decision, and there is no gate for average.
+
+So [`patterns/`](patterns/README.md) is the positive half: **twenty-two section archetypes**, each
+with the question it answers, the case it is wrong for, and — the part that matters — what holds
+its negative space. Four heroes, none of them the eyebrow-headline-subtitle-two-buttons composite
+everybody ships. A services list with a real price column instead of a card grid. Opening hours
+that include bank holidays. A location block with directions and step-free access rather than a
+Google embed that leaks the visitor before they have consented to anything. A form whose last line
+says what happens after you press the button.
+
+It is a vocabulary, not a template — there is no page to fill in — and it holds itself to the
+standard it teaches: `node checks/selftest.mjs` runs the full gate over
+`patterns/preview/index.html` and asserts **zero design, accessibility and responsive findings at
+any severity**.
+
 **3. A gate decides whether it ships, and the gate is not the model's opinion.**
 
 ```bash
@@ -332,6 +350,7 @@ shared/        writing · design · directions · references · review · imager
 checks/        run.mjs + 13 rule families + brief.mjs + case suites + selftest   zero deps
 profiles/      one file per COUNTRY + _base.mjs + the research protocol in README.md
 sectors/       one file per TRADE, keyed by country + _base.mjs + its own research protocol
+patterns/      22 section archetypes + one stylesheet + a specimen sheet you can open and look at
 templates/     brief skeleton, legal pages, consent banner, _headers, robots, structured data
 examples/      clean-control (passes) · dishonest / negative / bare / assets / sector controls (fail on purpose)
 .claude/       the Claude Code hooks (gate.mjs)

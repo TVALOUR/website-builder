@@ -29,6 +29,27 @@ A centred hero you chose, and can defend, is fine. A centred hero because centri
 default is the problem.
 
 ---
+## 0. There is a library of shapes, and it is not a template
+
+Rules 1 to 11 below are almost entirely NEGATIVE: not Inter, not the gradient,
+not four typefaces, not `transition: all`, not the hero-then-three-cards rhythm.
+A page can break none of them and still read as generated, because avoiding a
+default is not the same as making a decision, and there is no gate for average.
+
+[`patterns/`](../patterns/README.md) is the positive half. Twenty-two section
+archetypes, each with the question it answers, the case it is wrong for, and
+**what holds its negative space** — which is the design question rule 11 says the
+mechanical gates cannot reach.
+
+Open `patterns/preview/index.html` and look at it before designing anything. Then
+pick shapes that DISAGREE with each other: a page needs at least two genuinely
+different archetypes, and two identical splits back to back is the mild version
+of having one.
+
+It is a vocabulary, not a template. There is no page to fill in, the tokens are a
+worked example to replace rather than a house style, and a build that ships them
+unchanged has skipped the decision stage 04 exists to make.
+
 ## 1. Have a point of view
 
 Before any layout, decide the *why* — the position this site takes. A design is a

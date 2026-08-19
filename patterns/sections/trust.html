@@ -1,0 +1,160 @@
+<!-- ===================================================================== T
+     TRUST AND SUBSTANCE. Five shapes that carry the things a real business's
+     website has and a generated one never does, because nobody asked for them.
+
+     This is the group most likely to be the reason a visitor rings. None of it
+     is design; all of it is the site knowing something.
+-->
+
+
+<!-- --------------------------------------------------------------- T1
+     people
+     The team as a plain list: first name, what they actually do, one sentence
+     that could only be about them. No headshots in circles, no job titles
+     invented to fill a row.
+
+     USE WHEN there is more than one person and the visitor will meet them.
+
+     DO NOT USE for a team of one. A "Meet the team" page with one person on it
+     tells a visitor the business is smaller than it wants to admit, which is a
+     worse impression than saying "it is me, and here is my name".
+
+     WHAT HOLDS THE SPACE: the top rules. Two columns on wide screens; the
+     sentences are the content, so they get the width.
+-->
+<section class="wrap band-short">
+  <h2>Who you will deal with</h2>
+  <ul class="people">
+    <li>
+      <h3>Ben</h3>
+      <p>Does the surveys and most of the fitting. He is the one who will tell you a repair is cheaper than a replacement, which is not always what people want to hear.</p>
+    </li>
+    <li>
+      <h3>Marta</h3>
+      <p>Runs the machine shop and the spray booth. Everything painted goes through her, and she will not release it wet.</p>
+    </li>
+  </ul>
+</section>
+
+
+<!-- --------------------------------------------------------------- T2
+     hours
+     Opening hours as a definition list, with a DATED exception underneath.
+
+     USE ON every local business site, in the footer at minimum.
+
+     DO NOT ship the exception line as a permanent fixture. A "closed over
+     Christmas" notice still up in March is the clearest possible signal that
+     nobody maintains the site.
+
+     WHAT HOLDS THE SPACE: nothing. This is a small block and should stay one.
+
+     THE POINT: the bank-holiday and exception lines. Almost every generated
+     site lists Monday to Friday and stops, and almost every real customer's
+     first question is about the day that is not in the list.
+-->
+<section class="wrap band-tight">
+  <h2>When we are here</h2>
+  <dl class="hours" style="max-width: 28rem">
+    <div><dt>Monday to Thursday</dt><dd>7am to 5pm</dd></div>
+    <div><dt>Friday</dt><dd>7am to 1pm</dd></div>
+    <div><dt>Saturday</dt><dd>By arrangement</dd></div>
+    <div><dt>Sunday and bank holidays</dt><dd>Closed</dd></div>
+  </dl>
+  <p class="hours__exception">Closed from <time datetime="2026-12-23">23 December</time> to <time datetime="2027-01-05">5 January</time>. Emergency callouts only, on the mobile.</p>
+</section>
+
+
+<!-- --------------------------------------------------------------- T3
+     where
+     Location without a third-party map embed. Written directions, parking,
+     access, and what the building looks like.
+
+     USE INSTEAD OF a Google Maps iframe, which loads Google before the visitor
+     has consented to anything and will trip legal/third-party-preconsent. If
+     the client wants the map, it goes behind the consent choice or behind a
+     click, and this block is still what people actually use to find the place.
+
+     DO NOT skip the access line. "Two steps at the front, level access at the
+     side" is worth more to the people who need it than any accessibility
+     statement on the site.
+
+     WHAT HOLDS THE SPACE: two equal columns of genuinely different content.
+-->
+<section class="wrap band-short">
+  <h2>Finding the workshop</h2>
+  <div class="where">
+    <div>
+      <p>Trescott Yard is the third turning off the Bickington road after the garage, signed for the industrial units. We are the long grey shed at the back, past the skip hire.</p>
+      <p class="where__note">If your satnav sends you to Trescott Farm, you have gone half a mile too far. Turn round at the chapel.</p>
+    </div>
+    <div>
+      <h3>Getting in</h3>
+      <p>Park anywhere on the concrete. The workshop door is the one that is open. Level access throughout, no step at the threshold, and the toilet is accessible.</p>
+      <p>Dogs are fine outside. Not in the machine shop.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- --------------------------------------------------------------- T4
+     disclosure
+     The regulated-trade block. Registration number, the register it can be
+     checked in, the insurer, and the entity details the law requires.
+
+     USE WHEN the build declares a Sector. `sectors/<id>.mjs` lists exactly what
+     this trade owes; the sector family will block a ship without it.
+
+     DO NOT invent any of it. Every number here needs a sourced row in facts.md
+     and a date somebody looked it up in the public register, not the date the
+     client remembered it.
+
+     WHAT HOLDS THE SPACE: nothing, and it should not try to. This is a panel
+     of facts. It goes near the footer, not in the hero.
+
+     THE LINK IS THE POINT. A registration number on its own is a claim. A
+     registration number with the register beside it is checkable in one click,
+     and every regulator this repo knows about runs a free public register.
+-->
+<section class="wrap band-tight">
+  <div class="disclosure">
+    <h2 style="font-size: 1rem; font-family: var(--font-text); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint)">Registered details</h2>
+    <dl>
+      <dt>Trading name</dt>
+      <dd>Trescott Joinery Limited</dd>
+      <dt>Registered in England, company number</dt>
+      <dd>09876543</dd>
+      <dt>Registered office</dt>
+      <dd>Trescott Yard, Bickington Road, Barnstaple EX31 2AA</dd>
+      <dt>VAT number</dt>
+      <dd>GB 123 4567 89</dd>
+      <dt>Public liability</dt>
+      <dd>&pound;5m, with a named insurer on the certificate we will send you</dd>
+    </dl>
+    <p style="margin: 0"><a class="btn-quiet" href="https://find-and-update.company-information.service.gov.uk/">Check the company on the register</a></p>
+  </div>
+</section>
+
+
+<!-- --------------------------------------------------------------- T5
+     notice
+     A dated notice bar. Not dismissible, not sticky, not animated.
+
+     USE WHEN something is temporarily true: a closure, a move, a shortage, a
+     price change coming.
+
+     DO NOT USE for marketing. A notice bar that says "20% off this month" is a
+     banner, and visitors have been trained not to read banners since 1998.
+
+     WHAT HOLDS THE SPACE: the accent rule above it, which is the only place in
+     this library the accent colour appears as a structural line.
+
+     THE DATE IS NOT DECORATION. It is the thing that makes the notice credible
+     and the thing that makes it obvious when it has gone stale.
+-->
+<section class="wrap band-tight">
+  <div class="notice">
+    <time datetime="2026-08-04">Since 4 August</time>
+    <p>The Bickington road is closed for resurfacing. Come in from the Barnstaple end until the middle of September.</p>
+  </div>
+</section>

@@ -40,6 +40,19 @@ wrong findings.
 - Whether Part P electrical work should be its own sector file. It is currently
   excluded by the `not` patterns and has no file of its own, which is a gap.
 
+## The other false positive: `\bbuilders?\b` matches "website-builder"
+
+Found by running the sector detector over this repo's own pattern library, whose
+`<title>` is "Pattern library - website-builder". A hyphen is a word boundary,
+so `\bbuilders?\b` matched inside the repo's own name and a page about making
+websites was classified as a construction firm.
+
+Vetoes added for `website|site|page|web|funnel|landing-page|form|app|store`
+builders, plus bodybuilder and the other compound uses. Left as a comment in the
+file rather than a silent fix, for the same reason as the veterinary one: the
+loose two-word pattern is the recurring defect shape here, and the record is
+worth more than the tidy diff.
+
 ## Method
 
 One research pass, 2026-08-19, run against primary sources first and secondary

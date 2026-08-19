@@ -1,0 +1,144 @@
+<!-- ===================================================================== H
+     HEROES. Four shapes, and the reason there are four is that the fifth one
+     everybody builds is the composite this whole library exists to avoid:
+
+         a small uppercase eyebrow
+         a very large headline
+         one line of grey subtitle
+         two buttons
+         all centred on one vertical axis
+
+     There is nothing wrong with any single element in that list. What is wrong
+     is that it is the arrangement a model reaches for when nobody has decided
+     anything, so it is the arrangement that reads as generated no matter how
+     good the type is. Every hero below makes a different decision about what
+     holds the space beside the headline, which is the actual design question.
+
+     Copy the markup. The CSS block is in patterns.css under the same code.
+-->
+
+
+<!-- --------------------------------------------------------------- H1
+     hero-ledger
+     The headline takes seven columns; a ruled index of real facts takes the
+     rest. This is the highest-hit-rate hero in the library for a local trade,
+     because the facts a customer came for are visible before they scroll.
+
+     USE WHEN the business has real numbers a visitor is looking for: prices,
+     hours, a service area, a lead time, a callout charge.
+
+     DO NOT USE WHEN those numbers are not in facts.md. An index of vague
+     phrases is worse than no index, and it will fail facts/* anyway.
+
+     WHAT HOLDS THE SPACE: the rule system. The right column is not "the empty
+     side", it is a second reading order, and the hairlines make it one.
+-->
+<section class="wrap band-tall">
+  <div class="hero-ledger">
+    <div>
+      <h1>Fitted joinery, made in the workshop at Trescott and installed by the person who made it.</h1>
+      <p class="hero-ledger__lede">Kitchens, stairs, sash windows and one-off furniture, for houses across north Devon. Most jobs are booked eight to ten weeks ahead.</p>
+      <p><a class="btn" href="#enquire">Ask about a job</a></p>
+    </div>
+    <dl class="hero-ledger__index figures">
+      <div><dt>Workshop</dt><dd>Trescott, Barnstaple</dd></div>
+      <div><dt>Travels</dt><dd>Within 30 miles</dd></div>
+      <div><dt>Day rate</dt><dd>&pound;340</dd></div>
+      <div><dt>Survey</dt><dd>Free, and not a sales visit</dd></div>
+      <div><dt>Lead time</dt><dd>8 to 10 weeks</dd></div>
+    </dl>
+  </div>
+</section>
+
+
+<!-- --------------------------------------------------------------- H2
+     hero-statement
+     One sentence, at a size that means it. Nothing else above the fold except
+     a rule and three plain facts under it.
+
+     USE WHEN the business has one thing to say and the confidence to say it
+     alone. Studios, makers, consultancies, anyone whose work is the argument.
+
+     DO NOT USE WHEN the visitor arrived with a question. A statement hero
+     answers "who are you"; it does not answer "do you cover my postcode",
+     and a plumber's customer is asking the second one.
+
+     WHAT HOLDS THE SPACE: the measure. The headline is capped at 22ch, so the
+     line breaks are a decision rather than an accident of viewport width, and
+     the space to its right is the margin of a page rather than a gap in a grid.
+-->
+<section class="wrap band-tall">
+  <h1 class="hero-statement">We make one thing at a time, properly.</h1>
+  <div class="hero-statement__after">
+    <span>Established 2009</span>
+    <span>Two joiners</span>
+    <span>No subcontractors</span>
+  </div>
+</section>
+
+
+<!-- --------------------------------------------------------------- H3
+     hero-figure
+     A real photograph, with a real caption that says what it is. The headline
+     comes after the image, not over it.
+
+     USE WHEN there is genuinely good photography of the actual work, and the
+     client owns it. Check assets/MANIFEST.md before you reach for this.
+
+     DO NOT USE WHEN the photograph would be stock, generated, or of somebody
+     else's workshop. A missing image beats a dishonest one, and the assets
+     family will block the dishonest one anyway.
+
+     WHAT HOLDS THE SPACE: the image, and then the caption's hairline, which
+     stops the text under it floating.
+
+     NOTE the caption. Almost nobody writes one, which is exactly why a real
+     one reads as made by a person: it names the place, the job and the year.
+-->
+<section class="wrap band">
+  <figure class="hero-figure">
+    <img src="assets/photos/yard.png" alt="The workshop yard at Trescott with stacked oak boards under cover" width="1200" height="675">
+    <figcaption>The drying store, Trescott. Oak sits here for a year before anything is cut from it.</figcaption>
+  </figure>
+  <h1 class="hero-figure__title">Wood that has already done its moving.</h1>
+</section>
+
+
+<!-- --------------------------------------------------------------- H4
+     hero-directory
+     Headline and lede on the left, and the whole contact block visible on the
+     right, above the fold, on the first screen.
+
+     USE WHEN the site's job is to make the phone ring: emergency trades,
+     clinics, anything where the visitor is already decided and only needs the
+     number.
+
+     DO NOT USE WHEN the business wants to be considered rather than called.
+     Putting the phone number this early tells a visitor the decision is easy,
+     which is right for a blocked drain and wrong for a kitchen.
+
+     WHAT HOLDS THE SPACE: the card. It is a panel with a job, not a decoration,
+     and it earns the asymmetry by being the thing half the visitors came for.
+-->
+<section class="wrap band">
+  <div class="hero-directory">
+    <div>
+      <p class="eyebrow">Emergency repairs</p>
+      <h1>Something broken, and somebody who answers the phone.</h1>
+      <p>Boarding up, temporary repairs and same-week permanent fixes across north Devon. If it is out of hours, ring rather than email.</p>
+    </div>
+    <div class="hero-directory__card">
+      <dl class="figures">
+        <dt>Phone</dt>
+        <dd><a href="tel:01271960118">01271 960 118</a></dd>
+        <dt>Hours</dt>
+        <dd>7am to 6pm, Monday to Saturday</dd>
+        <dt>Out of hours</dt>
+        <dd>Answered, but only for water and security</dd>
+        <dt>Callout</dt>
+        <dd>&pound;65, waived if the work goes ahead</dd>
+      </dl>
+      <a class="btn" href="tel:01271960118">Call Ben</a>
+    </div>
+  </div>
+</section>

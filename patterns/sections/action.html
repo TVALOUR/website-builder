@@ -1,0 +1,95 @@
+<!-- ===================================================================== A
+     THE THINGS A VISITOR DOES. Two shapes, and the second one is one line.
+
+     Almost every gate failure that costs a real business money lives here: a
+     form that goes nowhere, a label that is a placeholder, an input that makes
+     iOS zoom, and no sentence anywhere saying what happens after you press the
+     button.
+-->
+
+
+<!-- --------------------------------------------------------------- A1
+     form
+     A contact form written by somebody who has received one.
+
+     USE ON every site. `integrity/contact-route` blocks a site with no way at
+     all to make contact, and rightly.
+
+     FRONT END ONLY. This repo builds no back end, so the `action` points at
+     whatever service the build agreed with the client, and `security/
+     form-destination` asks where the data physically goes and whether that is
+     written down. A form with no action and no JavaScript handler is a form
+     that silently drops enquiries, which is the most expensive bug on a small
+     business's site and the hardest one to notice.
+
+     WHAT TO COPY, IN ORDER OF HOW OFTEN IT IS MISSING:
+
+       1. THE SENTENCE AFTER THE BUTTON. "We ring back the same evening" is
+          worth more than the entire homepage, and nobody writes it.
+       2. Real <label> elements. A placeholder is not a label: it disappears
+          the moment somebody types, and screen readers do not reliably
+          announce it.
+       3. The privacy link AT THE POINT OF COLLECTION, not only in the footer.
+          If the form asks about a health problem or anything else sensitive,
+          it collects special category data and the notice needs to say so.
+       4. font-size 16px on the inputs, or iOS zooms the page on focus and the
+          visitor has to pinch back out to read what they typed.
+       5. A button that says what happens. "Send enquiry", never "Submit".
+-->
+<section class="wrap band" id="enquire">
+  <h2>Ask about a job</h2>
+  <p>Tell us roughly what and roughly where. You will get a person, not an autoresponder.</p>
+
+  <form class="form" method="post" action="https://formsubmit.example/trescott">
+    <div>
+      <label for="name">Your name</label>
+      <input id="name" name="name" type="text" autocomplete="name" required>
+    </div>
+    <div>
+      <label for="phone">Phone</label>
+      <input id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel">
+      <span class="hint" id="phone-hint">The quickest way to get an answer. We will not ring before 8am.</span>
+    </div>
+    <div>
+      <label for="where">Where the job is</label>
+      <input id="where" name="where" type="text" autocomplete="postal-code">
+      <span class="hint">A postcode is enough. We travel about 30 miles.</span>
+    </div>
+    <div>
+      <label for="what">What you are thinking about</label>
+      <textarea id="what" name="what" rows="5"></textarea>
+    </div>
+    <div>
+      <button class="btn" type="submit">Send enquiry</button>
+    </div>
+    <p class="form__after">
+      We reply the same working day, usually by phone. What you send here goes to Ben and Marta
+      and nowhere else, and it is deleted after a year.
+      <a href="privacy.html">How we handle it</a>.
+    </p>
+  </form>
+</section>
+
+
+<!-- --------------------------------------------------------------- A2
+     cta-line
+     One line. The action, and the reason to take it, on a rule.
+
+     USE BETWEEN sections, where a full call-to-action band would be a third
+     interruption on a page that already has two.
+
+     DO NOT change the wording. Pick one phrase for the action, and use that
+     exact phrase in every button on the site. "Ask about a job", "Ask about a
+     job", "Ask about a job" reads as one business. "Get in touch" here and
+     "Request a quote" there reads as three pages written by three people,
+     which is what it is.
+
+     WHAT HOLDS THE SPACE: the rule the line sits on. There is no empty half
+     here because the shape is a line, not a band.
+-->
+<section class="wrap band-tight">
+  <div class="cta-line" style="border-top: 1px solid var(--rule); padding-top: var(--s-4)">
+    <p>Surveys are free and there is no obligation attached to one.</p>
+    <a class="btn-quiet" href="#enquire">Ask about a job</a>
+  </div>
+</section>

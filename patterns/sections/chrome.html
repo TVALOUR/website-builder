@@ -1,0 +1,135 @@
+<!-- ===================================================================== C
+     NAVIGATION AND FOOTER. The two pieces of a site that get the least design
+     attention and appear on every page.
+
+     The defaults this group exists to replace:
+
+       NAV     wordmark left · inline links · button right · hairline border
+       FOOTER  four columns headed Product, Company, Resources, Legal
+
+     Neither is wrong. Both are what a generator produces when nobody decided,
+     which means shipping either one unexamined is the single cheapest way to
+     make a site look like every other site.
+-->
+
+
+<!-- --------------------------------------------------------------- C1
+     nav-stacked
+     Wordmark on its own line with a place under it, links on the line below.
+     Two rows, no button, nothing hidden behind a hamburger on desktop.
+
+     USE WHEN the business is somewhere. A place under a wordmark is the oldest
+     trade sign there is and it still works: it tells a visitor in two words
+     whether they are in the right county.
+
+     DO NOT USE with more than five links. Five is the ceiling in stage 02 and
+     it is a real ceiling.
+
+     ON MOBILE this wraps to two lines and stays operable. There is deliberately
+     no hamburger: five links wrap fine, and a menu that only opens on hover is
+     unusable on a touchscreen — `responsive/hover-only` blocks it.
+-->
+<header class="wrap nav-stacked">
+  <a href="index.html" style="text-decoration: none">
+    <span class="nav-stacked__mark">Trescott Joinery</span>
+    <span class="nav-stacked__place">Barnstaple</span>
+  </a>
+  <nav aria-label="Primary">
+    <ul>
+      <li><a href="work.html">Work</a></li>
+      <li><a href="prices.html">Prices</a></li>
+      <li><a href="workshop.html">The workshop</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </nav>
+</header>
+
+
+<!-- --------------------------------------------------------------- C2
+     nav-rule
+     A single line under a heavy rule. The rule is the design; the links are
+     plain text.
+
+     USE WHEN the site is editorial or the display face is doing enough work
+     already.
+
+     DO NOT add a button to the right-hand end. That is the default shape this
+     is an alternative to, and adding the button back turns it into one.
+-->
+<header class="wrap nav-rule">
+  <a class="nav-rule__mark" href="index.html" style="text-decoration: none">Trescott Joinery</a>
+  <nav aria-label="Primary">
+    <ul>
+      <li><a href="work.html">Work</a></li>
+      <li><a href="prices.html">Prices</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </nav>
+</header>
+
+
+<!-- --------------------------------------------------------------- C3
+     footer-ledger
+     A footer that is a record of the business rather than a farm of links:
+     where it is, when it is open, how to reach it, and the legal tail.
+
+     USE ON every site this repo builds.
+
+     WHAT GOES IN IT, and why each one is here:
+
+       · THE ADDRESS AND THE PHONE, as text a person can copy. Not an image,
+         not only in a map embed.
+       · THE HOURS. The most-read thing in most footers.
+       · THE LEGAL TAIL: privacy, cookies, terms, accessibility. Every page
+         links to all four; `legal/footer-links` checks it, and the four ship
+         by default rather than on request.
+       · THE ENTITY DETAILS the jurisdiction requires. `legal/business-identity`
+         knows what those are for the country in the brief.
+       · A COPYRIGHT YEAR THAT IS NOT HARDCODED, or one you will update.
+         `legal/copyright-year` catches a year that has gone stale, which is
+         the most visible possible sign that nobody has touched the site.
+
+     DO NOT put the legal links in the primary navigation. They belong here.
+-->
+<footer class="surface-dark band-short footer-ledger">
+  <div class="wrap">
+    <div class="footer-ledger__rows">
+      <div>
+        <h2>Where</h2>
+        <address style="font-style: normal">
+          Trescott Yard<br>
+          Bickington Road<br>
+          Barnstaple EX31 2AA
+        </address>
+      </div>
+      <div>
+        <h2>When</h2>
+        <p style="margin: var(--s-3) 0 0">Monday to Thursday, 7am to 5pm<br>Friday, 7am to 1pm<br>Closed Sunday and bank holidays</p>
+      </div>
+      <div>
+        <h2>Reach us</h2>
+        <ul>
+          <li><a href="tel:01271960118">01271 960 118</a></li>
+          <li><a href="mailto:ben@trescott-joinery.example">ben@trescott-joinery.example</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-ledger__legal">
+      <p style="margin: 0">
+        Trescott Joinery Limited, registered in England, company number 09876543.
+        Registered office as above. VAT GB 123 4567 89.
+      </p>
+      <ul>
+        <li><a href="privacy.html">Privacy</a></li>
+        <li><a href="cookies.html">Cookies</a></li>
+        <li><a href="terms.html">Terms</a></li>
+        <li><a href="accessibility.html">Accessibility</a></li>
+      </ul>
+      <!-- No year. A static site cannot update one, a hardcoded year going stale is the most
+           visible possible sign that nobody maintains the site, and copyright does not require
+           a date. legal/copyright-year exists for exactly this. -->
+      <p class="footer-ledger__copy">&copy; Trescott Joinery Limited</p>
+    </div>
+  </div>
+</footer>

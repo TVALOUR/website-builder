@@ -277,6 +277,41 @@ say((sectorUnknown.json?.findings || []).some((f) => /dog-grooming/.test(f.messa
     + `${blockers.length - fromSector.length} from the other twelve families — trade duties are additive, not a relabelling`);
 }
 
+// ---------------------------------------------------------------- patterns
+//
+// The pattern library claims, in its own README, to meet the design standard it
+// teaches. That is the kind of claim that is true on the day it is written and
+// quietly false a month later, so it is a probe.
+//
+// SCOPED ON PURPOSE, and the scope is stated rather than implied. The specimen
+// sheet is a sheet, not a site: four heroes means four <h1> elements, and it has
+// no privacy policy because it is not a business. Asserting seo/ or legal/ on it
+// would be asserting the wrong thing. The three families that DO apply to a
+// library of shapes are asserted at every severity, including minor.
+//
+// The clean result was mutation-tested by hand when this was written: adding
+// `transition: all` and `font-family: Inter` to the sheet produces three design
+// findings immediately. Recorded here because a probe nobody has watched fail is
+// a probe nobody should believe — and because the first version of this check
+// LINKED the stylesheet from one directory up, outside the tree the checker
+// walks, so it read no CSS at all and passed on nothing.
+console.log('\npattern library — it must meet the standard it teaches');
+const patterns = run(['patterns/preview', '--profile', 'uk', '--json', '--no-color']);
+{
+  const applicable = (patterns.json?.findings || []).filter((f) => /^(design|a11y|responsive)\//.test(f.gate));
+  say(applicable.length === 0,
+    applicable.length === 0
+      ? 'patterns/preview raises no design, accessibility or responsive finding at any severity'
+      : `patterns/preview raises ${applicable.length}: ${applicable.map((f) => `${f.gate} (${f.severity})`).join(', ')}`);
+  // The CSS has to actually be READ, or the assertion above is a clean run over
+  // nothing — which is precisely how the first version of this check passed.
+  const st = patterns.json?.stats || {};
+  say((st.contrastPairsChecked || 0) > 0 && (st.mediaQueries || 0) > 0 && (Array.isArray(st.typefaces) ? st.typefaces.length : Number(st.typefaces) || 0) > 0,
+    'and the checker actually read the stylesheet '
+    + `(${st.contrastPairsChecked} contrast pairs, ${st.mediaQueries} media queries, ${Array.isArray(st.typefaces) ? st.typefaces.length : st.typefaces} typefaces) `
+    + '— a clean run over no CSS is not a clean run');
+}
+
 // ---------------------------------------------------------------- citations
 //
 // The citation gate has to be able to fail, for the same reason every other

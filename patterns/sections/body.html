@@ -1,0 +1,293 @@
+<!-- ===================================================================== B
+     BODY SECTIONS. Nine shapes to build a page out of.
+
+     The rule this group exists to enforce: a page needs at least two GENUINELY
+     DIFFERENT section archetypes, and "two identical splits back to back" is
+     the mild version of having one. Pick shapes that disagree with each other.
+
+     Every one of these is an alternative to the three-equal-cards-with-icons
+     row, which is not banned and is also not a decision.
+-->
+
+
+<!-- --------------------------------------------------------------- B1
+     band-statement
+     A full-bleed change of surface, one paragraph at a real measure, and
+     nothing else in the band.
+
+     USE ONCE per page, at the point the argument turns.
+
+     DO NOT USE twice. A second dark band is a stripe pattern, and the first
+     one stops meaning anything.
+
+     WHAT HOLDS THE SPACE: the surface change itself. This is the one shape
+     where a genuinely empty right-hand side is correct, because the band is
+     the object and the paragraph sits inside it.
+-->
+<section class="surface-dark band">
+  <div class="wrap">
+    <p class="statement">Everything here is made by two people in one building. If that is slower than you need, we would rather tell you now than take the deposit.</p>
+  </div>
+</section>
+
+
+<!-- --------------------------------------------------------------- B2
+     index-list
+     Services as a ruled list with a price column. The single most useful
+     alternative to a card grid, and the one that reads as a working business
+     rather than a brochure.
+
+     USE WHEN there are real prices, or a real reason there are none.
+
+     DO NOT USE WHEN the prices are guesses. facts/unsourced-price will block
+     it, correctly.
+
+     WHAT HOLDS THE SPACE: the price column and the hairlines. The eye reads
+     down the right edge, which is why the figures are tabular.
+-->
+<section class="wrap band">
+  <h2>What we make, and what it costs</h2>
+  <p>Prices are a starting point for a typical job in an ordinary house. A survey turns them into a real number, and the survey is free.</p>
+  <div class="index-list figures">
+    <div class="index-list__row">
+      <h3>Sash window repair</h3>
+      <p class="index-list__price">from &pound;420 a window</p>
+      <p class="index-list__note">Cords, weights, beads and a repaint. Rot repairs are quoted separately after we open it up.</p>
+    </div>
+    <div class="index-list__row">
+      <h3>Fitted kitchen</h3>
+      <p class="index-list__price">from &pound;14,000</p>
+      <p class="index-list__note">Made here, in oak or painted tulipwood. Appliances and worktops are bought in and passed on at cost.</p>
+    </div>
+    <div class="index-list__row">
+      <h3>Staircase</h3>
+      <p class="index-list__price">from &pound;5,200</p>
+      <p class="index-list__note">Straight flights. A winder or a curved string is a different job and a different number.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- --------------------------------------------------------------- B3
+     split
+     Seven columns of prose against five of image. Add `split--flip` to put the
+     image first on wide screens.
+
+     USE WHEN a claim needs evidence beside it.
+
+     DO NOT USE more than twice on a page, and never twice consecutively
+     without flipping. Two identical splits in a row is the shape that made
+     "AI website" a recognisable phrase.
+
+     WHAT HOLDS THE SPACE: nothing needs to. Both columns are occupied. This is
+     the safest shape in the library and therefore the easiest to overuse.
+-->
+<section class="wrap band-short">
+  <div class="split">
+    <div>
+      <h2>The survey is the quote</h2>
+      <p>We measure, look behind things, and write down what we find. You get a fixed price and a list of what would change it, which is usually rot nobody could see and occasionally a wall that is not where the plan says.</p>
+      <p><a class="btn-quiet" href="#enquire">Book a survey</a></p>
+    </div>
+    <img src="assets/photos/team.png" alt="Ben measuring a window reveal with a folding rule" width="800" height="600">
+  </div>
+</section>
+
+
+<!-- --------------------------------------------------------------- B4
+     steps
+     A process as a numbered run. The numerals are the structure, set in the
+     display face, and there are no icons anywhere near it.
+
+     USE WHEN the visitor's real worry is "what happens if I ring you".
+
+     DO NOT USE with more than five steps. Six steps is a project plan, and
+     nobody reads a project plan on a homepage.
+
+     WHAT HOLDS THE SPACE: the numeral column. It is a fixed 3rem gutter, which
+     gives the whole block a left edge to hang from.
+-->
+<section class="wrap band-short surface-sunk">
+  <div class="wrap" style="padding-inline: 0">
+    <h2>What happens after you ring</h2>
+    <ol class="steps">
+      <li>
+        <div>
+          <h3>We talk for ten minutes</h3>
+          <p>Usually enough to say whether this is a job for us. If it is not, we will say who it is for.</p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h3>We come and measure</h3>
+          <p>Free, and it is not a sales visit. If you want to think about it for six months, that is fine.</p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h3>You get a written price</h3>
+          <p>Fixed, itemised, and with the things that could change it listed underneath.</p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h3>We book a date</h3>
+          <p>Eight to ten weeks out, and we keep it. If we cannot, you hear it from us before you notice.</p>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+
+<!-- --------------------------------------------------------------- B5
+     faq
+     Real questions, in the words customers use, in a native accordion. No
+     JavaScript, keyboard-operable for free, and it prints.
+
+     USE WHEN question 10 of the interview produced a list. That answer is
+     usually this section, near enough verbatim.
+
+     DO NOT USE for questions nobody asks. An FAQ written by the business is
+     a list of things the business wants to say, and every visitor can tell.
+
+     WHAT HOLDS THE SPACE: the rules between rows. Cap the block at a measure
+     so the summaries do not run the full page width.
+-->
+<section class="wrap band-short">
+  <h2>Questions people actually ask</h2>
+  <div class="faq" style="max-width: 46rem">
+    <details>
+      <summary>Do you take on small jobs?</summary>
+      <p>One or two a month, usually for people we have worked for before. Ring and ask. If we say no we will tell you who to try.</p>
+    </details>
+    <details>
+      <summary>Why is the lead time so long?</summary>
+      <p>Because there are two of us and we do not run more than one job at a time. It is the reason the work is what it is, and it is the honest trade.</p>
+    </details>
+    <details>
+      <summary>Do you want money up front?</summary>
+      <p>A third when we order materials, a third on delivery to site, the rest when you are happy. Nothing before the survey.</p>
+    </details>
+  </div>
+</section>
+
+
+<!-- --------------------------------------------------------------- B6
+     quote
+     One testimonial. Not three. Not a carousel.
+
+     USE WHEN there is a real one with a real name, a real role and a date, and
+     the person has agreed to it appearing.
+
+     DO NOT USE WHEN any part of that is missing. facts/testimonial-unsourced
+     blocks a quote with no attributed row, and it is right to.
+
+     WHAT HOLDS THE SPACE: the measure again. A pull quote at 34ch in the
+     display face is an object; the same words at full width are a paragraph.
+-->
+<section class="wrap band-short">
+  <figure class="quote">
+    <blockquote>He told me the windows were fine and he would rather not take the job. Then he came back two years later when they were not.</blockquote>
+    <figcaption>Helen Prowse, Braunton. Sash repairs, March 2024.</figcaption>
+  </figure>
+</section>
+
+
+<!-- --------------------------------------------------------------- B7
+     spec-table
+     A real table, in a scroll container, with tabular figures.
+
+     USE WHEN the data is a table. Prices by size, timber by species, opening
+     hours by branch. A table beats a card grid every time the reader wants to
+     compare rather than browse.
+
+     DO NOT wrap it in anything that hides the overflow. A wide table with no
+     scroll container is the most common horizontal-scroll bug on a phone.
+
+     WHAT HOLDS THE SPACE: the column rules. Nothing else is needed.
+-->
+<section class="wrap band-short">
+  <div class="table-scroll">
+    <table class="spec">
+      <caption>Timber we keep in stock, and what it is for</caption>
+      <thead>
+        <tr><th scope="col">Species</th><th scope="col">Air dried</th><th scope="col">Typical use</th><th scope="col">Per cubic foot</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>English oak</td><td>18 months</td><td>Frames, stairs, external doors</td><td>&pound;62</td></tr>
+        <tr><td>Douglas fir</td><td>12 months</td><td>Structural, exposed beams</td><td>&pound;38</td></tr>
+        <tr><td>Tulipwood</td><td>Kiln</td><td>Painted kitchens, mouldings</td><td>&pound;29</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<!-- --------------------------------------------------------------- B8
+     work-row
+     Three or four pieces of work: image, title, one line. No card, no border,
+     no shadow, no hover lift.
+
+     USE WHEN the photography is good enough to carry it.
+
+     DO NOT USE as a features grid with icons instead of photographs. That is
+     the card row this shape replaces.
+
+     WHAT HOLDS THE SPACE: the images. The one-line descriptions are doing real
+     work too, and each one names a place or a material rather than an adjective.
+-->
+<section class="wrap band-short">
+  <h2>Recent work</h2>
+  <div class="work-row">
+    <figure>
+      <img src="assets/photos/yard.png" alt="Oak staircase with a cut string, seen from the hall" width="600" height="600">
+      <h3>Stair, Georgeham</h3>
+      <p>English oak, cut string, 14 risers.</p>
+    </figure>
+    <figure>
+      <img src="assets/photos/team.png" alt="Painted kitchen with a scrubbed sycamore worktop" width="600" height="600">
+      <h3>Kitchen, Croyde</h3>
+      <p>Tulipwood, painted on site.</p>
+    </figure>
+    <figure>
+      <img src="assets/photos/hero-texture.png" alt="Repaired sash window with new cords and beads" width="600" height="600">
+      <h3>Sashes, Barnstaple</h3>
+      <p>Nine windows, four with rot repairs.</p>
+    </figure>
+  </div>
+</section>
+
+
+<!-- --------------------------------------------------------------- B9
+     entries
+     Dated items in a ruled list: news, jobs finished, posts. A date column and
+     a title, and no thumbnails.
+
+     USE WHEN there are genuinely entries, and they are genuinely dated.
+
+     DO NOT USE for a blog with no posts. An empty section tells a visitor the
+     business has stalled, and that is worse than not having one.
+
+     WHAT HOLDS THE SPACE: the date column, which is why the dates are tabular
+     and left-aligned rather than tucked under the title.
+-->
+<section class="wrap band-short">
+  <h2>From the workshop</h2>
+  <ul class="entries">
+    <li>
+      <time datetime="2026-07-02">2 July 2026</time>
+      <div>
+        <h3>The oak we bought in 2024 is finally dry</h3>
+        <p>Two years in the store, and the moisture meter agrees. It becomes a staircase in September.</p>
+      </div>
+    </li>
+    <li>
+      <time datetime="2026-05-18">18 May 2026</time>
+      <div>
+        <h3>We are booked until October</h3>
+        <p>Surveys are still free and still worth doing early. The date you book is the date you get.</p>
+      </div>
+    </li>
+  </ul>
+</section>

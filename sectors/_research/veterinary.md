@@ -36,6 +36,27 @@ describing veterinary work. The miss was chosen over the false positive.
 
 This is the thinnest sector file in the repo and it says so.
 
+## The false positive that broke the repo's own fixture
+
+`\bvets?\b` was in the STRONG detection list in the first draft. `examples/
+clean-control` is a FARRIER's site; farriers say "speak to your vet" the way
+every equine trade does, and the fixture the whole selftest depends on was
+handed a `sector/disclosure-missing` BLOCKER demanding an RCVS registration.
+
+Two fixes, both in the file:
+
+- `\bvets?\b` moved to WEAK. The word is used about somebody else by farriers,
+  animal physiotherapists, groomers, kennels, feed merchants and livery yards.
+  What belongs in the strong list is the practice naming ITSELF.
+- `farrier|farriery|shoeing|hoof care` added to the veto list. Farriery is a
+  separately registered trade under the Farriers (Registration) Act 1975, which
+  this repo encodes nowhere - a gap already named in the caveats and now with a
+  second reason to close it.
+
+Recorded rather than quietly fixed because it is the same loose-pattern shape as
+every false blocker this repo has produced, committed by the person writing the
+rule against it, and caught only because the fixture existed.
+
 ## Method
 
 One research pass, 2026-08-19, run against primary sources first and secondary
