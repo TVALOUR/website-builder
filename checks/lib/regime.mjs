@@ -52,7 +52,11 @@ const INCORPORATED = anchored([
   'pty\\.? ?ltd', 'proprietary limited', 'pte\\.? ?ltd',
   // EU
   'gmbh', 'ug', 'ag', 'kg', 'sarl', 's\\.? ?à ?r\\.?l\\.?', 'sas', 'sasu', 'sa',
-  's\\.?p\\.?a\\.?', 's\\.?r\\.?l\\.?', 'bv', 'nv', 'oy', 'ab', 'aps', 'kft', 'sp\\.? ?z ?o\\.?o\\.?',
+  's\\.?p\\.?a\\.?', 's\\.?r\\.?l\\.?', 'bv', 'nv', 'oy', 'ab', 'aps', 'kft',
+  // Polish. Written every way a person writes it: sp. z o.o., sp z o o,
+  // sp.z.o.o., S.P.Z.O.O. The first draft required a single optional space
+  // between each letter and matched only two of the four.
+  'sp[\\s.]*z[\\s.]*o[\\s.]*o[\\s.]*',
 ]);
 
 /**
@@ -103,8 +107,25 @@ const DEMO = new RegExp([
   'example\\s+(?:build|project|site)',
 ].map((w) => `\\b(?:${w})\\b`).join('|'), 'i');
 
-/** Question 0, answer (b) — real, but with no shopfront and no service area. */
-const ONLINE_ONLY = /\b(saas|software|app\b|platform|online[-\s]?only|no\s+premises|product\s+company|not\s+a\s+(?:local\s+)?(?:business|trader))\b/i;
+/**
+ * Question 0, answer (b) — real, but with no shopfront AND no service area.
+ *
+ * Tightened for the same reason as DEMO, and found the same way: a cross-model
+ * pass pointed at `no premises`, and it was right. "Sole trader, operating out
+ * of my home, no premises for customers" is a mobile plumber, a hairdresser, a
+ * chimney sweep — a LOCAL business with a real service area, and classifying it
+ * as online-only reduced exactly the trader disclosures a local trader owes.
+ * Not having a shopfront and not having a service area are different facts.
+ *
+ * `platform` went for the same reason: a scaffolding firm has platforms.
+ */
+const ONLINE_ONLY = new RegExp([
+  'saas', 'software\\s+(?:company|product|business)', 'online[-\\s]?only',
+  'product\\s+company', 'digital\\s+product',
+  'not\\s+a\\s+(?:local\\s+)?(?:business|trader)',
+  'no\\s+premises\\s+and\\s+no\\s+service\\s+area',
+  'no\\s+service\\s+area',
+].map((w) => `\\b(?:${w})\\b`).join('|'), 'i');
 
 /**
  * Number ranges every numbering authority reserves so a published fictional

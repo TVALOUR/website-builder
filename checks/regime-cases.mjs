@@ -47,6 +47,15 @@ export const CASES = [
   ['Pty Ltd, ACN 123 456 789', 'incorporated', false, 'Australia'],
   ['GmbH, HRB 12345', 'incorporated', false, 'Germany'],
   ['SARL', 'incorporated', false, 'France'],
+  ['sp. z o.o.', 'incorporated', false, 'Poland'],
+  ['sp.z.o.o.', 'incorporated', false, 'Poland, no spaces - the form the first draft missed'],
+
+  // --- NOT online-only. A cross-model pass found "no premises" here, and it
+  // was right: a mobile trader has no shopfront and a real service area, and
+  // treating that as an online product reduces the disclosures a local trader
+  // owes. Not having premises and not having a service area are different facts.
+  ['Sole trader, operating out of my home, no premises for customers', 'unincorporated', false, 'REAL - mobile trader'],
+  ['limited company building scaffolding platforms', 'incorporated', false, 'REAL - platforms are physical here'],
 
   // --- question 0 answer (c)
   ['fictional demo brand, not a real trading entity', null, true, 'demo, in the Entity type cell'],

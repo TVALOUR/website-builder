@@ -155,7 +155,10 @@ const HOSTS = {
 export function classForUrl(url) {
   let host;
   try { host = new URL(url).hostname.toLowerCase(); } catch { return null; }
-  host = host.replace(/^www\d?\./, '');
+  // `\d*`, not `\d?`. The one-digit version handled www2. and left www123.
+  // unclassified — which is a BLOCKER, so it fails safe, but it fails on a host
+  // that is plainly the same publisher. Found by a cross-model pass.
+  host = host.replace(/^www\d*\./, '');
   if (HOSTS[host]) return HOSTS[host];
   // `*.example.com` matches any subdomain of example.com.
   const parts = host.split('.');
