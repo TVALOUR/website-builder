@@ -175,7 +175,13 @@ Four fixtures ship with the repo, and the selftest asserts all of them:
 | `negative-control/` | **FAIL** | an obviously broken site — the easy case |
 | `dishonest-control/` | **FAIL** | valid markup, complete legal pages, professional copy, **every business fact invented**. This is what a model actually produces, and it is the thing this repo claims to be uniquely good at stopping |
 | `bare-control/` | **FAIL** | blocker paths that cannot share a fixture with their own siblings |
-| `clean-control/` | **PASS** | a complete worked reference build |
+| `clean-control/` | **PASS** | the reference fixture — hand-built to show the design bar and the sourcing discipline. **Not a pipeline run**: it was not produced by the eight stages, and its NOTES.md says so |
+
+**What has actually been built with this: [`RUNS.md`](RUNS.md).** Two naive end-to-end
+builds, from a fresh clone, in Canada and Australia, on 2026-08-19. Both failed first —
+the Canadian one at 33 blockers, four of them for doing exactly what the repo instructed —
+and both pass now. That file records what each run found, what it proves, and the four
+things it does not.
 
 Coverage is keyed on gate **and severity**; pairs without a live negative control are
 each documented with the reason they cannot be triggered by a static file. The selftest
