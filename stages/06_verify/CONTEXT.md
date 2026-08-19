@@ -119,6 +119,21 @@ ticks, and the named verdict.
 
 "Looks good" is not a verdict. A stage-06 output with no verdict means the stage did not run.
 
+## The trade half
+
+If the build declares a `Sector`, the gate has already applied that trade's duties — but the
+`sector/human-confirm` findings are addressed to **you**, not to the checker, and they are minors
+only because a file cannot rule on them. Several are the most consequential things in the run:
+
+- Is every registration or licence number on the site **current today**, checked in the regulator's
+  own free register rather than against what the client remembered? A lapsed number published as
+  current is a representation a regulator can act on, and the site is the publication.
+- Do the regulator's permissions actually cover **everything the homepage advertises**?
+- If insurance is claimed anywhere, has somebody seen the certificate?
+
+Answer each one in `verify.md` in a sentence. "Confirmed with the client" is an answer;
+silence is not.
+
 ## Outputs
 
 - `builds/<slug>/verify.md`

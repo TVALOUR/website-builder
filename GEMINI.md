@@ -31,7 +31,8 @@ The floor, and it is not a summary — it is the actual contract:
 
 1. **Ask before you build.** Any request to build, redesign or remake a website starts at
    stage 01, never at code. `node start.mjs "<name>"`, then
-   `stages/01_discover/CONTEXT.md`. 72 questions in `stages/01_discover/questions.md`; ask
+   `stages/01_discover/CONTEXT.md`. 73 questions in `stages/01_discover/questions.md` — including 57b, the trade, which
+   decides whether `sectors/` binds; ask
    every BLOCKING one. `node checks/brief.mjs builds/<slug>` says whether discovery actually
    happened — and `checks/run.mjs` now refuses to pass a build whose brief has not, so this
    is a gate on every harness, not a promise on one.

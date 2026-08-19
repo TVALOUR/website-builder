@@ -75,6 +75,9 @@ confirmed in writing we can publish them. No photos of customers' houses — he 
 
 ## Market and jurisdiction
 - **Profile:** us
+- **Sector:** none — Ohio licenses electricians and plumbers, and nobody licenses gutter cleaning.
+  Checked against the sector list; unregulated, and now on the record as an answer
+  somebody gave rather than a question nobody asked.
 Trades under Ohio, registered nowhere else, all customers in Franklin County. English. USD, dates
 spelled with the month.
 

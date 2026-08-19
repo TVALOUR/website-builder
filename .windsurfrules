@@ -8,7 +8,8 @@ The floor, not a summary:
    (run `node start.mjs "<name>"`, then stages/01_discover/CONTEXT.md) — ask for
    what is in the person's head (sketches, screenshots, references, brand
    colours and fonts) and for the facts, before any design or code exists.
-   72 questions in stages/01_discover/questions.md; ask every BLOCKING one.
+   73 questions in stages/01_discover/questions.md; ask every BLOCKING one.
+   57b asks the TRADE. Write it in facts.md as a | Sector | row; "none" is a real answer.
    `node checks/brief.mjs builds/<slug>` says whether discovery actually
    happened. Its output is questions to go and ask, never boxes to fill in.
 2. Never invent a fact about a real business: every claim traces to a sourced

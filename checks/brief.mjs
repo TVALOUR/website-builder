@@ -99,6 +99,12 @@ const BLOCKING = [
   ['F27 can they edit it themselves', /edit|update|cms|static|developer job/i, 'features'],
   ['F47 what a visitor must be able to DO', /visitor|must be able|do\b|ring|call|enquir|download|book/i, 'features'],
   ['G57 the country they trade under', /jurisdiction|country|profile|uk|united kingdom|us\b|united states|eu\b|canada|australia|trades? (in|under)/i, 'market'],
+  // Added with the sector axis. The evidence pattern accepts "unregulated" and
+  // "none" as readily as a sector id, because for most trades that IS the
+  // answer — what is not acceptable is the subject never coming up. See
+  // sectors/README.md for why an unasked question and an unregulated trade are
+  // different things.
+  ['G57b the trade, and who regulates it', /sector|regulated|unregulated|registrat|licen[cs]|governing body|professional body|trade body|no regulator|nobody regulates/i, 'market'],
   ['H62 motion', /motion/i, 'policy'],
   ['H63 generated imagery', /imagery|generated/i, 'policy'],
   ['I31 who owns the domain', /domain|registrar|dns/i, 'stack'],

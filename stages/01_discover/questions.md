@@ -306,6 +306,19 @@ the tool offer a choice between UK/EU and US and have nowhere to go when the ans
     plumber citing the Companies Act 2006 and publishing a company number that cannot exist. The
     answer goes in `config.md`. If there is no profile for that country, one gets researched before
     the build proceeds — `profiles/README.md` has the protocol, and it is one pass.
+57b. **BLOCKING — What trade is this, in the regulator's words?** Ask it plainly: *is anyone
+    allowed to do this job, or do you need to be registered with somebody?* Then write the answer
+    down as a `Sector` row in `facts.md` — `node checks/run.mjs --sectors` lists the trades this
+    repo has researched, and `none` is a real answer and most trades' answer.
+    *Cost of skipping:* the country profile does not know what the business IS, and for some
+    trades the law names the website. A letting agent must publish its fees on its website
+    (Consumer Rights Act 2015 s.83(3)). A law firm must publish prices, a complaints route and its
+    SRA number on its website (SRA Transparency Rules 1.1, 2.1, 4.1). A food business that can take
+    an order must give allergen information before the purchase concludes. An aesthetics clinic may
+    not name or price Botox at all — it is a prescription only medicine and advertising it to the
+    public is prohibited outright. None of that is discoverable from the country, and a site that
+    breaches it passes every other gate in this repo. Unregulated is the common answer and it is
+    fine; unasked is not, which is why `sector/undeclared` exists.
 58. **BLOCKING — Where are your customers? Same country, or abroad too?**
     *Cost:* selling into the EU pulls in EU obligations regardless of where the business sits, and
     a business serving Quebec inherits Quebec's French-language and privacy rules whether or not it

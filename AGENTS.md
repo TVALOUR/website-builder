@@ -30,13 +30,14 @@ node assets.mjs <slug> scan                                  # indexes what the 
 node checks/brief.mjs builds/<slug>                          # decides if discovery actually happened
 node checks/run.mjs builds/<slug>/site --facts builds/<slug>/facts.md   # decides if it ships
 node checks/citations.mjs [--online]                         # checks how the LAW was sourced
+node checks/run.mjs --sectors                                # the trades this repo has researched
 ```
 
 Everything between the first and the last is the eight stages below.
 
 ---
 
-## The eight rules that are not negotiable
+## The nine rules that are not negotiable
 
 ### 1. Ask before you build — always, without being told to
 
@@ -164,6 +165,38 @@ So stage 00 and question 57 ask for the **country**, and:
 There is no default country. Every shipped profile is `provenance: 'researched'` — real sources,
 no qualified reviewer — and the gate repeats that label on every run.
 
+### 9. The trade is a file too, and "unregulated" is an answer somebody gives
+
+The jurisdiction knows which country. It does not know what the business **is**, and for some
+trades the law names the website:
+
+- a letting agent **must publish its fees on its website** — Consumer Rights Act 2015 s.83(3);
+- a law firm **must publish prices, a complaints route and its SRA number on its website** — SRA
+  Transparency Rules 1.1, 2.1, 4.1;
+- a food business that can take an order **must give allergen information before the purchase is
+  concluded** — Regulation (EU) No 1169/2011 Art.14(1)(a);
+- an aesthetics clinic **may not name or price Botox at all**, because it is a prescription only
+  medicine and advertising one to the public is prohibited outright — Human Medicines Regulations
+  2012 reg.284(1). No disclaimer fixes this. Removing the medicine's name does.
+
+None of that is discoverable from the country, and a site that breaches it passes every other gate
+in this repo.
+
+So question 57b asks what the trade is, and the answer goes in `facts.md` as a row:
+
+```
+| Sector | legal-services | confirmed by Anna, 2026-08-19 |
+```
+
+`node checks/run.mjs --sectors` lists what has been researched. **`none` is a real answer and most
+trades' answer** — most trades are not regulated, and saying so is correct. But it is an answer, on
+the record, that a human gave: an unregulated trade and an unasked question are different things,
+and `sector/undeclared` exists to keep them different.
+
+If the trade is regulated and there is no file, write one — `sectors/README.md` has the protocol
+and the brief. **Never write a sector file from memory, and never adapt another country's rule to
+fill a gap.** Every file is `researched`, `verifiedBy: null`, and the gate repeats that label.
+
 ## The eight stages
 
 Each stage has a `CONTEXT.md` naming its Inputs, Process and Outputs. **Read one at a time.**
@@ -242,8 +275,9 @@ website-builder/
 ├── assets.mjs         ← the asset desk: indexes what the client sent, writes the manifest
 ├── stages/            ← one folder per stage, each with a CONTEXT.md
 ├── shared/            ← writing · design · directions · references · review · imagery · conductor · legal
-├── checks/            ← the gate: run.mjs, twelve rule families, brief.mjs, case suites, zero deps
-├── profiles/          ← one file per country + _base.mjs + the research protocol in README.md
+├── checks/            ← the gate: run.mjs, thirteen rule families, brief.mjs, case suites, zero deps
+├── sectors/           ← one file per TRADE, keyed by country + _base.mjs + its own research protocol
+├── profiles/          ← one file per COUNTRY + _base.mjs + the research protocol in README.md
 ├── templates/         ← legal pages, consent, _headers, robots, structured data, STATE.md
 ├── examples/          ← clean-control (passes) · dishonest · negative · bare · assets · managed controls (fail on purpose)
 ├── .claude/           ← the Claude Code hooks (gate.mjs) — see CLAUDE.md
@@ -261,6 +295,9 @@ website-builder/
 - **`facts.md` cannot be verified by a machine.** The gate proves every claim traces to a
   row. It cannot prove the row is true. That gap closes with a human reading the file back
   to the client before launch, which is stage 07.
+- **The sector layer is nine trades, and the world has thousands.** A build in a trade with no
+  file gets no trade duties and is told so; it is not told the trade is unregulated. Those are
+  different sentences and the report uses the right one.
 - **Hooks exist only where the harness has them.** Elsewhere, an agent determined to skip
   the pipeline can. The structure makes skipping visible and the gate makes it fail; it
   cannot make it impossible.

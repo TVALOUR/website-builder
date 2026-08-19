@@ -57,7 +57,7 @@ halves. The *vision* half asks for artifacts first: sketches (a photo of paper i
 screenshots, reference sites you love or want to remake, the one you hate, brand colours,
 fonts, your old site. Every reference gets dissected into a card — what grabbed you, what
 to steal, what to leave — that the design stage is bound to. The *facts* half is a
-**72-question bank across ten parts**, where every question carries the documented cost of
+**73-question bank across ten parts**, where every question carries the documented cost of
 skipping it: real prices, real hours, font licences, photo rights, what a visitor must be
 able to *do* on each page, which country you trade under, who owns the domain. "Just build
 it, don't ask me questions" gets the smallest set of questions that cannot be answered
@@ -96,7 +96,7 @@ node checks/run.mjs builds/<slug>/site --facts builds/<slug>/facts.md
   ✗ BLOCKER  legal/privacy-policy    no privacy page found
 ```
 
-Exit `0` ships. Exit `1` does not. **Twelve rule families, 153 gates**, no npm install, no
+Exit `0` ships. Exit `1` does not. **Thirteen rule families, 161 gates**, no npm install, no
 lockfile, no `node_modules`:
 
 | Family | What it will not let past |
@@ -113,6 +113,35 @@ lockfile, no `node_modules`:
 | `responsive` | `100vh` on iOS, fixed widths, hover-only menus, no breakpoints |
 | `assets` | an image with no recorded source, no rights answer, or alt text that does not match the file |
 | `discovery` | a site whose brief was never written, or was written as filler |
+| `sector` | the disclosures **this trade** must publish, the content it may not, and the registration numbers nobody sourced |
+
+**3a. And it knows what the business IS, not only where it trades.** The country profile is one
+axis; the **trade** is the other, and for some trades the law names the website. A letting agent
+must publish its fees on its website (Consumer Rights Act 2015 s.83(3)). A law firm must publish
+prices, a complaints route and its SRA number on its website (SRA Transparency Rules 1.1, 2.1,
+4.1). A food business that can take an order must give allergen information before the purchase
+concludes. **An aesthetics clinic may not name or price Botox at all** — it is a prescription only
+medicine, and Human Medicines Regulations 2012 reg.284(1) prohibits publishing an advertisement
+likely to lead to its use.
+
+```
+  ✗ BLOCKER  sector/prohibited-content   a prescription only medicine advertised to the public — "Botox"
+  ✗ BLOCKER  sector/disclosure-missing   the words "authorised and regulated by the Solicitors Regulation Authority" appear nowhere
+  ✗ BLOCKER  sector/number-unsourced     an SRA authorisation number "401234" has no sourced row in facts.md
+  ! MAJOR    sector/page-missing         no published complaints procedure, with the route to the Legal Ombudsman
+```
+
+Nine trades ship, each keyed by country, each carrying its own citations and its own working
+notes: `legal-services` · `property-agency` · `health-clinic` · `aesthetics-clinic` ·
+`gas-heating` · `food-hospitality` · `financial-services` · `veterinary` ·
+`construction-trades`. The UK entry for that last one ships an **empty** duties array, because UK
+building trades are unregulated and inventing a duty to make a file look substantial is the same
+defect as inventing a price.
+
+The interview asks the trade; the build writes it down; `node checks/run.mjs --sectors` lists what
+has been researched. **`none` is a real answer and most trades' answer** — but it is an answer, on
+the record, that a human gave, which is the difference between an unregulated trade and an unasked
+question.
 
 **3b. And a second gate, on the law itself.** The legal profiles in `profiles/` are the one
 part of this repo that can be confidently, invisibly wrong: a Canadian citation here once
@@ -197,7 +226,7 @@ at a time; humans can read them all — they are short.
 | # | Stage | | |
 |---|---|---|---|
 | 00 | `setup` | once | who you are, **which country you trade under**, motion and imagery defaults |
-| 01 | `discover` | ◆ stop | **the vision (sketches, references, colours, fonts), the facts, and every asset with its rights — all written down** |
+| 01 | `discover` | ◆ stop | **the vision (sketches, references, colours, fonts), the facts, the trade, and every asset with its rights — all written down** |
 | 02 | `architect` | → auto | pages, nav, what each page must carry |
 | 03 | `write` | → auto | the real copy, every claim tied to a fact |
 | 04 | `design` | ◆ stop | direction chosen from your references, shown as **rendered samples** |
@@ -275,6 +304,9 @@ less.
 - **Front end only.** Static HTML, CSS and JS. No back end, no database, no accounts.
   For a five-page site for a plumber that is the entire job, and it is a scope boundary
   rather than a limitation to apologise for.
+- **The sector layer knows nine trades, and the world has thousands.** A build in a trade with no
+  file gets no trade duties, and the report says "nobody researched this" rather than "no duties
+  here". Those are different sentences and only one of them is ever true.
 - **Not legal advice.** A profile encodes what a competent developer should ship by default
   so a small business is not obviously exposed. Five ship — `uk` · `us` · `eu` · `ca` · `au`
   — plus `intl-baseline`, an honesty floor that names no statute. **Every one of them is
@@ -297,10 +329,11 @@ start.mjs      opens a build: builds/<slug>/ + asset folders + brief skeleton + 
 assets.mjs     the asset desk: indexes what the client sent, writes and checks the manifest
 stages/        one folder per stage, each a CONTEXT.md
 shared/        writing · design · directions · references · review · imagery · conductor · legal
-checks/        run.mjs + 12 rule families + brief.mjs + case suites + selftest   zero deps
-profiles/      one file per country + _base.mjs + the research protocol in README.md
+checks/        run.mjs + 13 rule families + brief.mjs + case suites + selftest   zero deps
+profiles/      one file per COUNTRY + _base.mjs + the research protocol in README.md
+sectors/       one file per TRADE, keyed by country + _base.mjs + its own research protocol
 templates/     brief skeleton, legal pages, consent banner, _headers, robots, structured data
-examples/      clean-control (passes) · dishonest / negative / bare / assets controls (fail on purpose)
+examples/      clean-control (passes) · dishonest / negative / bare / assets / sector controls (fail on purpose)
 .claude/       the Claude Code hooks (gate.mjs)
 builds/        your work, one folder per site — git-ignored
 ```

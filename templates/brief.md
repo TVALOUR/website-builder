@@ -84,6 +84,10 @@ and the outstanding asks.>
 <Questions 57-61. This picks the legal profile, and there is no default country.>
 
 - **Profile:** <uk | us | eu | ca | au | intl-baseline — must exist in `profiles/`>
+- **Sector:** <a trade id from `node checks/run.mjs --sectors`, or `none`. NOT optional and NOT a
+  guess: the country profile does not know what the business IS, and for some trades the law names
+  the website. `none` is a real answer and most trades' answer — but somebody has to give it. The
+  same value goes in `facts.md` as a `| Sector |` row, which is what the gate reads.>
 - **Trades under:** <country, and where the business is registered>
 - **Customers in:** <same country, or abroad too — selling into the EU pulls in EU obligations
   wherever the business sits>
