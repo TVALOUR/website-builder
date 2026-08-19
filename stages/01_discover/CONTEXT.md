@@ -15,7 +15,9 @@ said yes.
 ## Inputs
 
 - Anything the client supplied: sketches, screenshots, a brief, an email, photos, a logo,
-  reference URLs, an old site. Put it all in `builds/<slug>/_intake/` first.
+  reference URLs, an old site. It goes in `drop/` (repo root, sorted, and the folder they
+  can use before a build exists) or straight into `builds/<slug>/_intake/`. **Check `drop/`
+  before you ask anything** — `node assets.mjs` lists what is waiting there.
 - The human in this conversation.
 - `../../config.md` — your defaults, written by stage 00 from `../../config.example.md`.
 - `questions.md` — the question bank, 73 questions across ten parts (Layer 3). **Read it. Do
@@ -41,8 +43,9 @@ action`.
 node assets.mjs <slug> scan
 ```
 
-It creates `builds/<slug>/assets/{logo,photos,brand,fonts,docs,reference}/`, indexes anything
-already in `_intake/`, and writes `assets/MANIFEST.md` — one row per file, with columns for where
+It moves anything sitting in `drop/` into `builds/<slug>/_intake/`, creates
+`builds/<slug>/assets/{logo,photos,brand,fonts,docs,reference}/`, indexes everything that landed,
+and writes `assets/MANIFEST.md` — one row per file, with columns for where
 it came from, whether it is the client's to publish, whether it was generated, where it is used and
 what its alt text is.
 
@@ -50,17 +53,18 @@ what its alt text is.
 Source or no answer in Rights. Re-run `scan` whenever new material lands; it never overwrites a
 filled cell.
 
-Then give the client the **absolute path** to `_intake/` — the one `start.mjs` printed. A named
-folder is an answerable ask; "send me your stuff" is not, and the difference shows up in what
-arrives.
+Then give the client an **absolute path** to put things in — `start.mjs` prints both. `drop/` is
+usually the one to say out loud: it is sorted into six named folders, it is the same path on every
+build, and it works before this build existed. A named folder is an answerable ask; "send me your
+stuff" is not, and the difference shows up in what arrives.
 
 ### 3. Collect and read the intake before you ask anything
 
 **Ask for artifacts first** (question V1): sketches — a photo of paper is fine —
 screenshots, reference sites, the logo, brand fonts and colours, the old site, any leaflet
-or sign or card they already use. Into `_intake/`. One dropped sketch answers twenty
-questions, and asking a client something they already put in writing is the fastest way to
-look like you did not read it.
+or sign or card they already use. Into `drop/` (or this build's `_intake/`). One dropped
+sketch answers twenty questions, and asking a client something they already put in writing
+is the fastest way to look like you did not read it.
 
 Then read every file in `_intake/`:
 

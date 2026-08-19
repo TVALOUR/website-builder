@@ -41,8 +41,8 @@ The half of discovery nearly every pipeline skips, and the reason generated site
 alike: nobody asked what the person could already see. Two rules govern this whole part:
 
 - **Artifacts before questions.** A dropped sketch answers twenty questions. Ask them to
-  hand things over into `builds/<slug>/_intake/` *first*; interview only for what the
-  artifacts leave open.
+  hand things over into `drop/` — the sorted folder in the repo root — or this build's
+  `_intake/` *first*; interview only for what the artifacts leave open.
 - **Show, don't interrogate.** Most people cannot answer "what typography do you want?" and
   should never be asked it. When they have no vocabulary for an axis, offer to decide and
   show them rendered options at the stage-04 stop instead (that stop presents samples they
@@ -52,7 +52,7 @@ alike: nobody asked what the person could already see. Two rules govern this who
    Sketches or wireframes (a photo of paper is fine) · screenshots of anything · sites you
    love · a site you are half-remaking · the site you hate · your logo · brand fonts ·
    brand colours · your old site · any leaflet, sign, menu, business card or ad you already
-   use. Into `_intake/`, then the interview fills the gaps.
+   use. Into `drop/` or `_intake/`, then the interview fills the gaps.
    *Cost:* without this ask, the person's actual vision never enters the pipeline and the
    model substitutes its own defaults — which is the single failure this repo exists to
    fix. "Nothing to hand over" is an acceptable answer; not asking is not.

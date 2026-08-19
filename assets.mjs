@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 // website-builder — the asset desk.
 //
-//   node assets.mjs <slug> scan     index everything the client handed over
+//   node assets.mjs <slug> scan     take in drop/, then index what they handed over
+//   node assets.mjs <slug> scan --keep    the same, but copy out of drop/ instead of moving
 //   node assets.mjs <slug> check    what is still unanswered, as questions to ask
-//   node assets.mjs                 what every build is holding
+//   node assets.mjs                 what every build is holding, and what waits in drop/
 //
 // Why this exists: the pipeline already told the agent to collect the client's
 // sketches, logo, photos and old material into `_intake/`. Nothing then read
@@ -17,12 +18,15 @@
 //
 // Zero dependencies. Node 18+.
 
-import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
-import { dirname, join, relative, sep } from 'node:path';
+import {
+  copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync,
+} from 'node:fs';
+import { basename, dirname, join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = dirname(fileURLToPath(import.meta.url));
 const buildsDir = join(root, 'builds');
+const dropDir = join(root, 'drop');
 
 // The folders a build gets. They are named for what the CLIENT hands over,
 // because the whole point is that the client's material has somewhere to land.
@@ -60,6 +64,70 @@ function walk(dir, out = [], depth = 0) {
     else out.push(p);
   }
   return out;
+}
+
+// ------------------------------------------------------------------ the drop
+
+// `drop/` is the repo's front door, and it exists in a fresh clone before any
+// build does. The pipeline always asked for the client's material first - one
+// dropped sketch answers twenty interview questions - but the folder it named
+// only appeared AFTER start.mjs ran, inside a git-ignored directory. So anyone
+// who downloaded this repo opened it and found nowhere to put their logo, and
+// the build quietly proceeded on the model's defaults instead: the exact failure
+// this repo exists to prevent, arriving through the one door nobody was watching.
+//
+// Files land in drop/, then MOVE into the build's own `_intake/` on the next
+// scan. Moving rather than copying is deliberate: a copy leaves one client's
+// photographs sitting in a shared folder for the next build to inherit, which is
+// the same class of defect as an invented fact and just as quiet. `--keep` copies
+// instead, for the case where the folder really is somebody's library.
+//
+// Nothing is deleted here: a move is a rename into the build.
+
+// basename(), not a hand-written path test: on Windows `walk` returns
+// backslash-separated paths, so a check written around the forward slash alone
+// matches nothing there - and drop/logo/README.md would be taken into the build
+// as if it were the client's material. node:path knows both separators.
+const isScaffold = (p) => basename(String(p)).toLowerCase() === 'readme.md';
+
+const dropFiles = () => (existsSync(dropDir) ? walk(dropDir).filter((f) => !isScaffold(f)) : []);
+
+// A name already in _intake/ is never overwritten. Two clients whose photos are
+// both called IMG_0421.jpg is the ordinary case, not the exotic one.
+function freeName(target) {
+  if (!existsSync(target)) return target;
+  const dot = basename(target).lastIndexOf('.');
+  const base = basename(target);
+  const dir = dirname(target);
+  const stem = dot > 0 ? base.slice(0, dot) : base;
+  const ext = dot > 0 ? base.slice(dot) : '';
+  for (let n = 2; n < 1000; n++) {
+    const candidate = join(dir, `${stem}-${n}${ext}`);
+    if (!existsSync(candidate)) return candidate;
+  }
+  return join(dir, `${stem}-${process.pid}${ext}`);
+}
+
+function adopt(buildDir, keep = false) {
+  const taken = [];
+  for (const abs of dropFiles()) {
+    const rel = relative(dropDir, abs).split(sep).join('/');
+    const target = freeName(join(buildDir, '_intake', ...rel.split('/')));
+    try {
+      mkdirSync(dirname(target), { recursive: true });
+      if (keep) copyFileSync(abs, target);
+      else {
+        // rename fails across volumes (a drop/ reached through a junction, a
+        // container mount); copy-then-remove is the same outcome, slower.
+        try { renameSync(abs, target); } catch { copyFileSync(abs, target); rmSync(abs, { force: true }); }
+      }
+      taken.push([rel, relative(buildDir, target).split(sep).join('/')]);
+    } catch (e) {
+      // One unreadable file must not strand the other nineteen in drop/.
+      console.error(`  could not take drop/${rel}: ${e.message}`);
+    }
+  }
+  return taken;
 }
 
 const humanSize = (n) => (n < 1024 ? `${n} B` : n < 1024 * 1024 ? `${Math.round(n / 1024)} KB` : `${(n / 1048576).toFixed(1)} MB`);
@@ -157,7 +225,7 @@ ${keepProse(previous, 'Deliberately absent', ABSENT_PLACEHOLDER)}
 
 // ---------------------------------------------------------------- commands
 
-function scan(slug) {
+function scan(slug, keep = false) {
   const buildDir = join(buildsDir, slug);
   if (!existsSync(buildDir)) {
     console.error(`No build at builds/${slug}/. Open one first:  node start.mjs "<project name>"`);
@@ -166,6 +234,14 @@ function scan(slug) {
   const assetsDir = join(buildDir, 'assets');
   for (const [name] of FOLDERS) mkdirSync(join(assetsDir, name), { recursive: true });
   mkdirSync(join(buildDir, '_intake'), { recursive: true });
+
+  const taken = adopt(buildDir, keep);
+  if (taken.length) {
+    console.log('');
+    console.log(`Took ${taken.length} file(s) ${keep ? 'from' : 'out of'} drop/ into builds/${slug}/_intake/:`);
+    for (const [from, to] of taken.slice(0, 30)) console.log(`  drop/${from}  ->  ${to}`);
+    if (taken.length > 30) console.log(`  ... and ${taken.length - 30} more.`);
+  }
 
   const manifestPath = join(assetsDir, 'MANIFEST.md');
   const existing = existsSync(manifestPath) ? parseRows(readFileSync(manifestPath, 'utf8')) : new Map();
@@ -193,9 +269,12 @@ function scan(slug) {
   console.log(`  ${existing.size} row${existing.size === 1 ? '' : 's'} total, ${added} new this scan.`);
   if (!found.length) {
     console.log('');
-    console.log('  Nothing in _intake/ or assets/ yet. That is the first thing stage 01 asks for,');
-    console.log('  and one dropped sketch answers twenty questions. Give them the exact path:');
+    console.log('  Nothing in drop/, _intake/ or assets/ yet. That is the first thing stage 01');
+    console.log('  asks for, and one dropped sketch answers twenty questions. Two paths work -');
+    console.log('  give whichever is easier to say out loud:');
+    console.log(`    ${dropDir}`);
     console.log(`    ${join(buildDir, '_intake')}`);
+    console.log('  Anything in the first moves into the second the next time this runs.');
   }
   console.log('');
   check(slug, true);
@@ -209,6 +288,16 @@ function check(slug, quiet = false) {
     process.exit(1);
   }
   const rows = parseRows(readFileSync(manifestPath, 'utf8'));
+
+  // Dropped after the last scan means not in the manifest, so not in this report
+  // and not in the build. Silence here would read as 'nothing outstanding'.
+  const waiting = dropFiles();
+  if (waiting.length) {
+    console.log(`  ${waiting.length} file(s) are sitting in drop/. Anything dropped since the`);
+    console.log('  last scan is not in this build, so it is not in the report below either:');
+    console.log(`    node assets.mjs ${slug} scan`);
+  }
+
   const unanswered = [];
   for (const [file, r] of rows) {
     const missing = [];
@@ -237,9 +326,30 @@ function check(slug, quiet = false) {
 }
 
 function list() {
-  if (!existsSync(buildsDir)) { console.log('\nNo builds yet.\n'); return; }
-  const builds = readdirSync(buildsDir, { withFileTypes: true }).filter((d) => d.isDirectory());
-  if (!builds.length) { console.log('\nNo builds yet.\n'); return; }
+  const waiting = dropFiles();
+  if (waiting.length) {
+    const bytes = waiting.reduce((n, f) => { try { return n + statSync(f).size; } catch { return n; } }, 0);
+    console.log('');
+    console.log(`drop/  - ${waiting.length} file(s) waiting, ${humanSize(bytes)}`);
+    for (const f of waiting.slice(0, 10)) console.log(`    ${relative(dropDir, f).split(sep).join('/')}`);
+    if (waiting.length > 10) console.log(`    ... and ${waiting.length - 10} more.`);
+    console.log('  They move into a build the next time you run:  node assets.mjs <slug> scan');
+  }
+
+  const builds = existsSync(buildsDir)
+    ? readdirSync(buildsDir, { withFileTypes: true }).filter((d) => d.isDirectory())
+    : [];
+
+  if (!builds.length) {
+    console.log('');
+    console.log('No builds yet.');
+    console.log(waiting.length
+      ? '  Open one and the waiting files come with it:  node start.mjs "<project name>"'
+      : '  Open one:  node start.mjs "<project name>"');
+    console.log('');
+    return;
+  }
+
   console.log('');
   for (const b of builds) {
     const intake = walk(join(buildsDir, b.name, '_intake'));
@@ -253,11 +363,13 @@ function list() {
   console.log('');
 }
 
-const [slug, cmd] = process.argv.slice(2);
+const argv = process.argv.slice(2);
+const keep = argv.includes('--keep');
+const [slug, cmd] = argv.filter((a) => !a.startsWith('--'));
 if (!slug) list();
-else if (cmd === 'scan' || !cmd) scan(slug);
+else if (cmd === 'scan' || !cmd) scan(slug, keep);
 else if (cmd === 'check') check(slug);
 else {
-  console.error(`Unknown command "${cmd}". Use: scan | check`);
+  console.error(`Unknown command "${cmd}". Use: scan [--keep] | check`);
   process.exit(2);
 }

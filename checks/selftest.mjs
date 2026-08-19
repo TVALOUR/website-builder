@@ -658,6 +658,21 @@ console.log('\nstart.mjs — a build\'s git history belongs to the build, not to
   for (const r of runStart()) say(r.ok, r.msg);
 }
 
+// ------------------------------------------------------------ drop/
+//
+// The other end of the pipeline from every gate: drop/ is where a person's logo,
+// photographs and price list land before a build exists. Its failures are all
+// quiet ones - a copy left behind so the next client inherits the last one's
+// photographs, a same-named file overwritten, the folder's own README carried
+// into a build as if the client had sent it (which is what happened on Windows,
+// where the first scaffold test was written around the wrong path separator),
+// or dropped material reaching git in a repo people are told to fork.
+console.log('\ndrop/ - the client\'s material reaches the build, and reaches nothing else');
+{
+  const { runDrop } = await import('./drop-cases.mjs');
+  for (const r of runDrop()) say(r.ok, r.msg);
+}
+
 // ------------------------------------------------------- policy reading
 //
 // The regression this locks down was invisible for exactly the reason it was

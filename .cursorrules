@@ -14,9 +14,12 @@ The floor, not a summary:
    happened. Its output is questions to go and ask, never boxes to fill in.
 2. Never invent a fact about a real business: every claim traces to a sourced
    row in builds/<slug>/facts.md.
-3. Never publish a file with no traceable origin. `node assets.mjs <slug> scan`
-   writes builds/<slug>/assets/MANIFEST.md; every image on a page needs a row
-   with a Source and a Rights answer in the client's own words.
+3. Never publish a file with no traceable origin. Their material goes in drop/
+   (repo root: logo, photos, brand, fonts, docs, reference - it is there before
+   any build exists, so give them that path); `node assets.mjs <slug> scan`
+   moves it into the build and writes builds/<slug>/assets/MANIFEST.md. Every
+   image on a page needs a row with a Source and a Rights answer in the
+   client's own words. `node assets.mjs` alone says what is waiting in drop/.
 4. Two defaults are OFF and stay off unless brief.md says otherwise:
    `- **Motion:** none` and `- **Imagery:** client-assets-only`. Having an
    image generator is not permission; the client asking for it is.

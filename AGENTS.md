@@ -123,8 +123,11 @@ could sit unchanged on a competitor's site. Read `shared/writing.md` before stag
 FILE, because an image on a page is a claim too — *this is our shop, this is our work, this is the
 team* — and an image nobody can trace is exactly as dishonest as a price nobody can trace.
 
-`node assets.mjs <slug> scan` creates the folders (`logo` · `photos` · `brand` · `fonts` · `docs` ·
-`reference`), indexes whatever landed in `_intake/`, and writes the manifest with a row per file:
+`drop/` is where a person puts their material, and it exists in a fresh clone before any build does —
+root level, sorted into `logo` · `photos` · `brand` · `fonts` · `docs` · `reference`. **Give them that
+path.** `node assets.mjs <slug> scan` moves everything in it into `builds/<slug>/_intake/` (moves, so the
+next client does not inherit the last one's photographs; `--keep` copies), creates the same six folders
+under `assets/`, indexes whatever landed, and writes the manifest with a row per file:
 where it came from, whether it is the client's to publish, whether it was generated, where it is
 used, and its alt text. The gate refuses to publish an image with no row, no Source or no Rights
 answer, and it flags material the client handed over that the site quietly ignored.
@@ -259,8 +262,10 @@ repo exists to fix — stop and run stage 01.
 1. If `config.md` does not exist, run `stages/00_setup/CONTEXT.md` once. It takes a minute.
 2. `node start.mjs "<project name>"` — it creates `builds/<slug>/`, the asset folders, a brief
    skeleton, and prints the orders.
-3. `node assets.mjs <slug> scan`, then give the client the absolute `_intake/` path it printed.
-   Artifacts before questions: one dropped sketch answers twenty of them.
+3. `node assets.mjs <slug> scan` — it takes in anything already sitting in `drop/`. Then give the
+   client a path to put things in: `drop/` (the sorted front door) or the build's own `_intake/`,
+   both printed absolute by `start.mjs`. Artifacts before questions: one dropped sketch answers
+   twenty of them, and `node assets.mjs` with no arguments says what is waiting.
 4. Read `stages/01_discover/CONTEXT.md` and do only that stage. Run
    `node checks/brief.mjs builds/<slug>` before you present anything. Stop at the gate. Then read
    stage 02's contract, and only then.
@@ -271,6 +276,8 @@ repo exists to fix — stop and run stage 01.
 website-builder/
 ├── AGENTS.md          ← this file: the contract, for any agent
 ├── CLAUDE.md · GEMINI.md · GROK.md ← per-harness entries pointing here
+├── drop/              ← the front door: logo · photos · brand · fonts · docs · reference
+│                        exists before any build; contents git-ignored; taken in by the asset scan
 ├── start.mjs          ← opens a build: builds/<slug>/ + assets folders + brief skeleton + orders
 ├── assets.mjs         ← the asset desk: indexes what the client sent, writes the manifest
 ├── stages/            ← one folder per stage, each with a CONTEXT.md

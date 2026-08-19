@@ -274,12 +274,19 @@ four real conversations — never a one-prompt black box, never babysat step by 
    on every other harness these files are the contract an agent follows by discipline,
    with the gate as the backstop.
 
-2. **Say what you want, in plain language.** "Build me a website for my dad's farriery
-   business" is enough — the interview does the rest. Have your materials ready to drop:
-   the logo file, phone photos of sketches, links to sites you like. The more you hand
-   over, the more the site is yours.
+2. **Put your stuff in [`drop/`](drop/).** It is in the repo root the moment you
+   download this, before any build exists, sorted into `logo/` `photos/` `brand/` `fonts/`
+   `docs/` `reference/`. Logo, phone photos of the shop, a scan of your price list, a
+   picture of a sketch on paper, screenshots of sites you like. It moves into your build
+   automatically and every file gets a row in the asset manifest — where it came from,
+   whether it is yours to publish, where it ends up, its alt text — which the gate then
+   enforces. Nothing in there is ever committed; only the folder's own READMEs are tracked.
 
-3. **Talk at the stops** (discover, design, verify, launch). Say "go" to move on, or
+3. **Say what you want, in plain language.** "Build me a website for my dad's farriery
+   business" is enough — the interview does the rest. The more you hand over, the more the
+   site is yours; a site built from nothing you own is a site built from the model's defaults.
+
+4. **Talk at the stops** (discover, design, verify, launch). Say "go" to move on, or
    redirect anything.
 
 The finished site lands in `builds/<slug>/site/` as plain static files — open
@@ -355,6 +362,8 @@ less.
 
 ```
 AGENTS.md      the contract, for any coding agent     CLAUDE.md / GEMINI.md / GROK.md point here
+drop/          the front door: put your logo, photos, brand, fonts, docs, references in here
+               contents git-ignored, moved into your build on the next asset scan
 start.mjs      opens a build: builds/<slug>/ + asset folders + brief skeleton + marching orders
 assets.mjs     the asset desk: indexes what the client sent, writes and checks the manifest
 stages/        one folder per stage, each a CONTEXT.md

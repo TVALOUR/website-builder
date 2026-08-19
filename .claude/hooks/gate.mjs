@@ -240,6 +240,12 @@ try {
       pass();
     }
 
+    // drop/ is the front door for the client's own material, and it is theirs,
+    // not this build's output - same standing as builds/<slug>/_intake/. An export
+    // of their old site is a .html file, and denying it would be the gate blocking
+    // the one thing the pipeline spends stage 01 asking for.
+    if (/^drop\//i.test(rel)) pass();
+
     if (/\.(html?|css)$/i.test(rel)
         && !/^(examples|templates|checks|\.claude)\//i.test(rel)) {
       deny(`Site files live in builds/<slug>/site/, never at ${rel}. Open a build first - ` +
@@ -417,7 +423,9 @@ try {
       `  2. Stage 01 discover (stages/01_discover/CONTEXT.md) - ask for what is in their ` +
       `head FIRST: sketches (a photo of paper is fine), screenshots, reference sites they ` +
       `love or want to remake, the one they hate, brand colours and fonts, their old site ` +
-      `- into builds/<slug>/_intake/. Then the interview from ` +
+      `- into drop/ (it is in the repo root, sorted into logo/photos/brand/fonts/docs/` +
+      `reference, and the next asset scan moves it into the build) or straight into ` +
+      `builds/<slug>/_intake/. Then the interview from ` +
       `stages/01_discover/questions.md (question 0, part V, then the facts).\n` +
       `  3. ASK QUESTION 57b - what trade is this, in the regulator's words? Nobody volunteers ` +
       `it, and for some trades the law names the WEBSITE: a letting agent must publish its fees ` +

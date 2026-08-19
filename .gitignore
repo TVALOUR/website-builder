@@ -30,3 +30,13 @@ sites/
 # repo's. On a fork where a team genuinely wants one shared set of defaults,
 # delete this line and commit it.
 config.md
+
+# The front door. Everything a person drops into drop/ is theirs - a logo, their
+# photographs, a scan of their price list - and none of it belongs in a public
+# fork, so the contents are ignored and only the folder scaffolding is tracked.
+# Same reasoning as builds/ above; this one just has to survive being visible,
+# because a drop folder nobody can see is the defect it exists to fix.
+drop/**
+!drop/**/
+!drop/README.md
+!drop/*/README.md

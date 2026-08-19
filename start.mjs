@@ -18,6 +18,21 @@ import { execFileSync } from 'node:child_process';
 
 const root = dirname(fileURLToPath(import.meta.url));
 const buildsDir = join(root, 'builds');
+const dropDir = join(root, 'drop');
+
+// drop/ is the front door that exists before any build does. Counting it here is
+// not decoration: if someone dropped their logo in yesterday and the orders do not
+// mention it, the build proceeds as though they handed over nothing.
+const dropCount = (dir = dropDir, depth = 0) => {
+  if (depth > 6 || !existsSync(dir)) return 0;
+  let n = 0;
+  for (const e of readdirSync(dir, { withFileTypes: true })) {
+    if (e.name.startsWith('.')) continue;
+    if (e.isDirectory()) n += dropCount(join(dir, e.name), depth + 1);
+    else if (e.name.toLowerCase() !== 'readme.md') n++;
+  }
+  return n;
+};
 
 const slugify = (s) => s.toLowerCase().trim()
   .replace(/['’]/g, '')
@@ -159,6 +174,7 @@ if (!gitReady) {
 }
 
 const configured = existsSync(join(root, 'config.md'));
+const waiting = dropCount();
 
 console.log(`
 Opened builds/${slug}/${gitReady ? ' (its own git repo, ready for checkpoint commits)' : ''}
@@ -172,20 +188,31 @@ ${gitReady ? '' : `
 `}
 Next — stage 01 discover, and it is a stop, not a formality:
 
-  1. Anything they can HAND OVER goes in the intake folder before any question
-     is asked: sketches (a photo of paper is fine), screenshots, reference
-     sites they love or want to remake, the one they hate, a logo, brand fonts
-     and colours, an old site, existing marketing material. Give them the exact
-     path — a named folder is an answerable ask, "send me your stuff" is not:
+  1. Anything they can HAND OVER goes in before any question is asked:
+     sketches (a photo of paper is fine), screenshots, reference sites they love
+     or want to remake, the one they hate, a logo, brand fonts and colours, an
+     old site, existing marketing material. Give them an exact path — a named
+     folder is an answerable ask, "send me your stuff" is not:
+
+       ${dropDir}
+         drop/logo · photos · brand · fonts · docs · reference — sorted for them,
+         and it is the same folder whoever they are working with. Step 3 moves
+         everything in it into this build.
 
        ${join(buildDir, '_intake')}
-
+         this build's own folder, if they would rather put it straight there.
+${waiting ? `
+     ${waiting} file(s) are ALREADY waiting in drop/. Step 3 takes them in — look
+     at every one of them before the interview and ask about what you see, not
+     about what you would have asked anyway.
+` : ''}
      One dropped sketch answers twenty questions.
   2. Read stages/01_discover/CONTEXT.md and run the interview from
      stages/01_discover/questions.md — 72 questions across ten parts, and you
      ask every BLOCKING one. Batch them, lead with why, take the answer you get.
   3. node assets.mjs ${slug} scan
-     Indexes everything that landed, creates assets/MANIFEST.md, and prints
+     Moves anything in drop/ into this build, indexes everything that landed,
+     creates assets/MANIFEST.md, and prints
      exactly which files still need a source, a rights answer and alt text.
      The gate will not publish an image whose Rights cell is empty.
   4. Fill in builds/${slug}/brief.md (the skeleton is already there) and write

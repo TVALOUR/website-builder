@@ -29,7 +29,8 @@ audience; the last three people who rang are.>
 <Part V, and this is the section that makes it their website rather than a website. It gets read
 back to them first at the stop.>
 
-- **Handed over:** <what is in `_intake/`, file by file. "Nothing" is a real answer.>
+- **Handed over:** <what is in `_intake/` — including everything taken in from `drop/` — file by
+  file. "Nothing" is a real answer.>
 - **Remaking:** <the site they are basically trying to remake, with the URL — or "none">
 - **References:** <one line per card in `references.md`, each with the axis that grabbed them>
 - **Anti-vision:** <what it must NOT look or feel like. "My last site was purple" is load-bearing.>
