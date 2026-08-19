@@ -61,6 +61,7 @@ export const gates = [
   { id: 'design/hover-hide', severity: 'major', what: 'a hover state that fades or hides the element being hovered' },
   { id: 'design/hover-only-reveal', severity: 'major', what: 'content that exists only behind a hover, unreachable on touch' },
   { id: 'design/hero-100vh', severity: 'minor', what: 'a hero locked to exactly one viewport with nothing peeking below the fold' },
+  { id: 'design/hero-composite', severity: 'minor', what: 'the eyebrow / huge headline / one-line subtitle / two buttons hero, centred' },
 ];
 
 // The second alternation is the 2024-26 generation of the same defect: the
@@ -83,6 +84,90 @@ const CSS_KEYWORDS = /^(inherit|initial|unset|revert|revert-layer|none|auto)$/i;
 // animation — a confident MAJOR about work that was correct.
 const LAYOUT_PROPS = /^(width|height|min-width|min-height|max-width|max-height|top|left|right|bottom|margin|margin-\w+|padding|padding-\w+|inset|inset-\w+|flex-basis|block-size|inline-size)$/;
 const EMOJI = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{1F000}-\u{1F02F}]/u;
+
+/**
+ * THE COMPOSITE. Not a rule about any one element — a rule about an arrangement.
+ *
+ *              a small uppercase eyebrow
+ *      A VERY LARGE HEADLINE ON TWO LINES
+ *            one line of grey subtitle
+ *          [ Get started ]  [ Learn more ]
+ *
+ *                  all centred
+ *
+ * Every part of that is legitimate on its own, and this repo deliberately bans
+ * none of them: eyebrows are a real device, a centred hero somebody chose is
+ * fine, and two calls to action is a normal thing to want. What makes it a tell
+ * is that it is what gets built when nobody decided anything — which is why it
+ * appears on a large fraction of every model's output, and why people who look
+ * at a lot of websites recognise it in about two seconds.
+ *
+ * So the probe requires ALL FOUR PARTS AND THE CENTRING. A hero with an eyebrow
+ * is not flagged. An asymmetric hero with an eyebrow, a lede and two buttons is
+ * not flagged — examples/dishonest-control is exactly that and stays quiet,
+ * which is the discrimination worth having. Only the full stack, centred, fires.
+ *
+ * MINOR, and it stays minor. There is a defensible version of this layout, a
+ * designer who chose it can say why, and a blocker on a composition judgement
+ * would be this repo overreaching from what a file can prove into what it
+ * cannot. The finding is a question: did you choose this, or did it happen?
+ *
+ * The em-dash variant is named separately in the message because it is the most
+ * specific form of the tell — a kicker written as "— SOMETHING —", or one
+ * carrying an em dash it does not need. `copy/em-dash` measures density across a
+ * whole page, and one dash in four words does not move it, so that shape passes
+ * the copy family untouched.
+ */
+function heroComposite(raw, shown, cssText, report) {
+  const h1 = /<h1\b[^>]*>/i.exec(raw);
+  if (!h1) return;
+  const before = raw.slice(Math.max(0, h1.index - 700), h1.index);
+  const after = raw.slice(h1.index, h1.index + 2200).split(/<h2\b/i)[0];
+
+  // 1. The eyebrow: a short run of text immediately above the headline, either
+  //    classed as one or written as one (all caps, or wrapped in dashes).
+  const candidates = [...before.matchAll(/<(p|span|div|small)\b([^>]*)>([^<]{1,80})<\/(?:p|span|div|small)>/gi)];
+  const last = candidates.length ? candidates[candidates.length - 1] : null;
+  if (!last) return;
+  // It has to be the LAST thing before the headline, not merely somewhere above.
+  if (before.length - (last.index + last[0].length) > 120) return;
+  const attrs = last[2];
+  const eyebrowText = last[3].replace(/&[a-z]+;|&#\d+;/gi, ' ').trim();
+  const classed = /class=["'][^"']*\b(eyebrow|kicker|overline|label|tagline|pre-?title|superscript|folio)\b/i.test(attrs);
+  const allCaps = eyebrowText.length >= 4 && eyebrowText === eyebrowText.toUpperCase() && /[A-Z]/.test(eyebrowText);
+  const dashWrapped = /^[—–]|[—–]$/.test(eyebrowText);
+  const isEyebrow = (classed || allCaps || dashWrapped) && eyebrowText.length <= 60;
+  if (!isEyebrow) return;
+
+  // 2. One paragraph of subtitle, then two or more calls to action, before the
+  //    next heading.
+  const subtitle = /<p\b[^>]*>[\s\S]{20,400}?<\/p>/i.test(after.slice(h1[0].length));
+  const ctas = (after.match(/<a\b[^>]*class=["'][^"']*\b(?:btn|button|cta)\b/gi) || []).length
+    + (after.match(/<button\b/gi) || []).length
+    + (after.match(/<a\b[^>]*role=["']button["']/gi) || []).length;
+  if (!subtitle || ctas < 2) return;
+
+  // 3. The centring, which is what turns four ordinary elements into the
+  //    arrangement. Read from the CSS, not guessed from the markup.
+  const centred = /(?:hero|banner|masthead|jumbotron|intro)[^{}]*\{[^{}]*text-align\s*:\s*center/i.test(cssText)
+    || /<h1\b[^>]*style=["'][^"']*text-align\s*:\s*center/i.test(raw)
+    || /<center\b/i.test(raw);
+  if (!centred) return;
+
+  const dashNote = /[—–]/.test(eyebrowText)
+    ? ` The kicker also carries an em dash ("${eyebrowText.slice(0, 40)}"), which is the most recognisable form of it.`
+    : '';
+
+  report.add('design/hero-composite', MINOR,
+    'the hero is eyebrow, headline, one-line subtitle and two buttons, centred',
+    { file: shown },
+    'Not one of those is banned and none of them is wrong on its own. The ARRANGEMENT is the tell: '
+    + 'it is what gets built when nobody has decided what should sit beside the headline, so it reads '
+    + 'as generated however good the type is.' + dashNote + ' The fix is a decision, not a deletion — '
+    + 'patterns/ has four heroes that answer that question four different ways, and each one names '
+    + 'what holds its negative space. If you DID choose this, write why in design.md and ignore the '
+    + 'finding: it is minor because a composition judgement is not something a file can settle.');
+}
 
 export async function run(ctx, report) {
   const { siteDir, htmlFiles, cssFiles, styleSources } = ctx;
@@ -312,6 +397,8 @@ export async function run(ctx, report) {
         { file: shown },
         'A signature is punctuation, not a section template. Once it prefixes most headings it has become the eyebrow-above-every-heading pattern it was meant to escape, just in costume. Keep it to the entry, statement and exit beats.');
     }
+
+    heroComposite(raw, shown, cssText, report);
 
     // Emoji as UI iconography — distinct from emoji in prose, which is fine.
     const emojiIcons = [...raw.matchAll(/<(span|div|i|p)\b[^>]*class=["'][^"']*\b(icon|feature-icon|step-icon|bullet)\b[^"']*["'][^>]*>\s*([^\s<]{1,4})\s*</gi)]

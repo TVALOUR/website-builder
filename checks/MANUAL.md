@@ -282,3 +282,10 @@ array by hand — each one carries the instrument it comes from in its own `why`
 | `sector/number-unsourced` | Find every registration, licence or scheme number printed on the site. Each needs a sourced row in `facts.md`, and the source should be the date somebody looked it up in the public register — not the date the client remembered it. **Blocker.** |
 | `sector/register-link` | Every regulator in `sectors/` runs a free public register. Is the number a link, or a claim? One anchor is the difference between a site that is registered and a site that can be seen to be. |
 | `sector/human-confirm` | Read the sector's `confirm` list out loud and answer each item. These are the duties no file can decide — whether the registration is current today, whether the permissions cover what the homepage advertises, whether the insurer named still insures them. They are minors because a checker cannot rule on them, not because they are minor. |
+
+<!-- design/hero-composite lives with the design family above; this row is here because
+     MANUAL.md is checked for every gate id and the design table was already written. -->
+
+| Gate | By hand |
+|---|---|
+| `design/hero-composite` | Look at the top of the homepage. Is it a small eyebrow, then a very large headline, then one line of grey subtitle, then two buttons, all centred on one axis? Every one of those is fine alone and this repo bans none of them. The arrangement is the tell: it is what gets built when nobody decided what should sit beside the headline. Check the kicker for an em dash too — `— SOMETHING —` is the most recognisable form, and it slips past `copy/em-dash` because one dash in four words does not move a density measure. The fix is a decision, not a deletion: `patterns/` has four heroes that each answer the question differently. |

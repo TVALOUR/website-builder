@@ -114,14 +114,14 @@ node checks/run.mjs builds/<slug>/site --facts builds/<slug>/facts.md
   ✗ BLOCKER  legal/privacy-policy    no privacy page found
 ```
 
-Exit `0` ships. Exit `1` does not. **Thirteen rule families, 161 gates**, no npm install, no
+Exit `0` ships. Exit `1` does not. **Thirteen rule families, 162 gates**, no npm install, no
 lockfile, no `node_modules`:
 
 | Family | What it will not let past |
 |---|---|
 | `facts` | **any price, phone number, email, postcode, opening-hours line, quantity claim or quoted testimonial with no sourced row** — read from the page text, the `tel:`/`mailto:` hrefs, the meta tags, the JSON-LD and the JavaScript |
 | `copy` | em-dash density above the measured human range, the AI lexicon ("seamless", "elevate", "build your dreams"), "not just X — it's Y", lorem, TODO |
-| `design` | Inter-as-display and its successors, four typefaces, the purple gradient, emoji in headings and buttons, a zoo of border-radii and shadows, hover states that hide things, `transition: all` |
+| `design` | Inter-as-display and its successors, four typefaces, the purple gradient, emoji in headings and buttons, a zoo of border-radii and shadows, hover states that hide things, `transition: all`, **and the eyebrow / huge headline / one-line subtitle / two centred buttons hero** |
 | `legal` | missing privacy policy, tracking that fires before consent, unevidenced claims |
 | `integrity` | dead forms, broken links, dead social icons, missing assets, no 404 |
 | `a11y` | contrast, unlabelled inputs, removed focus rings, icon buttons with no name |
