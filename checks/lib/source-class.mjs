@@ -111,6 +111,22 @@ const HOSTS = {
   'garanteprivacy.it': 'regulator',
   'bundesnetzagentur.de': 'regulator',
 
+  // ---- regulator: added 2026-08-19 with the sector layer. Each is the body
+  // that MAKES and ENFORCES the rules being cited, publishing its own rulebook.
+  // Classed `regulator` rather than `primary` deliberately: the SRA and the FCA
+  // do enact their own rules, so an argument for `primary` exists, and the
+  // conservative rung is the one that cannot inflate a primary-source rate.
+  'sra.org.uk': 'regulator',              // the SRA's own Transparency Rules
+  'handbook.fca.org.uk': 'regulator',     // the FCA Handbook, published by the FCA
+  'hcpc-uk.org': 'regulator',             // the HCPC register and its own guidance
+  'asa.org.uk': 'regulator',              // the CAP Code, enforced by the ASA
+  'cslb.ca.gov': 'regulator',             // the Contractors State License Board's own register
+  'ratings.food.gov.uk': 'regulator',     // the FSA's own hygiene-rating register
+  'gassaferegister.co.uk': 'regulator',   // the HSE-approved scheme operator, for its own rules
+  'rcvs.org.uk': 'regulator',             // the RCVS register
+  'register.fca.org.uk': 'regulator',     // the Financial Services Register
+  'tpos.co.uk': 'regulator',              // The Property Ombudsman, an approved redress scheme
+
   // ---- court
   'curia.europa.eu': 'court',
 

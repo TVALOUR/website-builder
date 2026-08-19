@@ -230,6 +230,53 @@ say(intl.json?.provenance?.status === 'baseline',
 say(!/UNVERIFIED|researched/i.test(intl.stdout || ''),
   'and does not call a deliberately-neutral baseline "researched"');
 
+// ------------------------------------------------------------------ sector
+//
+// The trade axis. Four managed fixtures, one per shape of failure, because the
+// shapes genuinely cannot share a folder: a build cannot both declare a sector
+// and fail to declare one.
+//
+// The assertion that matters most is the last one. Every page in
+// `sector-control/declared/` is well-formed, honest and unremarkable to the
+// other twelve families, and it breaches three rules its own regulator writes
+// about websites. If the sector family stops firing, that fixture goes quiet
+// and nothing else notices — which is the condition this block exists to make
+// impossible.
+console.log('\nsector — trade duties the jurisdiction layer said it could not know');
+const sectorDeclared = run(['examples/sector-control/declared/site', '--profile', 'uk', '--json', '--no-color',
+  '--facts', 'examples/sector-control/declared/facts.md']);
+const sectorProhibited = run(['examples/sector-control/prohibited/site', '--profile', 'uk', '--json', '--no-color',
+  '--facts', 'examples/sector-control/prohibited/facts.md']);
+const sectorUndeclared = run(['examples/sector-control/undeclared/site', '--profile', 'uk', '--json', '--no-color',
+  '--facts', 'examples/sector-control/undeclared/facts.md']);
+const sectorUnknown = run(['examples/sector-control/unknown/site', '--profile', 'uk', '--json', '--no-color',
+  '--facts', 'examples/sector-control/unknown/facts.md']);
+
+const gatesOf = (r) => new Set((r.json?.findings || []).map((f) => f.gate));
+const declaredGates = gatesOf(sectorDeclared);
+say(declaredGates.has('sector/disclosure-missing'), 'sector/disclosure-missing fired — a solicitor with no statement of regulated status');
+say(declaredGates.has('sector/page-missing'), 'sector/page-missing fired — no complaints procedure, no published costs');
+say(declaredGates.has('sector/number-unsourced'), 'sector/number-unsourced fired — an SRA number tracing to nothing');
+say(declaredGates.has('sector/register-link'), 'sector/register-link fired — a number nobody can check in one click');
+say(declaredGates.has('sector/human-confirm'), 'sector/human-confirm fired — the duties no static reader can decide');
+say(gatesOf(sectorProhibited).has('sector/prohibited-content'),
+  'sector/prohibited-content fired — a prescription only medicine named and priced');
+say(gatesOf(sectorUndeclared).has('sector/undeclared'),
+  'sector/undeclared fired — a physiotherapy site whose build never named a trade');
+say(gatesOf(sectorUnknown).has('sector/unknown'),
+  'sector/unknown fired — a Sector row naming a file that does not exist');
+say((sectorUnknown.json?.findings || []).some((f) => /dog-grooming/.test(f.message || '')),
+  'the unknown-sector finding names the id it could not find');
+
+// THE POINT OF THE WHOLE AXIS, asserted rather than described.
+{
+  const blockers = (sectorDeclared.json?.findings || []).filter((f) => f.severity === 'blocker');
+  const fromSector = blockers.filter((f) => f.gate.startsWith('sector/'));
+  say(fromSector.length > 0,
+    `the solicitor fixture produces ${fromSector.length} sector blocker(s) alongside `
+    + `${blockers.length - fromSector.length} from the other twelve families — trade duties are additive, not a relabelling`);
+}
+
 // ---------------------------------------------------------------- citations
 //
 // The citation gate has to be able to fail, for the same reason every other
@@ -580,6 +627,10 @@ const firedKeys = new Set([
   ...(noJuris.json?.findings || []).map((f) => `${f.gate}|${f.severity}`),
   ...(intl.json?.findings || []).map((f) => `${f.gate}|${f.severity}`),
   ...(managed.json?.findings || []).map((f) => `${f.gate}|${f.severity}`),
+  ...(sectorDeclared.json?.findings || []).map((f) => `${f.gate}|${f.severity}`),
+  ...(sectorProhibited.json?.findings || []).map((f) => `${f.gate}|${f.severity}`),
+  ...(sectorUndeclared.json?.findings || []).map((f) => `${f.gate}|${f.severity}`),
+  ...(sectorUnknown.json?.findings || []).map((f) => `${f.gate}|${f.severity}`),
 ]);
 
 const unproven = declaredKeys.filter((k) => !firedKeys.has(k) && !UNPROVABLE[k]);

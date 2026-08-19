@@ -262,3 +262,23 @@ can trace is exactly as dishonest as an unsourced price.
 | `design/uniform-hover` | Is the same `scale()` applied on four or more unrelated hover states? One reflex everywhere is not an interaction design. |
 | `design/spacing-scale` | List every px padding, margin and gap. Anything not a multiple of 4 is off-scale. |
 | `design/uniform-rhythm` | Do all the section rules share one padding value? That reads as a stack, not a composition. |
+
+## sector
+
+The trade. `profiles/` answers "which country"; this answers "what does the law require of THIS
+trade", which every jurisdiction profile in this repo says in its own caveats that it cannot.
+
+**First, find the `| Sector |` row in `builds/<slug>/facts.md`.** No row is itself a finding. Then
+open `sectors/<id>.mjs`, read the entry for the build's jurisdiction, and work down its `duties`
+array by hand — each one carries the instrument it comes from in its own `why`.
+
+| Gate | By hand |
+|---|---|
+| `sector/undeclared` | Read the site as a stranger. Does it describe a trade somebody regulates — a clinic, a law firm, a letting agent, gas work, food sold online, anything with a registration number on it? Now open `facts.md`. Is there a `Sector` row? If the answer to the first question is yes and the second is no, nobody was asked, and a whole regime is sitting unchecked. `Sector: none` is a real answer and most trades' answer — but somebody has to give it. |
+| `sector/unknown` | Does the `Sector` row name a file that exists in `sectors/`? A typo here silently turns every trade duty off, which is why it blocks rather than warns. **Blocker.** |
+| `sector/disclosure-missing` | For each `kind: 'present'` duty in the sector's jurisdiction entry, search the whole site for its pattern. A solicitor with no SRA number, a letting agent that never names its redress scheme, an FCA firm without the prescribed status sentence: each is a disclosure its own regulator requires and every other family on the site is happy with. **Blocker.** |
+| `sector/prohibited-content` | For each `kind: 'absent'` duty, search the visible text. The one that surprises people: naming or pricing a prescription only medicine — Botox and its siblings — is prohibited outright by Human Medicines Regulations 2012 reg.284(1), and no disclaimer fixes it. Removing the medicine's name does. **Blocker.** |
+| `sector/page-missing` | For each `kind: 'page'` duty, look for a page whose ROUTE or `<title>` matches — not merely a mention in the body. A solicitor owes a complaints procedure and, for the specified services, published costs; a letting agent owes a fee list, and the statute names the website. |
+| `sector/number-unsourced` | Find every registration, licence or scheme number printed on the site. Each needs a sourced row in `facts.md`, and the source should be the date somebody looked it up in the public register — not the date the client remembered it. **Blocker.** |
+| `sector/register-link` | Every regulator in `sectors/` runs a free public register. Is the number a link, or a claim? One anchor is the difference between a site that is registered and a site that can be seen to be. |
+| `sector/human-confirm` | Read the sector's `confirm` list out loud and answer each item. These are the duties no file can decide — whether the registration is current today, whether the permissions cover what the homepage advertises, whether the insurer named still insures them. They are minors because a checker cannot rule on them, not because they are minor. |

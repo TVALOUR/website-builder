@@ -73,6 +73,12 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 // that breaks every rule, and prove the gate fails. A gate nobody has watched
 // fail is a gate nobody should believe. It is not for normal use.
 const PROFILES = process.env.WEBSITE_BUILDER_PROFILES_DIR || join(HERE, '..', 'profiles');
+// The sector layer is law too, and the argument for checking it is the argument
+// for checking profiles/ — a trade duty is the kind of claim that can be
+// confidently, invisibly wrong, and the only defence this repo has is that the
+// citation is checkable. A sector folder outside this checker would be exactly
+// the unchecked law the README says the repo does not ship.
+const SECTORS = process.env.WEBSITE_BUILDER_SECTORS_DIR || join(HERE, '..', 'sectors');
 
 // The questions a country profile exists to answer. A profile silent on one of
 // these is not "clean" — it is unasked, and unasked reads to a client exactly
@@ -87,6 +93,23 @@ export const COVERAGE_TOPICS = {
   misleadingClaims: 'the statute behind the claim gates',
   electronicMarketing: 'whether the site itself is in scope of spam / e-marketing law',
   fictionalData: 'the reserved phone or address range a demo build must use',
+};
+
+// The questions a SECTOR file exists to answer, per jurisdiction it claims to
+// have researched. Same discipline as the seven above and the same reason: a
+// sector file silent on "what may this trade not say" reads to a client exactly
+// like "it may say anything".
+//
+// Keyed per jurisdiction because that is where the answers actually differ. A
+// trade's regulator, its entry restriction and its website duties are three
+// different answers in the UK and the US, and a single flat map would force one
+// of them to stand for both.
+export const SECTOR_COVERAGE_TOPICS = {
+  whoRegulates: 'which body regulates this trade here, and under what instrument',
+  entryRestriction: 'whether the law restricts who may practise, or who may use the trade\'s title',
+  websiteDuties: 'what, if anything, must appear on the website itself — including when the answer is "nothing"',
+  advertisingLimits: 'what this trade may not say in its advertising',
+  complaintsRoute: 'the complaints or redress route a client must be told about, or that no sector route exists',
 };
 
 const argv = process.argv.slice(2);
@@ -106,30 +129,49 @@ const findings = [];
 const add = (gate, severity, profile, message, fix) =>
   findings.push({ gate, severity, profile, message, fix });
 
-let files;
-try {
-  files = (await readdir(PROFILES)).filter((f) => f.endsWith('.mjs') && !f.startsWith('_'));
-} catch (err) {
-  console.error(`cannot read ${PROFILES}: ${err.message}`);
-  process.exit(2);
+// Two source folders, one discipline. `kind` carries everything that genuinely
+// differs between them, so the audit below reads one shape and neither folder
+// gets a weaker version of the check by accident.
+const KINDS = [
+  { kind: 'profile', dir: PROFILES, notes: 'profiles/_research', label: 'profiles/' },
+  { kind: 'sector', dir: SECTORS, notes: 'sectors/_research', label: 'sectors/' },
+];
+
+const targets = [];
+for (const k of KINDS) {
+  let names;
+  try {
+    names = (await readdir(k.dir)).filter((f) => f.endsWith('.mjs') && !f.startsWith('_'));
+  } catch (err) {
+    // A missing sectors/ is a repo without the trade layer, not a failure. A
+    // missing profiles/ is a broken checkout and always was.
+    if (k.kind === 'profile') { console.error(`cannot read ${k.dir}: ${err.message}`); process.exit(2); }
+    continue;
+  }
+  for (const f of names) targets.push({ ...k, file: f, name: f.replace(/\.mjs$/, '') });
 }
 if (ONLY) {
-  files = files.filter((f) => f === `${ONLY}.mjs`);
-  if (!files.length) { console.error(`no profile named "${ONLY}"`); process.exit(2); }
+  const before = targets.length;
+  const kept = targets.filter((t) => t.name === ONLY);
+  targets.length = 0; targets.push(...kept);
+  if (!targets.length) { console.error(`no profile or sector named "${ONLY}" (searched ${before})`); process.exit(2); }
 }
+const files = targets;
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const summary = [];
 
-for (const file of files) {
-  const name = file.replace(/\.mjs$/, '');
+for (const target of files) {
+  const { name, file, kind } = target;
   let profile;
   try {
-    profile = (await import(`file://${join(PROFILES, file).replace(/\\/g, '/')}`)).default;
+    profile = (await import(`file://${join(target.dir, file).replace(/\\/g, '/')}`)).default;
   } catch (err) {
     add('citations/profile-unloadable', 'blocker', name,
-      `profiles/${file} threw on import: ${err.message}`,
-      'A profile that cannot load turns the whole legal family into an ERROR verdict.');
+      `${target.label}${file} threw on import: ${err.message}`,
+      kind === 'sector'
+        ? 'A sector that cannot load turns the whole trade family into an ERROR verdict.'
+        : 'A profile that cannot load turns the whole legal family into an ERROR verdict.');
     continue;
   }
 
@@ -157,9 +199,9 @@ for (const file of files) {
       'The status is a claim about how the file was made. Cite, or change the status.');
   }
 
-  if (!existsSync(join(PROFILES, '_research', `${name}.md`))) {
+  if (!existsSync(join(target.dir, '_research', `${name}.md`))) {
     add('citations/notes-missing', 'blocker', name,
-      `no working notes at profiles/_research/${name}.md`,
+      `no working notes at ${target.notes}/${name}.md`,
       'Without the angles run and what could NOT be established, nobody can check the research.');
   }
 
@@ -251,6 +293,49 @@ for (const file of files) {
   const cov = profile.coverage || {};
   const urls = new Set(sources.map((s) => s.url));
   const classOf = new Map(sources.map((s) => [s.url, s.class]));
+
+  // A SECTOR's coverage is per jurisdiction, and only for the jurisdictions it
+  // claims to have researched. A file that says `us: { researched: false }` owes
+  // nothing for the US, and demanding answers there would punish the honesty
+  // that entry exists to record.
+  if (kind === 'sector') {
+    const claimed = Object.entries(profile.jurisdictions || {})
+      .filter(([, v]) => v && v.researched !== false).map(([k]) => k);
+    if (!claimed.length) {
+      add('citations/coverage-missing', 'blocker', name,
+        'no jurisdiction in this sector file is researched, and it still declares status "researched"',
+        'A sector with no researched jurisdiction encodes no duty anywhere. Research one, or set the status.');
+    }
+    for (const j of claimed) {
+      const map = (cov || {})[j] || {};
+      for (const [topic, question] of Object.entries(SECTOR_COVERAGE_TOPICS)) {
+        const cited = map[topic];
+        if (!cited) {
+          add('citations/coverage-missing', 'blocker', name,
+            `coverage.${j}.${topic} is unanswered — ${question}`,
+            'Silence on a question reads to a client exactly like "no obligation here". Cite the source '
+            + 'that carries this file\'s answer, even when the answer is "nothing here requires it".');
+          continue;
+        }
+        if (!urls.has(cited)) {
+          add('citations/coverage-uncited', 'blocker', name,
+            `coverage.${j}.${topic} points at ${cited}, which is not in provenance.sources`,
+            'The coverage map is a claim to source link. A link to nothing is worse than none.');
+          continue;
+        }
+        if (!LOAD_BEARING.has(classOf.get(cited))) {
+          add('citations/coverage-secondary', 'major', name,
+            `coverage.${j}.${topic} rests on a ${classOf.get(cited)} source (${new URL(cited).hostname})`,
+            'These questions drive BLOCKER-severity findings. Find the instrument, or record in the '
+            + 'working notes why no primary source exists for this one.');
+        }
+      }
+    }
+    summary.push({ profile: `${name} (sector)`, status: p.status, sources: sources.length, loadBearing, rate,
+      quotes: sources.filter((s) => s.quote).length, note: null });
+    continue;
+  }
+
   for (const [topic, question] of Object.entries(COVERAGE_TOPICS)) {
     const cited = cov[topic];
     if (!cited) {
@@ -287,10 +372,9 @@ for (const file of files) {
 const online = [];
 if (ONLINE) {
   const jobs = [];
-  for (const file of files) {
-    const name = file.replace(/\.mjs$/, '');
-    const profile = (await import(`file://${join(PROFILES, file).replace(/\\/g, '/')}`)).default;
-    for (const s of (profile.provenance?.sources || [])) jobs.push({ name, s });
+  for (const target of files) {
+    const profile = (await import(`file://${join(target.dir, target.file).replace(/\\/g, '/')}`)).default;
+    for (const s of (profile.provenance?.sources || [])) jobs.push({ name: target.name, s });
   }
   const UA = { 'user-agent': 'website-builder-citation-check/1.0 (+https://github.com/TVALOUR/website-builder)',
     accept: 'text/html,application/xhtml+xml,*/*' };
@@ -367,7 +451,7 @@ const failed = (counts.blocker || 0) > 0;
 if (JSON_OUT) {
   console.log(JSON.stringify({ summary, findings, counts, online, verdict: failed ? 'FAIL' : 'PASS' }, null, 2));
 } else {
-  console.log('\n  citation gate — profiles/\n');
+  console.log('\n  citation gate — profiles/ and sectors/\n');
   for (const r of summary) {
     if (r.note) { console.log(`  ${r.profile.padEnd(15)} ${r.status.padEnd(11)} ${r.note}`); continue; }
     console.log(`  ${r.profile.padEnd(15)} ${String(r.status).padEnd(11)} `

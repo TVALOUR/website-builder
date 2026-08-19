@@ -5,13 +5,15 @@
 //
 // Options:
 //   --json              machine-readable output on stdout, nothing else
-//   --only <families>   comma-separated: copy,legal,seo,a11y,design,perf,integrity,security,facts,responsive,assets,discovery
+//   --only <families>   comma-separated: copy,legal,seo,a11y,design,perf,integrity,security,facts,responsive,assets,discovery,sector
 //   --skip <families>   same list, inverted
 //   --profile <name>    jurisdiction profile from profiles/ (no default - config.md or --profile)
+//   --sector <id>       trade profile from sectors/ (default: the build's own facts.md/brief.md)
 //   --assets <path>     asset manifest (default: <site>/../assets/MANIFEST.md)
 //   --facts <file>      path to the build's facts.md, for provenance checks
 //   --no-color          plain output
 //   --list              print every gate this build of the checker knows about, and exit
+//   --sectors           print every trade profile in sectors/, and exit
 //
 // Exit: 0 clean · 1 blockers found · 2 could not run (bad path, or a rule
 //       family crashed — an unknown result is never a pass).
@@ -42,8 +44,9 @@ import facts from './rules/facts.mjs';
 import responsive from './rules/responsive.mjs';
 import assets from './rules/assets.mjs';
 import discovery from './rules/discovery.mjs';
+import sector from './rules/sector.mjs';
 
-const FAMILIES = { copy, legal, seo, a11y, design, perf, integrity, security, facts, responsive, assets, discovery };
+const FAMILIES = { copy, legal, seo, a11y, design, perf, integrity, security, facts, responsive, assets, discovery, sector };
 
 // ------------------------------------------------------------------ argv
 
@@ -54,6 +57,23 @@ const flag = (name) => {
 };
 const has = (name) => argv.includes(name);
 
+if (has('--sectors')) {
+  const { listSectors, loadSector } = await import('./lib/sector.mjs');
+  const ids = listSectors();
+  if (!ids.length) console.log('no trade profiles in sectors/');
+  for (const id of ids) {
+    const s = await loadSector(id);
+    const js = Object.entries(s.jurisdictions || {})
+      .filter(([, v]) => v && v.researched !== false).map(([k]) => k);
+    console.log(`  ${id.padEnd(22)} ${js.length ? js.join(', ') : '(no jurisdiction researched)'}   ${s.name}`);
+  }
+  console.log('');
+  console.log('  Declare one in the build with a facts.md row: | Sector | <id> | <who confirmed it> |');
+  console.log('  "none" is a real answer, and most trades\' answer. Say it on purpose.');
+  console.log('');
+  process.exit(0);
+}
+
 if (has('--list')) {
   for (const [name, fam] of Object.entries(FAMILIES)) {
     console.log(`\n${name}`);
@@ -63,10 +83,12 @@ if (has('--list')) {
   process.exit(0);
 }
 
-const target = argv.find((a) => !a.startsWith('--') && argv[argv.indexOf(a) - 1] !== '--only'
-  && argv[argv.indexOf(a) - 1] !== '--skip' && argv[argv.indexOf(a) - 1] !== '--profile'
-  && argv[argv.indexOf(a) - 1] !== '--assets'
-  && argv[argv.indexOf(a) - 1] !== '--facts');
+// Every flag that TAKES A VALUE has to be listed here, or its value is mistaken
+// for the site directory. `--sector uk-thing` without this line would gate the
+// folder named after the sector id and print a confident verdict about it.
+const VALUE_FLAGS = ['--only', '--skip', '--profile', '--assets', '--facts', '--sector'];
+const target = argv.find((a) => !a.startsWith('--')
+  && !VALUE_FLAGS.includes(argv[argv.indexOf(a) - 1]));
 
 if (!target) {
   console.error('Usage: node checks/run.mjs <site-dir> [--json] [--only fam,fam] [--skip fam] [--profile uk] [--facts path] [--assets path]');
@@ -115,6 +137,7 @@ if (unknown.length) {
 const briefProfile = profileFromBrief(siteDir);
 const configProfile = profileFromConfig();
 const profileName = flag('--profile') || briefProfile || configProfile || null;
+const sectorArg = flag('--sector');
 const factsPath = flag('--facts');
 const assetsPath = flag('--assets');
 const asJson = has('--json');
@@ -242,7 +265,7 @@ const regimeFacts = factsPath && existsSync(factsPath) ? readFileSync(factsPath,
 const regime = resolveRegime(regimeFacts);
 
 const ctx = { siteDir, htmlFiles, cssFiles, jsFiles, everyFile, profile, factsPath, assetsPath, styleSources,
-  profileProblems: loaded.problems, profileName, regime };
+  profileProblems: loaded.problems, profileName, regime, sectorArg };
 
 for (const [name, family] of Object.entries(FAMILIES)) {
   if (only.length && !only.includes(name)) continue;
