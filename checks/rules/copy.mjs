@@ -184,6 +184,9 @@ export async function run(ctx, report) {
   // corpora rather than taste. See the block near the end of this file.
   const emDashWarnAt = profile?.copy?.emDashPer1000Warn ?? 6.43;
   const emDashBlockAt = profile?.copy?.emDashPer1000Block ?? 10.13;
+  // A RATE NEEDS MORE THAN ONE INSTANCE. Below this absolute count the per-1,000
+  // figure is small-sample noise, not a signal -- see the block near the end.
+  const emDashMinToBlock = profile?.copy?.emDashMinCountBlock ?? 3;
 
   const emDashPages = [];
   const titles = new Map();
@@ -453,7 +456,16 @@ export async function run(ctx, report) {
   // than twice GPT-4.1's own rate. That site is the reason this repo exists.
   //
   // So: MAJOR above the human corpus mean, BLOCKER above the top of the human
-  // range. Both configurable. A site under the cap is left alone, because a
+  // range. Both configurable.
+  //
+  // AND A COUNT FLOOR ON THE BLOCKER, added 2026-08-19 after a verification run
+  // blocked a 26-word probe page for ONE em dash: 1/26 words is 38.5 per 1,000,
+  // over the cap by construction. Below ~99 words a single dash ALWAYS blocks, so
+  // every short page -- a 404, a thin contact page, a legal stub -- was one
+  // character from unshippable. The fix is an absolute floor rather than a word
+  // floor: a word floor would switch the gate off on exactly the small local sites
+  // this repo builds, and `examples/bare-control` (6 dashes in 62 words) proves the
+  // rate is meaningful on a short page once there are enough marks to be a rate. A site under the cap is left alone, because a
   // writer who uses a dash well is not the problem and never was.
   const per1000 = totalWords ? (totalEmDash / totalWords) * 1000 : 0;
   if (emDashPages.length) {
@@ -463,11 +475,16 @@ export async function run(ctx, report) {
       : `${plural(emDashPages.length, 'page')}, worst ${worst.file} (${worst.count})`;
     const detail = `${plural(totalEmDash, 'em dash', 'em dashes')} across ${totalWords.toLocaleString()} words — ${per1000.toFixed(1)} per 1,000`;
 
-    if (per1000 > emDashBlockAt) {
+    if (per1000 > emDashBlockAt && totalEmDash >= emDashMinToBlock) {
       report.add('copy/em-dash', BLOCKER,
         `${detail}, above the top of the measured human range (${emDashBlockAt}/1,000)`,
         { file: worst.file, line: worst.line, count: totalEmDash },
         `No human corpus writes this densely. It is the loudest machine-written tell there is, and it is nearly always hiding two sentences that should be separate. Rewrite with a comma, a colon, brackets, or a full stop. Worst offender: ${where}.`);
+    } else if (per1000 > emDashBlockAt) {
+      report.add('copy/em-dash', MAJOR,
+        `${detail}, above the top of the measured human range (${emDashBlockAt}/1,000) on too few instances to be a rate`,
+        { file: worst.file, line: worst.line, count: totalEmDash },
+        `The density is over the cap but there are only ${totalEmDash} of them, and a rate computed from one or two marks says nothing -- any short page trips it on a single character. Worth a look, not a blocker. Worst: ${where}.`);
     } else if (per1000 > emDashWarnAt) {
       report.add('copy/em-dash', MAJOR,
         `${detail}, above the human corpus average (${emDashWarnAt}/1,000)`,

@@ -54,15 +54,17 @@ export async function run(ctx, report) {
   const { siteDir, htmlFiles, factsPath, profileName } = ctx;
   for (const id of ids) report.ranGate(id);
 
-  if (!profileName) {
-    report.skip('sector', 'no jurisdiction, so no trade duties either — sector duties are country-shaped and '
-      + 'this repo will not guess which country. Fix the jurisdiction first.');
-    return;
-  }
-
   // One pass over the site's own words. Detection reads what a visitor reads,
   // not the markup: a class name of `legal-services` is a developer's word, and
   // the trade a site is in is the trade its sentences describe.
+  //
+  // THIS RUNS BEFORE THE JURISDICTION CHECK, and that ordering is the fix for a
+  // silent hole found on 2026-08-19. The jurisdiction guard used to return here
+  // first, so a page reading "Botox from GBP155 per area" with no profile set was
+  // never looked at by this family at all: the skip line said so honestly, the run
+  // still printed "162 gates ran", and the one check that could have named the
+  // trade (smellsRegulated, already imported) never got to run. Reading the words
+  // costs nothing and lets the no-jurisdiction path say WHICH duties are off.
   const pages = [];
   let corpus = '';
   for (const file of htmlFiles) {
@@ -72,6 +74,33 @@ export async function run(ctx, report) {
     pages.push({ file, raw, text, title: pageTitle(raw) || '', shown: displayPath(file, siteDir) });
     corpus += `\n${text}`;
   }
+
+  if (!profileName) {
+    report.skip('sector', 'no jurisdiction, so no trade duties either — sector duties are country-shaped and '
+      + 'this repo will not guess which country. Fix the jurisdiction first.');
+    // Which trade, by name. `detectSectors` needs no jurisdiction -- the trade a
+    // site is in is a fact about its words, and only the DUTIES are country-shaped.
+    // So the no-jurisdiction path can still say exactly which file went unread.
+    const probe = pages.length
+      ? await resolveSector({ declared: null, jurisdiction: null, text: corpus })
+      : { detected: [] };
+    if (probe.detected.length) {
+      const names = probe.detected.map((d) => d.name).join(' and ');
+      const first = probe.detected[0].id;
+      report.add('sector/undeclared', MAJOR,
+        `this site reads as ${names} and NO jurisdiction is set, so every duty in sectors/${first}.mjs `
+        + 'went unchecked',
+        { file: pages[0].shown },
+        'Set the jurisdiction and this family runs: `node checks/run.mjs <site> --profile <id>`, or run stage '
+        + '00 to write config.md. Not the generic legal/jurisdiction blocker repeated -- that one is about the '
+        + 'legal family. This says the TRADE duties, the ones that name the website in the statute, went '
+        + 'unexamined on a site whose own words say it needs them. A regulated trade with no country chosen is '
+        + 'the one combination where a clean-looking run is most misleading, and config.md is gitignored, so a '
+        + 'fresh clone is exactly where it happens.');
+    }
+    return;
+  }
+
   if (!pages.length) {
     report.skip('sector', 'no HTML to read');
     return;

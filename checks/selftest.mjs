@@ -143,6 +143,71 @@ for (const g of ['legal/privacy-policy', 'facts/ledger-unstructured', 'copy/em-d
   say(bareGates.has(g), `${g} fired`);
 }
 
+// ------------------------------------------------ em-dash count floor
+//
+// The bare control above proves the rate gate FIRES (6 dashes in 62 words). This
+// proves it does not fire as a BLOCKER on ONE dash, which is the other direction
+// and the one that was wrong. A verification run on 2026-08-19 blocked a 26-word
+// probe page for a single em dash: below ~99 words one mark is always over the
+// 10.13/1,000 cap, so every short page -- a 404, a thin contact page, a legal
+// stub -- was one character from unshippable. A word floor would have switched
+// the gate off on exactly the small sites this repo builds; an absolute count
+// floor keeps the 62-word fixture blocking and lets the 26-word one through.
+console.log('');
+console.log('em-dash count floor — one dash on a short page must not BLOCK');
+{
+  const { mkdtempSync, writeFileSync: wf, mkdirSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const dir = mkdtempSync(join(tmpdir(), 'wb-emdash-'));
+  mkdirSync(join(dir, 'site'));
+  wf(join(dir, 'site', 'index.html'),
+    '<!doctype html><html lang="en-GB"><head><meta charset="utf-8">'
+    + '<meta name="viewport" content="width=device-width, initial-scale=1">'
+    + '<title>Hartland Farriery, north Devon</title></head><body><main><h1>Hartland Farriery</h1>'
+    + '<p>We shoe horses across north Devon — and we have done since 1998.</p>'
+    + '</main></body></html>');
+  const r = run([join(dir, 'site'), '--profile', 'uk', '--only', 'copy', '--json', '--no-color']);
+  const f = (r.json?.findings || []).find((x) => x.gate === 'copy/em-dash');
+  say(!!f, 'copy/em-dash still fires — the rate really is over the cap');
+  say(f?.severity === 'major', `at MAJOR, not blocker (got ${f?.severity})`);
+  say(/too few instances to be a rate/.test(f?.message || ''), 'and the message says why it was not blocked');
+}
+
+// --------------------------------------- sector with no jurisdiction
+//
+// Unit-level on purpose: the CLI resolves the profile from config.md, which is
+// gitignored and present at this repo root, so the no-jurisdiction condition
+// cannot be reproduced through run.mjs from here — and a FRESH CLONE has no
+// config.md, which is exactly where the hole was found. Before the 2026-08-19
+// fix this path returned before reading a single word, so a page reading
+// "anti-wrinkle injections" with no profile set went through the sector family
+// untouched while the run still printed "162 gates ran".
+console.log('');
+console.log('sector, no jurisdiction — the trade must still be NAMED');
+{
+  const { mkdtempSync, writeFileSync: wf } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const sectorRule = await import('./rules/sector.mjs');
+  const dir = mkdtempSync(join(tmpdir(), 'wb-sector-nojur-'));
+  const page = join(dir, 'index.html');
+  wf(page, '<!doctype html><html lang="en-GB"><body><main><h1>Wraycott Aesthetics</h1>'
+    + '<p>Non-surgical cosmetic treatments, including anti-wrinkle injections and skin treatments. '
+    + 'Every patient has a consultation with our prescriber first.</p></main></body></html>');
+  const findings = [];
+  const skips = [];
+  const fake = {
+    ranGate() {},
+    skip: (gate, why) => skips.push({ gate, why }),
+    add: (gate, severity, message) => findings.push({ gate, severity, message }),
+  };
+  await sectorRule.run({ siteDir: dir, htmlFiles: [page], factsPath: null, profileName: null }, fake);
+  const f = findings.find((x) => x.gate === 'sector/undeclared');
+  say(!!f, 'sector/undeclared fires on a regulated-trade page with no jurisdiction');
+  say(/aesthetics-clinic[.]mjs/.test(f?.message || ''),
+    `and it names the sector file that went unchecked (got: ${f?.message || 'nothing'})`);
+  say(skips.some((x) => x.gate === 'sector'), 'and the honest skip line is still printed');
+}
+
 // ---------------------------------------------------------------- assets
 //
 // The asset family's negative control. `facts.md` made every CLAIM traceable;
