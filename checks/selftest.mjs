@@ -579,6 +579,20 @@ console.log('\nproject regime — question 0 must reach every family, in every c
   say(REGIME_CASES.length >= 15, `${REGIME_CASES.length} entity-form cases exercised`);
 }
 
+// ------------------------------------------------------------ start.mjs
+//
+// The one part of this repo no gate could reach: gates read a built site, and
+// start.mjs is what opens one. It shipped a `git init` that inherited GIT_DIR
+// from the calling shell, so with that set the build's first commit went into
+// the OUTER repo instead — reproduced live against this repo, which is public.
+// Fixed in code; this is what stops it coming back, because the failure is
+// silent and lands in somebody else's history.
+console.log('\nstart.mjs — a build\'s git history belongs to the build, not to whatever GIT_DIR says');
+{
+  const { runStart } = await import('./start-cases.mjs');
+  for (const r of runStart()) say(r.ok, r.msg);
+}
+
 // ------------------------------------------------------- policy reading
 //
 // The regression this locks down was invisible for exactly the reason it was
