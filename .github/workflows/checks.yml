@@ -60,6 +60,12 @@ jobs:
       - name: Citations are classified, and every profile answers every question
         run: node checks/citations.mjs
 
+      # The changelog is the only thing here that tells a person who already
+      # cloned the repo what changed under them. Shape only — CI cannot know
+      # whether an entry is true, or whether a change went unwritten.
+      - name: The changelog is well-formed
+        run: node checks/changelog.mjs
+
       # The discovery gate has to be able to fail, for the same reason the site
       # gate does: the unfilled brief template must not pass it.
       - name: Discovery gate can fail

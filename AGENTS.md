@@ -31,7 +31,14 @@ node checks/brief.mjs builds/<slug>                          # decides if discov
 node checks/run.mjs builds/<slug>/site --facts builds/<slug>/facts.md   # decides if it ships
 node checks/citations.mjs [--online]                         # checks how the LAW was sourced
 node checks/run.mjs --sectors                                # the trades this repo has researched
+node checks/changelog.mjs                                    # the changelog's shape (maintainers)
 ```
+
+**If you are changing the engine rather than building a site** — a rule, a gate, a stage
+contract, a command's behaviour — add the line to `## Unreleased` in
+[`CHANGELOG.md`](CHANGELOG.md) in the same commit, phrased for somebody who already cloned
+this and is about to pull. A gate you add is, to them, a site that passed last week and
+does not today; that belongs under **What may newly fail your build**.
 
 Everything between the first and the last is the eight stages below.
 

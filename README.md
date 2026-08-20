@@ -362,6 +362,7 @@ less.
 
 ```
 AGENTS.md      the contract, for any coding agent     CLAUDE.md / GEMINI.md / GROK.md point here
+CHANGELOG.md   what changed under you since you cloned — read the top after every pull
 drop/          the front door: put your logo, photos, brand, fonts, docs, references in here
                contents git-ignored, moved into your build on the next asset scan
 start.mjs      opens a build: builds/<slug>/ + asset folders + brief skeleton + marching orders

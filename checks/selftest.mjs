@@ -686,6 +686,20 @@ console.log('\nthe CLI - asking a tool to explain itself must not start anything
   for (const r of runCli()) say(r.ok, r.msg);
 }
 
+// ------------------------------------------------------------ the changelog
+//
+// The one document nothing forces anybody to write, in a repo whose argument is
+// that an unenforced rule is a wish. It rots in a known order - dates stop being
+// real, a release ships empty, versions end up out of order after a merge - and
+// every one of those makes the file lie about what happened to somebody who
+// pulled. What this cannot catch is an engine change that was simply never
+// written down; that gap needs a person, like facts.md does.
+console.log('\nthe changelog - the file that tells somebody who pulled what changed under them');
+{
+  const { runChangelogCases } = await import('./changelog.mjs');
+  for (const r of runChangelogCases()) say(r.ok, r.msg);
+}
+
 // ------------------------------------------------------- policy reading
 //
 // The regression this locks down was invisible for exactly the reason it was
