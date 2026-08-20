@@ -700,6 +700,43 @@ console.log('\nthe changelog - the file that tells somebody who pulled what chan
   for (const r of runChangelogCases()) say(r.ok, r.msg);
 }
 
+// ------------------------------------------------------ the revision round
+//
+// The per-build record of every change made AFTER the site shipped. The field
+// that earns the file is the client's own words: six months later the argument
+// is never "what did we change" - git knows that - it is "what did they ask
+// for", and a summary written by the person who chose the fix is not evidence.
+console.log('\nthe revision round - a change to a live site is recorded, or it is not made');
+{
+  const { runRoundCases } = await import('./round.mjs');
+  for (const r of runRoundCases()) say(r.ok, r.msg);
+}
+
+// ------------------------------------------------------------- the hook
+//
+// The only part of this repo that can actually stop a bad write, and until now
+// nothing could reach it. Probed in both directions: LAUNCHED used to switch
+// the whole hook off, so the rule replacing it has to deny the unrecorded edit
+// AND get out of the way once a round is open.
+console.log('\nthe hook - a live site is edited inside a round, and a dead build is still left alone');
+{
+  const { runHookCases } = await import('./hook-cases.mjs');
+  for (const r of runHookCases()) say(r.ok, r.msg);
+}
+
+// ---------------------------------------------------------- the studio layer
+//
+// Memory across builds, which is the one kind of memory this repo has always
+// refused - and for a good reason: stacking a client's taste is how every site
+// converges on the last one. The distinction that makes it safe is that the
+// CLIENT's taste stays per-build and the OPERATOR's standards persist, so the
+// probe is aimed at exactly that line.
+console.log('\nthe studio layer - standing negatives persist, a standing LOOK never does');
+{
+  const { runStudioCases } = await import('./studio.mjs');
+  for (const r of runStudioCases()) say(r.ok, r.msg);
+}
+
 // ------------------------------------------------------- policy reading
 //
 // The regression this locks down was invisible for exactly the reason it was

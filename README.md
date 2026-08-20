@@ -224,7 +224,7 @@ Four fixtures ship with the repo, and the selftest asserts all of them:
 | `negative-control/` | **FAIL** | an obviously broken site — the easy case |
 | `dishonest-control/` | **FAIL** | valid markup, complete legal pages, professional copy, **every business fact invented**. This is what a model actually produces, and it is the thing this repo claims to be uniquely good at stopping |
 | `bare-control/` | **FAIL** | blocker paths that cannot share a fixture with their own siblings |
-| `clean-control/` | **PASS** | the reference fixture — hand-built to show the design bar and the sourcing discipline. **Not a pipeline run**: it was not produced by the eight stages, and its NOTES.md says so |
+| `clean-control/` | **PASS** | the reference fixture — hand-built to show the design bar and the sourcing discipline. **Not a pipeline run**: it was not produced by the nine stages, and its NOTES.md says so |
 
 **What has actually been built with this: [`RUNS.md`](RUNS.md).** Two naive end-to-end
 builds, from a fresh clone, in Canada and Australia, on 2026-08-19. Both failed first —
@@ -240,7 +240,7 @@ a machine with no Node.
 
 ## The pipeline
 
-Eight stages. Each has a `CONTEXT.md` with Inputs, Process and Outputs. Agents read one
+Nine stages. Each has a `CONTEXT.md` with Inputs, Process and Outputs. Agents read one
 at a time; humans can read them all — they are short.
 
 | # | Stage | | |
@@ -253,9 +253,15 @@ at a time; humans can read them all — they are short.
 | 05 | `build` | → auto | the files |
 | 06 | `verify` | ◆ stop | the gate, plus the half only eyes can judge |
 | 07 | `launch` | ◆ stop | redirects, DNS in the safe order, ownership, a test enquiry that actually arrives |
+| 08 | `revise` | ◆ stop | **every change after go-live, as a numbered round** — what you asked in your own words, what changed, what deliberately did not, and the gate's verdict |
 
 ◆ means the agent stops and talks to you. A standard build is a working session with
 four real conversations — never a one-prompt black box, never babysat step by step.
+
+**Stage 08 is where a live site stays.** The pipeline used to end at launch, and the hook
+went quiet at exactly the moment the files became a page the public was looking at — so
+every "can you just make the hero smaller" afterwards was unbriefed, ungated and
+unrecorded. Now a change to a live site opens a round, or it does not happen.
 
 ## Quickstart
 
@@ -363,17 +369,21 @@ less.
 ```
 AGENTS.md      the contract, for any coding agent     CLAUDE.md / GEMINI.md / GROK.md point here
 CHANGELOG.md   what changed under you since you cloned — read the top after every pull
+studio/        the ONLY layer that persists between builds: your standing floor, your
+               rejection ledger, your direction log. Negatives and process, never a look
 drop/          the front door: put your logo, photos, brand, fonts, docs, references in here
                contents git-ignored, moved into your build on the next asset scan
 start.mjs      opens a build: builds/<slug>/ + asset folders + brief skeleton + marching orders
 assets.mjs     the asset desk: indexes what the client sent, writes and checks the manifest
 stages/        one folder per stage, each a CONTEXT.md
-shared/        writing · design · directions · references · review · imagery · conductor · legal
-checks/        run.mjs + 13 rule families + brief.mjs + case suites + selftest   zero deps
+shared/        writing · design · directions · references · review · imagery · photography · conductor · legal
+checks/        run.mjs + 13 rule families + brief.mjs + round.mjs + studio.mjs + changelog.mjs
+               + case suites + selftest   zero deps
 profiles/      one file per COUNTRY + _base.mjs + the research protocol in README.md
 sectors/       one file per TRADE, keyed by country + _base.mjs + its own research protocol
 patterns/      23 section archetypes + one stylesheet + a specimen sheet you can open and look at
-templates/     brief skeleton, legal pages, consent banner, _headers, robots, structured data
+templates/     brief skeleton, STATE.md, CHANGELOG.md (the round record), legal pages,
+               consent banner, _headers, robots, structured data
 examples/      clean-control (passes) · dishonest / negative / bare / assets / sector controls (fail on purpose)
 .claude/       the Claude Code hooks (gate.mjs)
 builds/        your work, one folder per site — git-ignored HERE, but each site

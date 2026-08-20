@@ -17,6 +17,7 @@
 - [ ] 05 build
 - [ ] 06 verify     — ◆ gate
 - [ ] 07 launch     — ◆ gate
+- [ ] 08 revise     — ◆ gate, once live: one round per change (CHANGELOG.md)
 
 ## Decisions the human approved
 

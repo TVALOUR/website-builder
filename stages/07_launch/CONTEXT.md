@@ -113,6 +113,19 @@ it is currently in your name, transfer it or write down the date you will.
   changed shows up.
 - Diary a check for 7 days later: did a real enquiry arrive, and does search still find them.
 
+### 7. Close Round 0, and say how the next change happens
+
+- In `builds/<slug>/CHANGELOG.md`, flip `Round 0` from `OPEN` to `SHIPPED` and put the
+  stage-06 verdict in its `**Gate:**` line. Tag it in the build's own repo:
+  `git tag round-0`.
+- Tell the client, in the handover, **how to ask for a change**: they say what they want in
+  their own words, and it becomes a numbered round with a record of what was changed, what
+  was not, and why. It is one sentence and it is the difference between a site that was
+  delivered and a site that is looked after.
+- From here on the build is in **stage 08** (`stages/08_revise/CONTEXT.md`). `LAUNCHED` no
+  longer means the pipeline has finished with it — it means every further edit happens
+  inside a round, and the hook enforces that.
+
 ## The legal handover — say what the pages are, in writing
 
 The gate tells YOU that a profile is researched-not-verified, on every run. The client never sees
@@ -138,6 +151,8 @@ to a row, and only a human can confirm the row is true.
 - `builds/<slug>/redirects.md` and the host-format redirect file in `site/`
 - `builds/<slug>/handoff.md`
 - `builds/<slug>/dns-before.txt` if DNS was touched
+- `builds/<slug>/CHANGELOG.md` — Round 0 SHIPPED, with the gate verdict
+- a `round-0` tag in the build's git repo
 - `STATE.md` set to `LAUNCHED`
 
 ## Verify before you stop

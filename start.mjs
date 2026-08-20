@@ -131,6 +131,21 @@ try {
   }
 } catch { /* the template is a convenience; stage 01 works without it */ }
 
+// The build's own changelog, seeded with Round 0 — the original build. It is
+// written at open rather than at launch because a file that only appears once
+// somebody remembers to create it is a file that does not exist: the point of
+// the round record is the request in the client's words, and those start
+// arriving at stage 01, not after go-live.
+try {
+  const clTemplate = join(root, 'templates', 'CHANGELOG.md');
+  if (existsSync(clTemplate) && !existsSync(join(buildDir, 'CHANGELOG.md'))) {
+    writeFileSync(join(buildDir, 'CHANGELOG.md'),
+      readFileSync(clTemplate, 'utf8')
+        .replace('<business name>', name)
+        .replace('<YYYY-MM-DD>', new Date().toISOString().slice(0, 10)));
+  }
+} catch { /* same — stage 08 explains how to write one by hand */ }
+
 let state;
 try {
   state = readFileSync(join(root, 'templates', 'STATE.md'), 'utf8')

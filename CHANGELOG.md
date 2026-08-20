@@ -42,6 +42,111 @@ Nothing yet.
 
 ---
 
+## 0.3.0 — 2026-08-20
+
+The release that admits launch is not the end. Everything here serves one idea: a folder
+that behaves less like a generator you run once and more like a designer who remembers what
+you asked for.
+
+### What may newly fail your build
+
+- **A launched build is policed again.** `LAUNCHED` in `STATE.md` used to switch the Claude
+  Code hook off completely — the single largest hole in the enforcement, because it opened
+  at exactly the moment the files became a page the public was already looking at. Now a
+  write into a launched build's `site/` is **denied unless a revision round is open**, and
+  a session cannot stop on a live site that changed with no round. `ABANDONED` and
+  `ARCHIVED` still turn the policing off entirely; that escape is unchanged.
+- **`node checks/round.mjs builds/<slug>`** is new and will fail an existing build that has
+  no `CHANGELOG.md`. Copy `templates/CHANGELOG.md` in and write Round 0 honestly — it takes
+  a minute and it is the record everything after launch hangs off.
+- **`node checks/studio.mjs`** fails on a standing *look* under `Always` in `studio/floor.md`
+  (a font, a hex, a direction name), and on three consecutive builds in `studio/directions.md`
+  that share two of {display type, colour temperament, macrostructure}. It is silent and
+  clean if you do not use the layer.
+
+### New
+
+- **Stage 08 — revise** (`stages/08_revise/CONTEXT.md`). Every change to a live site is a
+  numbered **round**: what they asked **in their own words**, what changed, what you
+  deliberately did not change and why, and the gate's verdict, recorded in the build's own
+  `CHANGELOG.md` and tagged in its git repo so a round can be rolled back as a unit.
+
+  The verbatim field is the one that earns the file. Six months later the argument is never
+  *what did we change* — git knows that — it is *what did they actually ask for*, and a
+  summary written by the person who chose the fix is not evidence. The stage also carries
+  the sentence an eager tool never says: **three rounds circling one area means the design
+  is wrong there, not the detail.**
+
+- **`studio/` — the only layer that persists between builds.** Your standing floor, your
+  rejection ledger in the words people actually used, and a log of the direction every
+  finished build shipped with.
+
+  This repo has always refused cross-build memory, and it was right to: stacking a client's
+  taste is how every site converges on the last one. The line that makes an exception safe
+  is that the **client's** taste stays in their build and the **operator's** standards
+  persist — a working studio has a house method, not a house look. So negatives and process
+  persist and a look never does, and that is not a promise in a paragraph: `checks/studio.mjs`
+  fails a standing font, hex or direction name under `Always`. The direction log also makes
+  stage 04's "differ from the last two builds" mechanical rather than remembered, which is
+  the only way it survives the earlier builds being archived off the machine.
+
+- **`shared/photography.md` — direct the camera they already own.** Imagery is
+  `client-assets-only`, and the honest reason a page looks thin is usually that nobody asked
+  them to photograph anything. Stage 04 now writes `builds/<slug>/shot-list.md` when the
+  imagery is thin: six shots at most, each with where it goes, why it earns its place, the
+  framing, the light, and **the fallback if it never arrives** — because a shot that does
+  not turn up must change nothing. Includes the phone rules in plain language and the
+  permission rules, which is the part that goes wrong publicly.
+
+- **`checks/hook-cases.mjs`** — the enforcement hook has probes for the first time, in both
+  directions: it must deny the unrecorded edit to a live site *and* get out of the way once
+  a round is open. A gate that only ever says no is as broken as one that only ever says yes.
+
+### Fixed
+
+- `builds/<slug>/CHANGELOG.md` is created by `start.mjs` at build open rather than at
+  launch, because a file that only appears when somebody remembers to create it is a file
+  that does not exist.
+
+### What three independent reviews found in the above, before any of it shipped
+
+The new enforcement was attacked rather than read. Everything here was reproduced, then
+fixed, and every one now has a fixture in `checks/hook-cases.mjs` or a `--cases` suite.
+
+- **A UNC alias walked past the entire pre-hook.** `\\localhost\C$\…\builds\x\site\index.html`
+  is byte-for-byte the same file as the drive-letter path, and containment here is a string
+  comparison, so it matched nothing — skipping the round rule, the discovery gaps and the
+  no-markup-outside-`builds/` rule at once, for a build in any state. Now refused by
+  spelling: canonicalising an admin share is not reliable, and nothing addresses this repo
+  over UNC in normal use.
+- **A round opened once and never closed disabled the rule for the rest of the build's
+  life** — the `LAUNCHED` hole moved one file across. An OPEN round older than 14 days is
+  now a finding, and the stop hook names it.
+- **Deleting the word `LAUNCHED` from `STATE.md` turned all of it off**, with no forged
+  record needed. Launch is now read from `handoff.md` as well — stage 07's own output, the
+  document read back to the client — so it is no longer a quiet one-word edit.
+- **A launched build with no `CHANGELOG.md` at all reached the stop hook unblocked**,
+  because both stop conditions needed a record to have been parsed first. A missing file was
+  quietly safer than a malformed one, which is exactly backwards — and that is the state of
+  every build started before this release.
+- **`checks/studio.mjs` flagged five honest lines out of five** — "always ask whether their
+  brand uses a serif or a sans" is a method, not a standing look. A checker that refuses real
+  work gets switched off, which costs more than the misses it was catching.
+- **The direction log read its axes by column position**, so one extra column made it report
+  a gravity well citing the wrong cells, confidently. Columns are found by name now.
+- **The hook forked a node process per launched build on every Bash call** — 460–890ms with
+  five builds, paid by every command in the session. The round parser is imported now.
+- Smaller: `## v0.2.0 — …` was called malformed by the same tool whose `--tags` mode expects
+  `v`-prefixed tags; an empty `floor.md` read as "the layer is not in use"; curly single
+  quotes did not count as quotes.
+
+- **Five of seven harnesses were told the wrong contract.** `.cursorrules`, `.clinerules`,
+  `.windsurfrules`, `GEMINI.md` and `GROK.md` each carry a condensed floor that ended at
+  stage 07 and said "8-stage pipeline" — and none of those harnesses runs the hook, so there
+  was nothing to catch it. All five now carry the round rule.
+
+---
+
 ## 0.2.0 — 2026-08-19
 
 The week the repo grew two axes it did not have — what the **law** asks of a particular

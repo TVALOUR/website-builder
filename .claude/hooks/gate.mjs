@@ -38,6 +38,12 @@ import { dirname, resolve, relative, join, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 
+// The round parser, shared with checks/round.mjs's CLI and with the contract, so
+// the hook and the checker cannot answer differently. Guarded: an older clone
+// missing the file loses this one rule and keeps every other one.
+let checkRounds = null;
+try { ({ checkRounds } = await import('../../checks/round.mjs')); } catch { /* fail open */ }
+
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const event = process.argv[2] || '';
 
@@ -54,6 +60,17 @@ const pass = () => process.exit(0);
 const deprefix = (p) => String(p).replace(/^\\\\[?.]\\/, '');
 const norm = (p) => resolve(deprefix(p)).replace(/\//g, sep).toLowerCase();
 const under = (child, parent) => norm(child).startsWith(norm(parent) + sep);
+
+// A UNC path is a second name for a file this hook already governs, and
+// containment here is a string comparison, so the second name never matches:
+// \\localhost\C$\...\builds\x\site\index.html is byte-for-byte the same file as
+// C:\...\builds\x\site\index.html and walked straight past every check at once —
+// the round rule, the discovery gaps, and the no-markup-outside-builds rule
+// (adversarial pass, 2026-08-20). Resolving the alias is not reliably possible
+// (realpath on an admin share stays an admin share), so the answer is to refuse
+// the spelling rather than try to canonicalise it. Nothing in a normal session
+// addresses this repo over UNC.
+const isUnc = (p) => /^\\\\/.test(deprefix(p));
 
 const buildsDir = join(root, 'builds');
 const listBuilds = () => {
@@ -73,11 +90,47 @@ const nextActionOf = (slug) => {
 const stateOf = (slug) => {
   try { return readFileSync(join(buildsDir, slug, 'STATE.md'), 'utf8'); } catch { return null; }
 };
-// A build marked closed stops being policed. This is the documented escape for
-// an abandoned experiment: one word in its STATE.md, not a deleted folder.
-const isClosed = (slug) => {
+// A build marked dead stops being policed. This is the documented escape for an
+// abandoned experiment: one word in its STATE.md, not a deleted folder.
+//
+// LAUNCHED used to live in this list, and that was the single largest hole in
+// the enforcement: the hook went silent at exactly the moment the files became
+// a page the public was already looking at. Every "can you just make the hero
+// smaller" after go-live was then unbriefed, ungated and unrecorded. A launched
+// build is now policed differently rather than not at all — see roundOf below,
+// and stages/08_revise/CONTEXT.md.
+const isDormant = (slug) => {
   const s = stateOf(slug);
-  return s !== null && /\b(ABANDONED|ARCHIVED|LAUNCHED)\b/.test(s);
+  return s !== null && /\b(ABANDONED|ARCHIVED)\b/.test(s);
+};
+// LAUNCHED is read from TWO places on purpose. STATE.md is a file an edit can
+// change, and deleting one word from it used to switch every live-site rule off
+// with nothing else required (adversarial pass, 2026-08-20). handoff.md is stage
+// 07's own output — the document read back to the client at go-live — so its
+// existence is the harder half of the signal. Removing that is not a quiet edit;
+// it is deleting the handover.
+const isLaunched = (slug) => {
+  const s = stateOf(slug);
+  if (s !== null && /\bLAUNCHED\b/.test(s)) return true;
+  return existsSync(join(buildsDir, slug, 'handoff.md'));
+};
+
+// The build's own CHANGELOG.md, read through the same checker stage 08 uses, so
+// the hook and the contract cannot drift into two different answers. Fails OPEN:
+// no Node, no parse, no opinion.
+// Imported rather than spawned. The first version forked a node process per
+// launched build on every Bash call and every stop — measured at 460–890ms with
+// five launched builds, paid by every command in the session whether or not it
+// touched this repo. Same module the CLI and the contract use, so they still
+// cannot drift; it just no longer costs a process to ask.
+const roundOf = (slug) => {
+  if (!checkRounds) return null;
+  try {
+    const p = join(buildsDir, slug, 'CHANGELOG.md');
+    if (!existsSync(p)) return { ok: false, missing: true, open: null, findings: [] };
+    const r = checkRounds(readFileSync(p, 'utf8'));
+    return { ok: r.ok, missing: false, open: r.open ? { n: r.open.n, date: r.open.date } : null, findings: r.findings };
+  } catch { return null; }
 };
 // Markup parked directly at a build's root: everything except the named
 // stage-04 scaffolding. _intake/ is the client's material and never counted.
@@ -177,6 +230,21 @@ try {
     const raw = input.file_path || input.notebook_path || '';
     if (!raw) pass();
     const file = resolve(payload.cwd || process.cwd(), raw);
+
+    const denyRaw = (reason) => out({
+      hookSpecificOutput: {
+        hookEventName: 'PreToolUse',
+        permissionDecision: 'deny',
+        permissionDecisionReason: reason,
+      },
+    });
+    // Refused before containment is even asked, because the whole point of the
+    // spelling is that containment answers wrongly.
+    if (isUnc(raw) || isUnc(file)) {
+      denyRaw(`That path is a UNC alias (${String(raw).slice(0, 80)}), and every check in this repo ` +
+        `is keyed to the drive-letter path, so writing through it would skip all of them at once. ` +
+        `Address the file as a normal path under ${root}.`);
+    }
     if (!under(file, root)) pass();
 
     const rel = relative(root, file).replace(/\\/g, '/');
@@ -201,6 +269,27 @@ try {
           deny(`builds/${slug}/ has no STATE.md, so this build was never opened. ` +
             `Run: node start.mjs "<project name>" - it creates the state file and intake ` +
             `folder the pipeline keys off - then start at stages/01_discover/CONTEXT.md.`);
+        }
+        // A live site is edited inside a round, or it is edited by nobody. The
+        // round is a heading and four lines, and it exists so the change can be
+        // traced back to the sentence the client actually said.
+        if (isLaunched(slug)) {
+          const r = roundOf(slug);
+          if (r && !r.missing && !r.open) {
+            deny(`builds/${slug} is LAUNCHED and no revision round is open, so this edit would ` +
+              `change a page the public is already looking at with nothing recording why. ` +
+              `Open one first: add "## Round <next> - OPEN - <today>" to the top of ` +
+              `builds/${slug}/CHANGELOG.md with an "**Asked:**" line carrying the client's own ` +
+              `words, then make the change. The stage is stages/08_revise/CONTEXT.md; the ` +
+              `checker is node checks/round.mjs builds/${slug}. If this build is dead, write ` +
+              `ABANDONED in its STATE.md instead.`);
+          }
+          if (r && r.missing) {
+            deny(`builds/${slug} is LAUNCHED and has no CHANGELOG.md, so there is nowhere to ` +
+              `record what is being changed or why. Copy templates/CHANGELOG.md into ` +
+              `builds/${slug}/, write Round 0 honestly (the original build), then open the ` +
+              `round this edit belongs to. See stages/08_revise/CONTEXT.md.`);
+          }
         }
         const gaps = [...docGaps(slug), ...briefGaps(slug)];
         if (gaps.length) {
@@ -264,7 +353,7 @@ try {
     if (process.env.WEBSITE_BUILDER_UNGATED === '1') pass();
     const offenders = [];
     for (const slug of listBuilds()) {
-      if (isClosed(slug)) continue;
+      if (isDormant(slug)) continue;
       const siteDir = join(buildsDir, slug, 'site');
       let hasFiles = false;
       if (existsSync(siteDir)) {
@@ -273,6 +362,18 @@ try {
       if (hasFiles) {
         const gaps = docGaps(slug);
         if (gaps.length) offenders.push(`builds/${slug}/site exists but the build lacks ${gaps.join('; ')}`);
+      }
+      // A live site edited outside a round. Shell writes reach the files the
+      // pre hook never sees, and this is the event that says so.
+      if (hasFiles && isLaunched(slug)) {
+        const r = roundOf(slug);
+        const clM = existsSync(join(buildsDir, slug, 'CHANGELOG.md'))
+          ? statSync(join(buildsDir, slug, 'CHANGELOG.md')).mtimeMs : 0;
+        if (r && r.missing) {
+          offenders.push(`builds/${slug} is LAUNCHED and has no CHANGELOG.md - there is nowhere to record what changed on a live site`);
+        } else if (r && !r.open && latestMtime(siteDir) > clM) {
+          offenders.push(`builds/${slug} is LAUNCHED, its site/ changed, and no revision round is open (stages/08_revise/CONTEXT.md)`);
+        }
       }
       // Site-shaped files parked at the build root (the shape that dodged
       // every check at once in the adversarial review).
@@ -300,7 +401,7 @@ try {
     if (payload.stop_hook_active) pass();
     if (process.env.WEBSITE_BUILDER_UNGATED === '1') pass();
     for (const slug of listBuilds()) {
-      if (isClosed(slug)) continue;
+      if (isDormant(slug)) continue;
 
       // Placement is itself a violation: real pages at the build root are the
       // shape that evaded pre, post and stop simultaneously before this check.
@@ -319,6 +420,52 @@ try {
       if (!existsSync(siteDir)) continue;
       const siteM = latestMtime(siteDir);
       if (!siteM) continue;
+
+      // A launched build whose live files moved with no round open. The session
+      // does not end on it, for the same reason it does not end on a failing
+      // gate: the change is already on somebody's public page, and the only
+      // thing missing is the sentence saying who asked for it.
+      if (isLaunched(slug)) {
+        const r = roundOf(slug);
+        const clPath = join(buildsDir, slug, 'CHANGELOG.md');
+        const clM = existsSync(clPath) ? statSync(clPath).mtimeMs : 0;
+        // No record at all. This is the build that was STARTED BEFORE the round
+        // system existed, which makes it the likely case rather than the edge
+        // one — and it was the one state that reached `stop` unblocked, because
+        // both conditions below require a CHANGELOG to have been parsed. A
+        // missing file was quietly safer than a malformed one, which is exactly
+        // backwards.
+        if (r && r.missing) {
+          out({
+            decision: 'block',
+            reason: `builds/${slug} is LAUNCHED and has no CHANGELOG.md, so nothing records what has ` +
+              `changed on a site the public is already looking at. Copy templates/CHANGELOG.md into ` +
+              `builds/${slug}/, write Round 0 honestly (the original build, and the verdict its ` +
+              `verify.md carries), and open a round for anything changed since. The stage is ` +
+              `stages/08_revise/CONTEXT.md; node checks/round.mjs builds/${slug} checks the result. ` +
+              `If this build is dead, write ABANDONED in its STATE.md.`,
+          });
+        }
+        if (r && !r.missing && !r.open && siteM > clM) {
+          out({
+            decision: 'block',
+            reason: `builds/${slug} is LAUNCHED, its site/ has changed, and no revision round is open. ` +
+              `A change to a live site is recorded or it is not made: add "## Round <next> - OPEN - <today>" ` +
+              `to the top of builds/${slug}/CHANGELOG.md with an "**Asked:**" line in the client's own words, ` +
+              `run node checks/run.mjs builds/${slug}/site --facts builds/${slug}/facts.md, put the verdict in ` +
+              `the round and flip it to SHIPPED. The stage is stages/08_revise/CONTEXT.md. If this build is ` +
+              `dead, write ABANDONED in its STATE.md.`,
+          });
+        }
+        if (r && !r.missing && !r.ok) {
+          out({
+            decision: 'block',
+            reason: `builds/${slug}/CHANGELOG.md does not parse as a round record: ` +
+              `${r.findings.slice(0, 2).map((f) => f.msg).join('; ')}. Run node checks/round.mjs builds/${slug} ` +
+              `and fix what it names - a record nobody can read is the same as no record.`,
+          });
+        }
+      }
 
       // facts.md is part of what "verified" attested to: editing the ledger
       // after a verify invalidates the verify.
@@ -407,9 +554,9 @@ try {
       || new RegExp(`\\b${nouns}\\b[\\s\\S]{0,40}?\\b(build|make|create|for)\\b`, 'i').test(text);
     if (!mention) pass();
 
-    const builds = listBuilds().filter((s) => existsSync(join(buildsDir, s, 'STATE.md')) && !isClosed(s));
+    const builds = listBuilds().filter((s) => existsSync(join(buildsDir, s, 'STATE.md')) && !isDormant(s));
     if (builds.length) {
-      const lines = builds.map((s) => `  builds/${s}/ -> ${nextActionOf(s)}`).join('\n');
+      const lines = builds.map((s) => `  builds/${s}/ -> ${isLaunched(s) ? 'LIVE - any change is a round (stages/08_revise/CONTEXT.md). ' : ''}${nextActionOf(s)}`).join('\n');
       say(`[website-builder] Build mention detected. Active build(s) exist:\n${lines}\n` +
         `If this message is about one of them, resume from its STATE.md Next action. ` +
         `If it is a NEW site, open it with node start.mjs "<project name>" and run ` +
@@ -441,19 +588,44 @@ try {
 
   // ------------------------------------------------------------------ session
   if (event === 'session') {
-    const builds = listBuilds().filter((s) => existsSync(join(buildsDir, s, 'STATE.md')) && !isClosed(s));
+    const builds = listBuilds().filter((s) => existsSync(join(buildsDir, s, 'STATE.md')) && !isDormant(s));
     const config = existsSync(join(root, 'config.md'))
       ? '' : ' config.md does not exist - stage 00 setup has never run (one minute, stages/00_setup/CONTEXT.md).';
+
+    // The studio layer's one mechanical moment. `studio/` is opt-in and
+    // git-ignored, and its stage-06 write-back was pure instruction: "append the
+    // direction that shipped, and what they said". An instruction that fires
+    // while an agent is mid-conversation with a human who just gave a verdict is
+    // the exact shape of rule this repo has watched reach zero adherence. So the
+    // NEXT session opens by naming the builds that verified and never made it
+    // into the log. Only for people who started the layer - silent otherwise,
+    // and never blocking: a nudge that stops work would get the layer deleted.
+    let studioGap = '';
+    try {
+      const dirLog = join(root, 'studio', 'directions.md');
+      if (existsSync(dirLog)) {
+        const logged = readFileSync(dirLog, 'utf8');
+        const unlogged = listBuilds().filter((s) => !isDormant(s)
+          && existsSync(join(buildsDir, s, 'verify.md'))
+          && !logged.includes(s));
+        if (unlogged.length) {
+          studioGap = ` studio/directions.md has no row for ${unlogged.slice(0, 3).map((s) => `builds/${s}`).join(', ')}` +
+            `${unlogged.length > 3 ? ` +${unlogged.length - 3} more` : ''} - verified, never logged, so the ` +
+            `gravity-well check (node checks/studio.mjs) is scoring fewer builds than you have built.`;
+        }
+      }
+    } catch { /* fail open - the layer is optional and so is this line */ }
+
     if (builds.length) {
-      const lines = builds.map((s) => `  builds/${s}/ -> ${nextActionOf(s)}`).join('\n');
-      say(`[website-builder] This folder builds websites through an 8-stage contract ` +
+      const lines = builds.map((s) => `  builds/${s}/ -> ${isLaunched(s) ? 'LIVE - any change is a round (stages/08_revise/CONTEXT.md). ' : ''}${nextActionOf(s)}`).join('\n');
+      say(`[website-builder] This folder builds websites through a nine-stage contract ` +
         `(AGENTS.md). Active build(s):\n${lines}\nResume from STATE.md, not from memory.` +
-        config);
+        config + studioGap);
     }
-    say(`[website-builder] This folder builds websites through an 8-stage contract ` +
+    say(`[website-builder] This folder builds websites through a nine-stage contract ` +
       `(AGENTS.md). No build is open. A build request starts with node start.mjs ` +
       `"<name>" and stage 01 discover - the vision-and-facts interview - never with ` +
-      `code.${config}`);
+      `code.${config}${studioGap}`);
   }
 
   pass();

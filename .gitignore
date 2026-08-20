@@ -31,6 +31,14 @@ sites/
 # delete this line and commit it.
 config.md
 
+# The studio layer: your standing rules, your rejection ledger, your direction
+# log. It carries the words real clients used about real work, so the filled-in
+# files are yours and stay local - the README and the examples ship, and they are
+# what a fork starts from.
+studio/*.md
+!studio/README.md
+!studio/*.example.md
+
 # The front door. Everything a person drops into drop/ is theirs - a logo, their
 # photographs, a scan of their price list - and none of it belongs in a public
 # fork, so the contents are ignored and only the folder scaffolding is tracked.

@@ -24,10 +24,11 @@
 // copy in the OS temp dir, and the read-only cases run in place.
 
 import { spawnSync } from 'node:child_process';
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { checkRounds } from './round.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -69,7 +70,7 @@ export function runCli() {
       cpSync(join(root, 'start.mjs'), join(dir, 'start.mjs'));
       mkdirSync(join(dir, 'builds'), { recursive: true });
       mkdirSync(join(dir, 'templates'), { recursive: true });
-      for (const f of ['STATE.md', 'brief.md']) {
+      for (const f of ['STATE.md', 'brief.md', 'CHANGELOG.md']) {
         const src = join(root, 'templates', f);
         if (existsSync(src)) cpSync(src, join(dir, 'templates', f));
       }
@@ -89,6 +90,30 @@ export function runCli() {
         ok: r.status === 0 && existsSync(join(dir, 'builds', 'help-me-plumbing', 'STATE.md')),
         msg: 'while a business actually called "Help Me Plumbing" still opens a build — the guard reads flags, not words',
       });
+
+      // ...and that build gets its round record on day one. Created at open
+      // rather than at launch, because a file that appears only when somebody
+      // remembers to create it is a file that does not exist.
+      {
+        const p = join(dir, 'builds', 'help-me-plumbing', 'CHANGELOG.md');
+        let parsed = { ok: false, findings: [{ msg: 'no CHANGELOG.md' }], rounds: [] };
+        if (existsSync(p)) {
+          const text = readFileSync(p, 'utf8');
+          parsed = checkRounds(text);
+          out.push({
+            ok: /Help Me Plumbing/.test(text) && !/<YYYY-MM-DD>/.test(text),
+            msg: 'the seeded changelog carries the real business name and a real date, not the template prompts',
+          });
+        }
+        // Round 0 is OPEN with no gate verdict yet — that one finding is the
+        // honest state of a build that has not been verified, and asserting the
+        // absence of every other finding is what proves the seed is well-formed.
+        const others = parsed.findings.filter((f) => !/gate verdict/.test(f.msg));
+        out.push({
+          ok: parsed.rounds.length === 1 && others.length === 0,
+          msg: `start.mjs seeds a parseable Round 0${others.length ? `: ${others.map((f) => f.msg).join('; ')}` : ''}`,
+        });
+      }
     } finally { rmSync(dir, { recursive: true, force: true }); }
   }
 

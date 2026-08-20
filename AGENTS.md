@@ -31,6 +31,8 @@ node checks/brief.mjs builds/<slug>                          # decides if discov
 node checks/run.mjs builds/<slug>/site --facts builds/<slug>/facts.md   # decides if it ships
 node checks/citations.mjs [--online]                         # checks how the LAW was sourced
 node checks/run.mjs --sectors                                # the trades this repo has researched
+node checks/round.mjs builds/<slug>                          # the revision record on a LIVE site
+node checks/studio.mjs                                       # your standing rules, if you keep any
 node checks/changelog.mjs                                    # the changelog's shape (maintainers)
 ```
 
@@ -40,7 +42,7 @@ contract, a command's behaviour — add the line to `## Unreleased` in
 this and is about to pull. A gate you add is, to them, a site that passed last week and
 does not today; that belongs under **What may newly fail your build**.
 
-Everything between the first and the last is the eight stages below.
+Everything between the first and the last is the nine stages below.
 
 ---
 
@@ -209,10 +211,10 @@ If the trade is regulated and there is no file, write one — `sectors/README.md
 and the brief. **Never write a sector file from memory, and never adapt another country's rule to
 fill a gap.** Every file is `researched`, `verifiedBy: null`, and the gate repeats that label.
 
-## The eight stages
+## The nine stages
 
 Each stage has a `CONTEXT.md` naming its Inputs, Process and Outputs. **Read one at a time.**
-Loading all eight is how an agent starts answering stage 05's question with stage 02's
+Loading all nine is how an agent starts answering stage 05's question with stage 02's
 information.
 
 | # | Stage | Gate | What it produces |
@@ -225,9 +227,16 @@ information.
 | 05 | `build` | → auto | `site/` — the actual files |
 | 06 | `verify` | ◆ **stop** | `verify.md` — the gate output plus what only eyes can judge |
 | 07 | `launch` | ◆ **stop** | `handoff.md` — redirects, DNS, ownership, the test enquiry |
+| 08 | `revise` | ◆ **stop** | a numbered round in `CHANGELOG.md` — what they asked in their own words, what changed, what deliberately did not, and the gate's verdict |
 
 ◆ means **stop and talk to the human** — a conversation, not a summary-then-continue.
 → means do it, sanity-check it yourself, keep going, and pause if something looks wrong.
+
+**Stage 08 is not the end of the list, it is where a live site stays.** Launch is not the
+end of the relationship — it is the start of the part where somebody edits a page the
+public is already looking at. Every change after go-live happens inside a round, which is a
+heading and four lines, and the first of those lines is the client's request in their own
+words. On Claude Code the hook enforces it: no open round, no edit to a launched build.
 
 A build lives in `builds/<slug>/`, one folder per site. `builds/<slug>/STATE.md` is the
 resume point: a new session — same harness or a different one — reads it before anything
@@ -291,14 +300,20 @@ website-builder/
 ├── assets.mjs         ← the asset desk: indexes what the client sent, writes the manifest
 ├── stages/            ← one folder per stage, each with a CONTEXT.md
 ├── patterns/          ← 23 section archetypes to build a page OUT OF — open preview/index.html
-├── shared/            ← writing · design · directions · references · review · imagery · conductor · legal
-├── checks/            ← the gate: run.mjs, thirteen rule families, brief.mjs, case suites, zero deps
+├── shared/            ← writing · design · directions · references · review · imagery · photography · conductor · legal
+├── checks/            ← the gate: run.mjs, thirteen rule families, brief.mjs, round.mjs,
+│                     studio.mjs, changelog.mjs, case suites, zero deps
 ├── sectors/           ← one file per TRADE, keyed by country + _base.mjs + its own research protocol
 ├── profiles/          ← one file per COUNTRY + _base.mjs + the research protocol in README.md
-├── templates/         ← legal pages, consent, _headers, robots, structured data, STATE.md
+├── studio/            ← the ONLY layer that persists between builds: your standing floor,
+│                     your rejection ledger, your direction log. Negatives and process only
+├── templates/         ← legal pages, consent, _headers, robots, structured data, STATE.md,
+│                     CHANGELOG.md (the round record), shot-list.md (what to photograph)
 ├── examples/          ← clean-control (passes) · dishonest · negative · bare · assets · managed controls (fail on purpose)
 ├── .claude/           ← the Claude Code hooks (gate.mjs) — see CLAUDE.md
-└── builds/            ← your work, one folder per site, git-ignored
+└── builds/            ← your work, one folder per site. Git-ignored by THIS repo, and each
+                      build is its own nested git repo (start.mjs git-inits it) — which is
+                      what makes stage 08 able to tag a round and roll one back
 ```
 
 ## Honesty about what this cannot do

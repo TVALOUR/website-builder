@@ -35,7 +35,10 @@ const FILE = join(root, 'CHANGELOG.md');
 // `## 0.2.0 — 2026-08-19`. Em dash is the house style; a plain hyphen is
 // accepted because the difference is invisible in most editors and rejecting it
 // would be pedantry rather than a check.
-const RELEASE = /^##\s+(\d+)\.(\d+)\.(\d+)\s+[—-]\s+(\d{4}-\d{2}-\d{2})\s*$/;
+// The leading `v` is optional and accepted, because `checkTags` below builds tag
+// names as `v0.2.0` — a file written in the same convention as its own tags was
+// being called malformed by the tool that expects them.
+const RELEASE = /^##\s+v?(\d+)\.(\d+)\.(\d+)\s+[—-]\s+(\d{4}-\d{2}-\d{2})\s*$/;
 const UNRELEASED = /^##\s+Unreleased\s*$/i;
 
 /** True only for a date string that is a real calendar day, not just digits. */

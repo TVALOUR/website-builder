@@ -28,6 +28,15 @@ You will feel it in five places, and none of them is a malfunction:
 - **Shell writes are watched too.** Creating site files via Bash dodges the editor-tool
   denial, so a post-command check calls the bypass out on the next turn. Loud, not
   blocking — the command has already run.
+- **A launched build is still policed, and that is the newest of these.** `LAUNCHED` in
+  `STATE.md` used to switch this hook off entirely — at exactly the moment the files became
+  a page the public was already looking at. Now a `Write`/`Edit` into a launched build's
+  `site/` is **denied unless a revision round is open** in its `CHANGELOG.md`, the post
+  hook calls out a shell write that dodged that, and the stop hook blocks on a live site
+  that changed with no round (or with no record at all). `ABANDONED` and `ARCHIVED` still
+  turn the policing off completely — that escape is unchanged. The stage is
+  [`stages/08_revise/CONTEXT.md`](stages/08_revise/CONTEXT.md); the checker the hook calls
+  is `checks/round.mjs`, so the hook and the contract cannot drift apart.
 - **You cannot finish on a failing gate.** The Stop hook re-runs `checks/run.mjs` on any
   build whose `site/` changed after its last `verify.md`, and blocks the stop while
   blockers remain.

@@ -138,6 +138,12 @@ silence is not.
 
 - `builds/<slug>/verify.md`
 - `STATE.md` updated
+- **`studio/` updated, if it exists** — append the direction that actually shipped to
+  `directions.md` (it is now on screen, not merely chosen), and every verdict the human
+  gave to `rejections.md`, **in their words, at the time**. A day later it is your
+  diagnosis in their voice, which is the version you will most want to re-examine and the
+  one you can no longer trust. See `../../studio/README.md`; negatives and process only,
+  never a look to repeat.
 
 ## Verify before you stop
 

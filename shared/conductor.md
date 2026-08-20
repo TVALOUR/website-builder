@@ -37,6 +37,7 @@ conductor itself on a strong model — it holds the gates.
 | 05 build | standard | Execution — design is locked upstream. Strongest for framework or animation-heavy builds. |
 | 06 verify | standard | The gate is mechanical; the eyes-on half needs a competent reviewer. |
 | 07 launch | standard | Checklists plus real-world care (DNS, redirects). |
+| 08 revise | **never spawned** | The conductor holds this one directly — see step 7 below. A sub-agent handed a paraphrase of the request is how the record stops being evidence. If it is somehow delegated anyway: standard, never cheap. |
 
 If the harness cannot set a model per spawn, spawn anyway: the context isolation alone —
 each stage's heavy reading staying out of the conductor — is worth it. If it exposes a
@@ -85,6 +86,10 @@ gate's verbatim output in the summary.
    verdict; the human approves.
 6. **07 launch — stop.** Redirects, DNS order, ownership, the test enquiry. The human
    launches; nothing is pushed or deployed without their explicit word.
+7. **08 revise — stop, every time, for the rest of the site's life.** One round per
+   request. Do not spawn a sub-agent to "just fix" something on a live site: the round is
+   opened with the client's own words in front of you, and a sub-agent handed a paraphrase
+   is exactly how the record stops being evidence.
 
 At every gate, update `builds/<slug>/STATE.md` — that file, not your memory, is what
 lets a fresh session (or a different harness) resume mid-build.

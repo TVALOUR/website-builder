@@ -50,6 +50,10 @@ because stage 01's delegation was still the last word in the field.
   leave open.
 - `../../shared/imagery.md` — the generated-imagery honesty contract, if imagery is even
   wanted.
+- `../../shared/photography.md` — how to direct the camera the client already owns, which
+  is the answer to a thin page far more often than generated imagery is.
+- `../../studio/` if it exists — `rejections.md` before you present anything, and
+  `directions.md` to check the gravity well against the log rather than from memory.
 - `../../shared/review.md` §1 — the ladder for showing rendered samples at the stop.
 
 ## Process
@@ -87,6 +91,15 @@ alone ends up resembling the last one you built rather than this business.
 If the workspace has built before, read the previous `builds/*/design.md` first. The new
 site must differ from the last two on at least **two** of {display type, colour
 temperament, macrostructure}. A swapped accent hue is not variety.
+
+If `studio/directions.md` exists, that check is mechanical rather than remembered — run
+`node checks/studio.mjs` and it will say when three builds have started to resemble each
+other. It is also the only way to make the rule work at all once the earlier builds have
+been archived off this machine.
+
+And read `studio/rejections.md` before you choose. Presenting somebody a direction they
+have already turned down twice, in the words they used to turn it down, is the fastest way
+to stop looking like a designer and start looking like a tool that forgot.
 
 Where the client's cards leave whole axes open, run the live-research protocol in
 `../../shared/references.md` (2–3 current studio sites in the chosen direction, DNA
@@ -149,6 +162,18 @@ genuinely wants generated *illustrative* assets and the session has an image too
 each one in `design.md` per `../../shared/imagery.md` §6 (subject, style pinned to the
 tokens, alt, fallback); otherwise write "no generated assets".
 
+**And if the imagery is thin, direct the camera they already own.** Copy
+`../../templates/shot-list.md` to `builds/<slug>/shot-list.md` and fill it in per
+`../../shared/photography.md` — six shots at most, each
+with where it goes, why it earns its place, the framing, and the **fallback if it never
+arrives**. Hand it over as its own document.
+
+This happens *here*, before the design locks, for a mechanical reason: a section designed
+around a photograph that never turns up has to be rebuilt, and one designed to work without
+a photograph cannot absorb a good one later without being opened up again. Deciding now is
+what makes both cheap. A shot that does not arrive must change nothing — that is the rule
+this stage is agreeing to when it writes the list.
+
 ### 8. Render the choice — samples, not adjectives
 
 Before the stop, build **one throwaway page**: `builds/<slug>/design-samples.html` — the
@@ -180,6 +205,8 @@ options. Take direction. Loop until they are happy, then lock it.
 
 - `builds/<slug>/design.md`
 - `builds/<slug>/design-samples.html` (scaffolding — never ships)
+- `builds/<slug>/shot-list.md` if the imagery is thin, or a line in `design.md` saying the
+  photography they already have is enough
 - `STATE.md` updated
 
 ## Verify
@@ -191,6 +218,10 @@ options. Take direction. Loop until they are happy, then lock it.
 - [ ] Every colour and font is a named token; client-supplied values used exactly.
 - [ ] Two or more genuinely distinct section shapes; every large empty area is holding
       something.
-- [ ] Different from the last two builds on two axes.
+- [ ] Different from the last two builds on two axes — checked against
+      `studio/directions.md` where it exists, not from memory.
+- [ ] Nothing presented that `studio/rejections.md` says they have already turned down.
+- [ ] Thin imagery answered with a shot list, and every section works without its
+      photograph.
 - [ ] Rendered samples were shown at the stop (which rung, and what the human said).
 - [ ] The rejected alternatives are written down.

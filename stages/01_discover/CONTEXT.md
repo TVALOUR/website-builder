@@ -24,6 +24,10 @@ said yes.
   not improvise the interview.**
 - `../../shared/references.md` — how a dropped reference becomes a dissected card.
 - `../../shared/writing.md` — so the brief is written against the bar from the start.
+- `../../studio/floor.md` if it exists — your standing rules. A question you end up asking
+  on every single build belongs in the interview, not in your head; the floor is where you
+  notice that. **Read it, do not obey it** — a rule that was right for the last client can
+  be wrong for this one.
 
 ## Process
 

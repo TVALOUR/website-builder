@@ -1,5 +1,5 @@
 Read AGENTS.md before anything else — it is the full operating contract for this
-repository. This folder builds websites through an 8-stage pipeline with a
+repository. This folder builds websites through a 9-stage pipeline with a
 zero-dependency checker; the harness you are running in has no hook enforcement,
 so the contract binds you by discipline.
 
@@ -31,7 +31,14 @@ The floor, not a summary:
    and design.md exist.
 7. The gate decides: `node checks/run.mjs builds/<slug>/site --facts
    builds/<slug>/facts.md`. Exit 0 ships; exit 1 does not; never --skip.
-8. Stop and talk to the human at stages 01, 04, 06 and 07.
+8. Stop and talk to the human at stages 01, 04, 06, 07 — and 08.
+9. Launch is not the end. Once a site is live (STATE.md says LAUNCHED), every
+   change happens inside a numbered ROUND in builds/<slug>/CHANGELOG.md: what
+   they asked in THEIR OWN WORDS, what changed, what you deliberately did not
+   change and why, then the gate's verdict. Open the round BEFORE the first
+   edit, not afterwards. `node checks/round.mjs builds/<slug>` checks it, and
+   stages/08_revise/CONTEXT.md is the stage. Three rounds circling one area
+   means the DESIGN is wrong there, not the detail — say so.
    Editing a legal profile? `node checks/citations.mjs` too - it checks how the law was
    sourced, and it fails on an unclassified citation or an unanswered coverage question.
 

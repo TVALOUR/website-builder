@@ -176,6 +176,6 @@ artifact; the fixes are in the git history.
 
 | Artifact | What it is | What it is NOT |
 |---|---|---|
-| `examples/clean-control/` | A fixture, hand-built to demonstrate the design bar and the sourcing discipline. Passes the gate; CI gates on it every push. | Not a pipeline run. It was not produced by the eight stages, and its own NOTES.md says so. |
+| `examples/clean-control/` | A fixture, hand-built to demonstrate the design bar and the sourcing discipline. Passes the gate; CI gates on it every push. | Not a pipeline run. It was not produced by the nine stages, and its own NOTES.md says so. |
 | `examples/dishonest-control/` | A fixture: professional-looking, every business fact invented. Exists so the selftest can prove the gate catches the plausible failure, not just the obvious one. | Not a site anybody would ship. |
 | `examples/negative-control/`, `bare-control/`, `assets-control/`, `managed-control/` | Fixtures for specific gate families. | Not builds. |

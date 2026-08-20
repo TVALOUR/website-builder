@@ -55,6 +55,12 @@ The floor, and it is not a summary — it is the actual contract:
    file in `profiles/`, `node checks/citations.mjs` too: it fails on a citation whose class
    does not match its publisher, and on a profile that leaves one of the seven coverage
    questions unanswered.
-8. **Stop and talk to the human** at stages 01, 04, 06 and 07.
+8. **Stop and talk to the human** at stages 01, 04, 06, 07 — and 08.
+9. **Launch is not the end.** Once a site is live (`STATE.md` says `LAUNCHED`), every change
+   happens inside a numbered **round** in `builds/<slug>/CHANGELOG.md`: what they asked **in
+   their own words**, what changed, what you deliberately did not change and why, then the
+   gate's verdict. The round opens **before** the first edit. `node checks/round.mjs
+   builds/<slug>` checks it; `stages/08_revise/CONTEXT.md` is the stage. Three rounds circling
+   one area means the design is wrong there, not the detail — say so out loud.
 
 Resuming? Read `builds/*/STATE.md` first and continue from its `Next action` line.
